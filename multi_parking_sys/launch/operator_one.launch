@@ -4,4 +4,9 @@
     <arg name="namespace_one" default="dynamixel_workbench_one"/>
     <node name="wheel_operator" pkg="dynamixel_workbench_operators" type="wheel_operator" required="true" output="screen" ns="$(arg namespace_one)"/>
 
+    <!-- Dynamixel state subscribe node -->
+    <group ns="$(arg namespace_one)">
+        <node name="dynamixel_state_sub" pkg="multi_parking_sys" type="dynamixel_state_sub" output="screen"/>
+    </group>
+
 </launch>
