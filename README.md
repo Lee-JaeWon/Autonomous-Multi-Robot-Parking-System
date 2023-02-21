@@ -1,4 +1,4 @@
-# Automatic-Multi-Robot-Parking-System
+# Autonomous-Multi-Robot-Parking-System
 
 This is the Repository of the 2023 Capstone Design 'Multi in Your Front yard' team in the Department of Robotics at Kwangwoon University.<br>
 Development Period: 2023.3 to 2023.6
