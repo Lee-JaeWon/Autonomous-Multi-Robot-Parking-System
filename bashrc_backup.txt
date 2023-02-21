@@ -1,0 +1,20 @@
+source /opt/ros/noetic/setup.bash
+source ~/catkin_ws/devel/setup.bash
+
+# bashrc aliases
+alias gb='gedit ~/.bashrc'
+alias sb='source ~/.bashrc'
+alias cb='cat ~/.bashrc'
+
+# ROS aliases
+alias cw='cd ~/catkin_ws'
+alias cs='cd ~/catkin_ws/src'
+alias cm='cd ~/catkin_ws && catkin_make'
+
+# ROS Network
+export ROS_IP=192.168.0.4
+export ROS_MASTER_URI=http://${ROS_IP}:11311
+export ROS_HOSTNAME=${ROS_IP}
+
+# Cartographer
+source ~/carto_ws/install_isolated/setup.bash
