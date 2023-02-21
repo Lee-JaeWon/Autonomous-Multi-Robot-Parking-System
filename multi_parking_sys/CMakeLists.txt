@@ -7,6 +7,7 @@ project(multi_parking_sys)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+
 find_package(catkin REQUIRED COMPONENTS
   cmake_modules
   dynamixel_workbench_msgs
@@ -22,7 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
-## modules and global scripts declared therein get installed
+## modules and global scripts declared therein get installed일된 프로그램이 아닌 소스 파일을 실행하려
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 # catkin_python_setup()
 
@@ -109,7 +110,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES multi_parking_sys
-#  CATKIN_DEPENDS cmake_modules dynamixel_workbench_msgs dynamixel_workbench_toolbox geometry_msgs roscpp sensor_msgs trajectory_msgs
+  CATKIN_DEPENDS cmake_modules dynamixel_workbench_msgs dynamixel_workbench_toolbox geometry_msgs roscpp sensor_msgs trajectory_msgs
 #  DEPENDS system_lib
 )
 
@@ -138,6 +139,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/multi_parking_sys_node.cpp)
+add_executable(dynamixel_state_sub src/state_subscribe.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -153,6 +155,7 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+target_link_libraries(dynamixel_state_sub ${catkin_LIBRARIES})
 
 #############
 ## Install ##
