@@ -9,7 +9,7 @@ Development Period: 2023.3 to 2023.6
 
 |Member|Role|
 |:---:|:---:|
-|[Ahn(팀장)]()|NULL|
+|[Chunggil An(팀장)](https://github.com/chunggilan)|NULL|
 |[Jaewon Lee](https://github.com/Lee-JaeWon)|NULL|
 |[Hyedo Kim](https://github.com/HYEDO-KIM)|NULL|
 |[Hyoseok Joo](https://github.com/JooHyoSeok)|NULL|  
