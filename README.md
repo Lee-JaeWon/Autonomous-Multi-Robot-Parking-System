@@ -15,7 +15,7 @@ Development Period: 2023.3 to 2023.6
 |[Hyoseok Joo](https://github.com/JooHyoSeok)|NULL|  
 
 ## How to run
-[is here]()
+[is here](https://github.com/Lee-JaeWon/Autonomous-Multi-Robot-Parking-System/blob/main/howtorun.md)
 
 ## ~/.bashrc backup file
 [is here](https://github.com/Lee-JaeWon/Automatic-Multi-Robot-Parking-System/blob/main/bashrc_backup.txt)
