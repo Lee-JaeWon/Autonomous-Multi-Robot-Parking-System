@@ -26,6 +26,10 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 
+#define liner_max 0.2
+#define angular_max 1.0
+#define liner_min -0.2
+#define angular_min -1.0
 #define ESC_ASCII_VALUE             0x1b
 #define FORWARD                     0x77
 #define BACKWARD                    0x78
@@ -136,6 +140,7 @@ int main(int argc, char **argv)
       if (c == FORWARD)
       {
         twist_msg.linear.x += lin_vel_step;
+
       }
       else if (c == BACKWARD)
       {
@@ -160,6 +165,11 @@ int main(int argc, char **argv)
         twist_msg.angular.z = twist_msg.angular.z;
       }
     }
+    cout << twist_msg.linear.x <<'\n';
+    if(twist_msg.linear.x>liner_max)  twist_msg.linear.x =  liner_max;
+    if(twist_msg.angular.z>angular_max)  twist_msg.angular.z =  angular_max;
+    if(twist_msg.linear.x<liner_min)  twist_msg.linear.x =  liner_min;
+    if(twist_msg.angular.z<angular_min)  twist_msg.angular.z =  angular_min;
 
     cmd_vel_pub.publish(twist_msg);
 

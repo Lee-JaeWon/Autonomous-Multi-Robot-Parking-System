@@ -5,7 +5,7 @@
   </include>
 
   <arg name="usb_port"                default="/dev/ttyUSB0"/>
-  <arg name="dxl_baud_rate"           default="57600"/>
+  <arg name="dxl_baud_rate"           default="1000000"/> <!-- 1 Mbps -->
   <arg name="namespace"               default="dynamixel_workbench_one"/>
 
   <arg name="use_moveit"              default="false"/>
