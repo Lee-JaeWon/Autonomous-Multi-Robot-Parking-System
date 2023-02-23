@@ -5,7 +5,7 @@
 #include "sensor_msgs/LaserScan.h"
 
 #define WHEEL_RADIUS 0.033
-#define WHEEL_BASE 0.361
+#define WHEEL_BASE 0.33
 #define PI 3.141592
 #define TORPM 0.229
 #define DT 1.0 /100.0
@@ -42,10 +42,10 @@ void msgCallback(const dynamixel_workbench_msgs::DynamixelStateList::ConstPtr& m
     // ROS_INFO("%d",dynamixel_state[0].present_current );
     // ROS_INFO("%d",dynamixel_state[index].present_velocity );
     // ROS_INFO("%d",dynamixel_state[index].present_position );
-
+    
     left_velocity = dynamixel_state[0].present_velocity * TORPM   * (PI / 30.0) * WHEEL_RADIUS;
     right_velocity = dynamixel_state[1].present_velocity * TORPM  * (PI / 30.0) * WHEEL_RADIUS;
-    std::cout << "Dynamixel OK"<<std::endl;
+    // std::cout << "Dynamixel OK"<<std::endl;
 
 }
 
@@ -62,12 +62,13 @@ int main(int argc, char **argv)
     while (ros::ok())
     {   
         velocity = (left_velocity + right_velocity) / 2.0;
-        omega    = (left_velocity - right_velocity) / WHEEL_BASE;
+        omega    = (-left_velocity + right_velocity) / WHEEL_BASE;
         
         x += velocity * DT * cos(theta + (omega * DT / 2.0));
         y += velocity * DT * sin(theta + (omega * DT / 2.0));
         
         theta += omega * DT;
+        std::cout<<theta * 180 / PI << std::endl;
 
         Quaternion_.setRPY(0,0,theta);
         Quaternion_ = Quaternion_.normalize();

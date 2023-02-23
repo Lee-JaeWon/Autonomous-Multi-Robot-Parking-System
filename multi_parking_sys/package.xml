@@ -49,28 +49,20 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>cmake_modules</build_depend>
-  <build_depend>dynamixel_workbench_msgs</build_depend>
-  <build_depend>dynamixel_workbench_toolbox</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>trajectory_msgs</build_depend>
-  <build_export_depend>cmake_modules</build_export_depend>
-  <build_export_depend>dynamixel_workbench_msgs</build_export_depend>
-  <build_export_depend>dynamixel_workbench_toolbox</build_export_depend>
-  <build_export_depend>geometry_msgs</build_export_depend>
-  <build_export_depend>roscpp</build_export_depend>
-  <build_export_depend>sensor_msgs</build_export_depend>
-  <build_export_depend>trajectory_msgs</build_export_depend>
-  <exec_depend>cmake_modules</exec_depend>
-  <exec_depend>dynamixel_workbench_msgs</exec_depend>
-  <exec_depend>dynamixel_workbench_toolbox</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>roscpp</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>trajectory_msgs</exec_depend>
-
+  <depend>roscpp</depend>
+  <depend>tf2</depend>
+  <depend>serial</depend>
+  <depend>tf2_ros</depend>
+  <depend>dynamixel_sdk</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>trajectory_msgs</depend>
+  <depend>dynamixel_workbench_msgs</depend>
+  <depend>dynamixel_workbench_toolbox</depend>
+  <depend>cmake_modules</depend>
+  <depend>yaml-cpp</depend>
+  <depend>nav_msgs</depend>
+  <depend>eigen</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
