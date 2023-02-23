@@ -5,7 +5,7 @@
 #include "sensor_msgs/LaserScan.h"
 
 #define WHEEL_RADIUS 0.033
-#define WHEEL_BASE 0.361
+#define WHEEL_BASE 0.33
 #define PI 3.141592
 #define TORPM 0.229
 #define DT 1.0 /100.0
