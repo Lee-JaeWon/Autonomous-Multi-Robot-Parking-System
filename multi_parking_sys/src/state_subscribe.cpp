@@ -10,12 +10,6 @@ void dynamixelStateCallback(const dynamixel_workbench_msgs::DynamixelStateList::
         dynamixel_list[index].present_current = msg->dynamixel_state[index].present_current;
         dynamixel_list[index].present_velocity = msg->dynamixel_state[index].present_velocity;
         dynamixel_list[index].present_position = msg->dynamixel_state[index].present_position;
-
-        ROS_INFO("%d", msg->dynamixel_state[index].id);
-        ROS_INFO("%d", msg->dynamixel_state[index].present_current);
-        ROS_INFO("%d", msg->dynamixel_state[index].present_velocity);
-        ROS_INFO("%d", msg->dynamixel_state[index].present_position);
-        ROS_INFO("--------------------------------");
     }
 }
 
