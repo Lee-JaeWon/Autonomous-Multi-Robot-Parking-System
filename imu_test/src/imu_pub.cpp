@@ -38,10 +38,10 @@ void write_callback(const std_msgs::String::ConstPtr& msg){
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "imu"); // 노드이름 imu
+  ros::init(argc, argv, "imu_pub"); // 노드이름 imu
   ros::NodeHandle nh;
   //ros::Subscriber imu_sub = nh.subscribe("write", publish_rate, write_callback);
-  ros::Publisher imu_pub = nh.advertise<sensor_msgs::Imu>("imu_data", publish_rate);
+  ros::Publisher imu_pub = nh.advertise<sensor_msgs::Imu>("imu", publish_rate);
 
   tf2::Quaternion q;
   // static tf2_ros::TransformBroadcaster br;

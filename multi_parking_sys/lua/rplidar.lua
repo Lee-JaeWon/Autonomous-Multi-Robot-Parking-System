@@ -10,7 +10,11 @@ options = {
     published_frame = "base_link",
     odom_frame = "odom",
     provide_odom_frame = true,
-    use_odometry = false,
+
+    -- edit
+    use_odometry = true,
+    --
+
     use_nav_sat = false,
     use_landmarks = false,
     publish_frame_projected_to_2d = false,
@@ -31,7 +35,9 @@ options = {
 
 MAP_BUILDER.use_trajectory_builder_2d = true
 
-TRAJECTORY_BUILDER_2D.use_imu_data = false
+-- edit
+TRAJECTORY_BUILDER_2D.use_imu_data = true
+--
 
 TRAJECTORY_BUILDER_2D.use_online_correlative_scan_matching = true
 
