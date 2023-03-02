@@ -58,6 +58,7 @@ int main(int argc, char **argv)
     odom_pub = nh.advertise<nav_msgs::Odometry>("odom", 100);
     ros::Subscriber ros_dynamixel_sub = nh.subscribe("/dynamixel_workbench_one/dynamixel_state", 100, msgCallback);
     ros::Rate loop_rate(100);
+    ROS_INFO("--- odometry node ---");
 
     while (ros::ok())
     {   
@@ -68,7 +69,7 @@ int main(int argc, char **argv)
         y += velocity * DT * sin(theta + (omega * DT / 2.0));
         
         theta += omega * DT;
-        std::cout<<theta * 180 / PI << std::endl;
+        // std::cout<<theta * 180 / PI << std::endl;
 
         Quaternion_.setRPY(0,0,theta);
         Quaternion_ = Quaternion_.normalize();

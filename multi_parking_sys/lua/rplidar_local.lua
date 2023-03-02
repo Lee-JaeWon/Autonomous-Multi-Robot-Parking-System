@@ -11,7 +11,7 @@ options = {
     odom_frame = "odom",
     provide_odom_frame = true,
 
-    -- edit
+    -- edit::odometry
     use_odometry = false,
     --
 
@@ -35,7 +35,7 @@ options = {
 
 MAP_BUILDER.use_trajectory_builder_2d = true
 
--- edit
+-- edit::imu
 TRAJECTORY_BUILDER_2D.use_imu_data = false
 --
 
