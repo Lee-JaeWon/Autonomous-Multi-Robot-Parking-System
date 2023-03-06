@@ -13,7 +13,8 @@
 #include <sstream>
 #include <string>
 #include <typeinfo>
-
+#define PI 3.141592
+#define G 9.80665
 using namespace std;
 serial::Serial ser;
 int publish_rate = 85;
@@ -59,6 +60,7 @@ int main(int argc, char **argv)
       ser.setBaudrate(115200);
       serial::Timeout to = serial::Timeout::simpleTimeout(publish_rate);
       ser.setTimeout(to);
+
       ser.open();
   }
 
@@ -96,7 +98,7 @@ int main(int argc, char **argv)
       imu.header.stamp = ros::Time::now();
       //transformStamped.header.stamp = ros::Time::now();
       vector<string> result = split(sensor, ',');
-      cout << result.size()<<'\n';
+      // cout << result.size()<<'\n';
       if(result.size() == 15) {
         float quaternion_w = atof(result[4].c_str());
         float quaternion_x = atof(result[3].c_str());
@@ -127,13 +129,13 @@ int main(int argc, char **argv)
         imu.orientation.y = q.y();
         imu.orientation.z = q.z();
 
-        imu.linear_acceleration.x = linear_acceleration_x;
-        imu.linear_acceleration.y = linear_acceleration_y;
-        imu.linear_acceleration.z = linear_acceleration_z;
+        imu.linear_acceleration.x = linear_acceleration_x ;
+        imu.linear_acceleration.y = linear_acceleration_y ;
+        imu.linear_acceleration.z = linear_acceleration_z ;
 
-        imu.angular_velocity.x = angular_velocity_x;
-        imu.angular_velocity.y = angular_velocity_y;
-        imu.angular_velocity.z = angular_velocity_z;
+        imu.angular_velocity.x = angular_velocity_x * (PI / 180.0) ;
+        imu.angular_velocity.y = angular_velocity_y* (PI / 180.0);
+        imu.angular_velocity.z = angular_velocity_z* (PI / 180.0);
 
         // transformStamped.transform.translation.x = distance_x;
         // transformStamped.transform.translation.y = distance_y;
