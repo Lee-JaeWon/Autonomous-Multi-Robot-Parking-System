@@ -12,7 +12,9 @@ options = {
     provide_odom_frame = true,
 
     -- edit
+
     use_odometry = false,
+
     --
 
     use_nav_sat = false,
@@ -34,13 +36,10 @@ options = {
 }
 
 MAP_BUILDER.use_trajectory_builder_2d = true
-
 -- edit
 TRAJECTORY_BUILDER_2D.use_imu_data = true
 --
-
 TRAJECTORY_BUILDER_2D.use_online_correlative_scan_matching = true
-
 POSE_GRAPH.optimization_problem.huber_scale = 1e2
 
 return options
