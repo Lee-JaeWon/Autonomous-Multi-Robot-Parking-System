@@ -42,7 +42,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "imu_pub"); // 노드이름 imu
   ros::NodeHandle nh;
   //ros::Subscriber imu_sub = nh.subscribe("write", publish_rate, write_callback);
-  ros::Publisher imu_pub = nh.advertise<sensor_msgs::Imu>("imu", publish_rate);
+  ros::Publisher imu_pub = nh.advertise<sensor_msgs::Imu>("imu_0", publish_rate);
 
   tf2::Quaternion q;
   // static tf2_ros::TransformBroadcaster br;
@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 
 
   try{
-      ser.setPort("/dev/ttyUSB0");
+      ser.setPort("/dev/IMU0");
       ser.setBaudrate(115200);
       serial::Timeout to = serial::Timeout::simpleTimeout(publish_rate);
       ser.setTimeout(to);
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
   while (ros::ok()){
     ros::spinOnce();
     if(ser.available()){
-      ROS_INFO_STREAM("Reading from serial port");
+      // ROS_INFO_STREAM("Reading from serial port");
 
       imu.header.seq = cnt;
       //transformStamped.header.seq = cnt;
@@ -129,9 +129,9 @@ int main(int argc, char **argv)
         imu.orientation.y = q.y();
         imu.orientation.z = q.z();
 
-        imu.linear_acceleration.x = linear_acceleration_x ;
-        imu.linear_acceleration.y = linear_acceleration_y ;
-        imu.linear_acceleration.z = linear_acceleration_z ;
+        imu.linear_acceleration.x = linear_acceleration_x * G;
+        imu.linear_acceleration.y = linear_acceleration_y * G;
+        imu.linear_acceleration.z = linear_acceleration_z * G;
 
         imu.angular_velocity.x = angular_velocity_x * (PI / 180.0) ;
         imu.angular_velocity.y = angular_velocity_y* (PI / 180.0);
