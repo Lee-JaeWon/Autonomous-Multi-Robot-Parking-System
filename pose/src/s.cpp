@@ -41,18 +41,19 @@
 #include <cartographer_ros_msgs/FinishTrajectory.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 
-
 // Initialize ROS node
-ros::init(argc, argv, "initial_pose_subscriber");
+
 
 // Create ROS node handle
-ros::NodeHandle nh;
+
+
 
 
 void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
 
     // Create a service client for the start_trajectory service
+    ros::NodeHandle nh;
     ros::ServiceClient Startclient = nh.serviceClient<cartographer_ros_msgs::StartTrajectory>("/start_trajectory");
     ros::ServiceClient finishclient = nh.serviceClient<cartographer_ros_msgs::StartTrajectory>("/finish_trajectory");
 
@@ -60,20 +61,23 @@ void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::Const
     // Create a StartTrajectoryRequest object and fill it with the necessary parameters
     cartographer_ros_msgs::StartTrajectory::Request startreq;
     cartographer_ros_msgs::FinishTrajectory::Request finishreq;
+
+    cartographer_ros_msgs::StartTrajectory::Response res;
+    cartographer_ros_msgs::StartTrajectory::Response finishres;
+
     finishreq.trajectory_id = 0 ; // int
-    if (finishclient.call(finishreq, res))
+    if (finishclient.call(finishreq, finishres))
     {
         ROS_INFO("Finished");
     }
 
     startreq.configuration_basename = "rplidar.lua"; // string
-    startreq.configuration_directory=" "; // string
+    startreq.configuration_directory="/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/multi_parking_sys/lua"; // string
     startreq.use_initial_pose = true; // bool
-    startreq.initial_pose = msg->pose; // geometry _msgs
+    startreq.initial_pose = msg->pose.pose; // geometry _msgs
     startreq.relative_to_trajectory_id = 0; /// int 
-    startreq.trajectory_id = 0;// int
     // Call the start_trajectory service
-    cartographer_ros_msgs::StartTrajectory::Response res;
+
 
     if(Startclient.call(startreq, res))
     
@@ -81,7 +85,6 @@ void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::Const
         ROS_INFO("SUCCESS");
     }
 
-  return 0;
 
 }
 void initialPoseCallback_1(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
@@ -111,8 +114,10 @@ void initialPoseCallback_2(const geometry_msgs::PoseWithCovarianceStamped::Const
 
 int main(int argc, char** argv)
 {
-
+    ros::init(argc, argv,"initial_pose_subscriber");
     // Create subscriber to initial pose topic
+    ros::NodeHandle nh;
+
     ros::Subscriber initialPoseSub_0 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>("/initialpose_0", 1, initialPoseCallback_0);
     ros::Subscriber initialPoseSub_1 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>("/initialpose_1", 1, initialPoseCallback_1);
     ros::Subscriber initialPoseSub_2 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>("/initialpose_2", 1, initialPoseCallback_2);

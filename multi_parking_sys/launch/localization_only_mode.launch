@@ -32,7 +32,7 @@
     <node name="imu_pub" pkg="imu_test" type="imu_pub" output="screen"/>
 
     <!-- init pose node -->
-    <node name="pose_init" pkg="pose" type="pose" output="screen"/>
+    <node name="pose_init" pkg="pose" type="srv_pose" output="screen"/>
 
     <!-- cartographer_occupancy_grid_node -->
     <!-- <node pkg="cartographer_ros" type="cartographer_occupancy_grid_node"
