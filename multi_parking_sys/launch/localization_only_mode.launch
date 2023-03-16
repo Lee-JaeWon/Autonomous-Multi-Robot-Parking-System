@@ -27,8 +27,12 @@
         <param name="use_pose_extrapolator" value="true"/>
     </node>
           <!-- -initial_pose { to_trajectory_id=1, relative_pose={translation={-0.0764,-1.2564,0.0},rotation={0.0,0.0,-3.1385298} }} -->
+    
     <!-- imu pub node -->
     <node name="imu_pub" pkg="imu_test" type="imu_pub" output="screen"/>
+
+    <!-- init pose node -->
+    <node name="pose_init" pkg="pose" type="pose" output="screen"/>
 
     <!-- cartographer_occupancy_grid_node -->
     <!-- <node pkg="cartographer_ros" type="cartographer_occupancy_grid_node"

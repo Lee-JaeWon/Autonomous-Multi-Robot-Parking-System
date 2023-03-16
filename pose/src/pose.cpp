@@ -4,35 +4,38 @@
 void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
     // Initial pose received, do something with it
-    ROS_INFO("Initial position received: x=%f\n",msg->pose.pose.position.x);
-    ROS_INFO("Initial position received: y=%f\n",msg->pose.pose.position.y);
-    ROS_INFO("Initial position received: z=%f\n",msg->pose.pose.position.z);
-    ROS_INFO("Initial orientation received: x=%f\n",msg->pose.pose.orientation.x);
-    ROS_INFO("Initial orientation received: y=%f\n",msg->pose.pose.orientation.y);
-    ROS_INFO("Initial orientation received: z=%f\n",msg->pose.pose.orientation.z);
-    ROS_INFO("Initial orientation received: w=%f\n",msg->pose.pose.orientation.w);
+    ROS_INFO("Initial set num: %d\n", 0);
+    // ROS_INFO("Initial position received: x=%f\n",msg->pose.pose.position.x);
+    // ROS_INFO("Initial position received: y=%f\n",msg->pose.pose.position.y);
+    // ROS_INFO("Initial position received: z=%f\n",msg->pose.pose.position.z);
+    // ROS_INFO("Initial orientation received: x=%f\n",msg->pose.pose.orientation.x);
+    // ROS_INFO("Initial orientation received: y=%f\n",msg->pose.pose.orientation.y);
+    // ROS_INFO("Initial orientation received: z=%f\n",msg->pose.pose.orientation.z);
+    // ROS_INFO("Initial orientation received: w=%f\n",msg->pose.pose.orientation.w);
 }
 void initialPoseCallback_1(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
     // Initial pose received, do something with it
-    ROS_INFO("Initial position received: x=%f\n",msg->pose.pose.position.x);
-    ROS_INFO("Initial position received: y=%f\n",msg->pose.pose.position.y);
-    ROS_INFO("Initial position received: z=%f\n",msg->pose.pose.position.z);
-    ROS_INFO("Initial orientation received: x=%f\n",msg->pose.pose.orientation.x);
-    ROS_INFO("Initial orientation received: y=%f\n",msg->pose.pose.orientation.y);
-    ROS_INFO("Initial orientation received: z=%f\n",msg->pose.pose.orientation.z);
-    ROS_INFO("Initial orientation received: w=%f\n",msg->pose.pose.orientation.w);
+    ROS_INFO("Initial set num: %d\n", 1);
+    // ROS_INFO("Initial position received: x=%f\n",msg->pose.pose.position.x);
+    // ROS_INFO("Initial position received: y=%f\n",msg->pose.pose.position.y);
+    // ROS_INFO("Initial position received: z=%f\n",msg->pose.pose.position.z);
+    // ROS_INFO("Initial orientation received: x=%f\n",msg->pose.pose.orientation.x);
+    // ROS_INFO("Initial orientation received: y=%f\n",msg->pose.pose.orientation.y);
+    // ROS_INFO("Initial orientation received: z=%f\n",msg->pose.pose.orientation.z);
+    // ROS_INFO("Initial orientation received: w=%f\n",msg->pose.pose.orientation.w);
 }
 void initialPoseCallback_2(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
     // Initial pose received, do something with it
-    ROS_INFO("Initial position received: x=%f\n",msg->pose.pose.position.x);
-    ROS_INFO("Initial position received: y=%f\n",msg->pose.pose.position.y);
-    ROS_INFO("Initial position received: z=%f\n",msg->pose.pose.position.z);
-    ROS_INFO("Initial orientation received: x=%f\n",msg->pose.pose.orientation.x);
-    ROS_INFO("Initial orientation received: y=%f\n",msg->pose.pose.orientation.y);
-    ROS_INFO("Initial orientation received: z=%f\n",msg->pose.pose.orientation.z);
-    ROS_INFO("Initial orientation received: w=%f\n",msg->pose.pose.orientation.w);
+    ROS_INFO("Initial set num: %d\n", 2);
+    // ROS_INFO("Initial position received: x=%f\n",msg->pose.pose.position.x);
+    // ROS_INFO("Initial position received: y=%f\n",msg->pose.pose.position.y);
+    // ROS_INFO("Initial position received: z=%f\n",msg->pose.pose.position.z);
+    // ROS_INFO("Initial orientation received: x=%f\n",msg->pose.pose.orientation.x);
+    // ROS_INFO("Initial orientation received: y=%f\n",msg->pose.pose.orientation.y);
+    // ROS_INFO("Initial orientation received: z=%f\n",msg->pose.pose.orientation.z);
+    // ROS_INFO("Initial orientation received: w=%f\n",msg->pose.pose.orientation.w);
 }
 
 int main(int argc, char** argv)
