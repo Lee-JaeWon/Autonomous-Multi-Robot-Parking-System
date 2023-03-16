@@ -16,8 +16,9 @@ options = {
     --
 
     use_nav_sat = false,
+    use_tracked_pose = true,
     use_landmarks = false,
-    publish_frame_projected_to_2d = false,
+    publish_frame_projected_to_2d = true,
     num_laser_scans = 1,
     num_multi_echo_laser_scans = 0,
     num_subdivisions_per_laser_scan = 1,

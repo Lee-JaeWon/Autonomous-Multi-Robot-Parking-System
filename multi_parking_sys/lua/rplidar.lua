@@ -5,6 +5,7 @@ options = {
 
     map_builder = MAP_BUILDER,
     trajectory_builder = TRAJECTORY_BUILDER,
+
     map_frame = "map",
     tracking_frame = "base_link",
     published_frame = "base_link",
@@ -18,8 +19,9 @@ options = {
     --
 
     use_nav_sat = false,
+    publish_tracked_pose = true,
     use_landmarks = false,
-    publish_frame_projected_to_2d = false,
+    publish_frame_projected_to_2d = true,
     num_laser_scans = 1,
     num_multi_echo_laser_scans = 0,
     num_subdivisions_per_laser_scan = 1,
