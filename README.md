@@ -16,4 +16,4 @@ Please read the [abstract.md file](./abstract.md) of our study.
 |[Hyoseok Joo](https://github.com/JooHyoSeok)|NULL|  
 
 ## About Setting
-[About_Setting](./About_Setting/)
+[About_Setting.md](./About_Setting/)
