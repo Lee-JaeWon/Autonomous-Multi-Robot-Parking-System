@@ -1,3 +1,5 @@
+# Abstract
+
 With the increasing number of logistics and automation industries with many potential, the research focuses on increasing efficiency by forming an "autonomous mobile multi-robot system" rather than an autonomous mobile robot (AMR).<br>
 Suppliers of autonomous guided vechicles (AGV) and autonomous mobile robots (AMR) inevitably have to compete for costs due to the amount incurred in making robots.<br>
 In particular, if multiple robots need to be applied, clueless applications without identifying the facilities and systems to be applied may not match the efficiency that should be prioritized.<br>
