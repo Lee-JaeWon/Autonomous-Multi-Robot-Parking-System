@@ -4,6 +4,7 @@ This is the Repository of the 2023 Capstone Design 'Multi in Your Front yard' te
 Development Period: 2023.3 to 2023.6
 
 ## About
+Please read the [abstract.md file](./abstract.md) of our study.
 
 ## Member
 
