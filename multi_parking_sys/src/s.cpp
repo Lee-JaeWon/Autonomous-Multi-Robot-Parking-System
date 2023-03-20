@@ -1,42 +1,3 @@
-// #include <ros/ros.h>
-// #include <cartographer_ros_msgs/StartTrajectory.h>
-// #include <cartographer_ros_msgs/FinishTrajectory.h>
-
-
-// int main(int argc, char **argv)
-// {
-//   ros::init(argc, argv, "start_trajectory_client");
-//   ros::NodeHandle n;
-
-//   // Create a service client for the start_trajectory service
-//   ros::ServiceClient Startclient = 
-//     n.serviceClient<cartographer_ros_msgs::StartTrajectory>("/start_trajectory");
-//   ros::ServiceClient finishclient = 
-//     n.serviceClient<cartographer_ros_msgs::StartTrajectory>("/finish_trajectory");
-
-
-//   // Create a StartTrajectoryRequest object and fill it with the necessary parameters
-//   cartographer_ros_msgs::StartTrajectory::Request startreq;
-//   cartographer_ros_msgs::FinishTrajectory::Request finishreq;
-//   finishreq.trajectory_id = 1 ; // int
-//   Startclient.call(finishreq, res);
-
-//   startreq.configuration_basename = "my_map.lua"; // string
-//   startreq.configuration_directory=""; // string
-//   startreq.use_initial_pose = true; // bool
-//   startreq.initial_pose = geometry_msgs; // geometry _msgs
-//   startreq.relative_to_trajectory_id= ; /// int 
-//   startreq.trajectory_id = // int
-//   // Call the start_trajectory service
-//   cartographer_ros_msgs::StartTrajectory::Response res;
-//   Startclient.call(startreq, res)
-
-//   return 0;
-// }
-
-
-
-
 #include <ros/ros.h>
 #include <cartographer_ros_msgs/StartTrajectory.h>
 #include <cartographer_ros_msgs/FinishTrajectory.h>
@@ -155,7 +116,6 @@ void initialPoseCallback_2(const geometry_msgs::PoseWithCovarianceStamped::Const
     serviceCall(msg->pose.pose ,odom_pose2.pose); // odom, init
 }
 
-
 int main(int argc, char** argv)
 {
     ros::init(argc, argv,"initial_pose_subscriber");
@@ -203,9 +163,7 @@ geometry_msgs::Pose Quat2RPY2Quat(const geometry_msgs::ConstPtr& odom_msg,const 
     // target_RPY to Quaternion
     // target_quat.setRPY( target_pitch, target_roll, target_yaw ); 
     target_quat.setRPY( 0, 0, target_yaw ); 
-
     target_quat = target_quat.normalize();
-
 
     // msg->pose.pose
     target_pose.position.x = init_msg->position.x - odom_msg->position.x;
@@ -221,6 +179,7 @@ geometry_msgs::Pose Quat2RPY2Quat(const geometry_msgs::ConstPtr& odom_msg,const 
 }
 
 void serviceCall(const geometry_msgs::Pose::ConstPtr& odom_msg,const geometry_msgs::Pose::ConstPtr& init_msg)
+
 {
     // Create a service client for the start_trajectory service
     ros::NodeHandle nh;
@@ -246,8 +205,5 @@ void serviceCall(const geometry_msgs::Pose::ConstPtr& odom_msg,const geometry_ms
     startreq.relative_to_trajectory_id = cnt; /// int 
     // Call the start_trajectory service
     if(Startclient.call(startreq, startres)) ROS_INFO("start_trajectory service success..");
-
     cnt ++;
-
-
 }

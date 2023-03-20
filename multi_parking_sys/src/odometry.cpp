@@ -68,7 +68,7 @@ int main(int argc, char **argv)
         y += velocity * DT * sin(theta + (omega * DT / 2.0));
         
         theta += omega * DT;
-
+        tf2::Quaternion Quaternion_;
         Quaternion_.setRPY(0,0,theta);
         Quaternion_ = Quaternion_.normalize();
 
