@@ -1,32 +1,29 @@
 <launch>
     <!-- For Robot_0 -->
-    <arg name="namespace_one" default="dynamixel_workbench_one"/>
+    <arg name="namespace_one" default="robot_1"/>
     <node name="wheel_operator" pkg="dynamixel_workbench_operators" type="wheel_operator" required="true" output="screen" ns="$(arg namespace_one)"/>
 
     <!-- Dynamixel state subscribe node -->
-    <group ns="$(arg namespace_one)">
-        <node name="dynamixel_state_sub" pkg="multi_parking_sys" type="dynamixel_state_sub" output="screen"/>
-    </group>
+    <!-- <group ns="$(arg namespace_one)">
+        <node name="dynamixel_state_sub" pkg="multi_parking_sys" type="dynamixel_state_sub" output="screen">
+            <param name="namespace" value="$(arg namespace_one)"/>
+        </node>
+    </group> -->
 
     <!-- cartographer_node -->
     <remap from ="imu" to ="imu_0" />
-
-    <arg name="initial_x" default="-0.07640857994556427"/>
-    <arg name="initial_y" default="-1.2564952373504639"/>
-    <arg name="initial_z" default="0.0"/>
-    <arg name="initial_yaw" default="-3.1385298"/>
     
     <!-- cartographer_node -->
     <param name="/use_sim_time" value="false" />
     <param name="use_pose_extrapolator" value="true"/>
     <node pkg="cartographer_ros" type="cartographer_node" name="cartographer_node" 
         args="-configuration_directory $(find multi_parking_sys)/lua -configuration_basename rplidar.lua 
-          -load_state_filename /home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/multi_parking_sys/map/mymap0315.pbstream
+        -load_state_filename /home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/multi_parking_sys/map/mymap0315.pbstream
         "
         output="screen">
         <param name="use_pose_extrapolator" value="true"/>
     </node>
-          <!-- -initial_pose { to_trajectory_id=1, relative_pose={translation={-0.0764,-1.2564,0.0},rotation={0.0,0.0,-3.1385298} }} -->
+        <!-- -initial_pose { to_trajectory_id=1, relative_pose={translation={-0.0764,-1.2564,0.0},rotation={0.0,0.0,-3.1385298} }} -->
     
     <!-- imu pub node -->
     <node name="imu_pub" pkg="imu_test" type="imu_pub" output="screen"/>

@@ -1,0 +1,36 @@
+<launch>
+
+    <!-- For robot_1 -->
+    <arg name="namespace_one" default="robot_1"/>
+    <node name="wheel_operator" pkg="dynamixel_workbench_operators" type="wheel_operator" required="true" output="screen" ns="$(arg namespace_one)"/>
+
+    <!-- For robot_1 -->
+    <group ns = "$(arg namespace_one)">
+        <!-- cartographer_node -->
+        <param name="/use_sim_time" value="false" />
+        <param name="use_pose_extrapolator" value="true"/>
+        <node pkg="cartographer_ros" type="cartographer_node" name="cartographer_node" 
+            args="-configuration_directory $(find multi_parking_sys)/lua -configuration_basename $(arg namespace_one)_rplidar.lua 
+            -load_state_filename /home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/multi_parking_sys/map/mymap0315.pbstream
+            "
+            output="screen">
+            <param name="use_pose_extrapolator" value="true"/>
+        </node>
+
+        <!-- cartographer_occupancy_grid_node -->
+        <node pkg="cartographer_ros" type="cartographer_occupancy_grid_node"
+                name="cartographer_occupancy_grid_node" 
+                args="-resolution 0.05" >
+        </node>
+    </group>
+
+    <!-- state publisher -->
+    <node pkg="tf" type="static_transform_publisher" name="world_to_$(arg namespace_one)_tf_broadcaster"  args="0 0 0 0 0 0 /map /$(arg namespace_one)/map 100"/>
+    <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_map_to_$(arg namespace_one)_odom"  args="0 0 0 0 0 0 /$(arg namespace_one)/map /$(arg namespace_one)/odom 100"/>
+    <!-- <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_odom_to_$(arg namespace_one)_baselink"  args="0 0 0 0 0 0 /$(arg namespace_one)/odom /$(arg namespace_one)/base_link 100"/> -->
+    <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_base_to_laser_broadcaster" args="0 0 0 0 0 3.141592 /$(arg namespace_one)/base_link /$(arg namespace_one)/laser 100" />
+    <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_base_to_imu_broadcaster" args="0 0 0 0 0 0 /$(arg namespace_one)/base_link /$(arg namespace_one)/imu 100" />
+
+    <!-- rviz -->
+    <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find multi_parking_sys)/rviz/multi.rviz" />
+</launch>

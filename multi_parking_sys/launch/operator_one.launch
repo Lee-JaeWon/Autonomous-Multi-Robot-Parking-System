@@ -1,7 +1,7 @@
 <launch>
 
     <!-- For Robot_0 -->
-    <arg name="namespace_one" default="dynamixel_workbench_one"/>
+    <arg name="namespace_one" default="robot_1"/>
     <node name="wheel_operator" pkg="dynamixel_workbench_operators" type="wheel_operator" required="true" output="screen" ns="$(arg namespace_one)"/>
 
     <!-- Dynamixel state subscribe node -->
