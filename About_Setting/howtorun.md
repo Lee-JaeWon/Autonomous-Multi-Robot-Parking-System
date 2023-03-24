@@ -20,3 +20,7 @@ run rplidar_a2, dynamixel
 ```
 rosservice call /write_state "{filename: '/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/multi_parking_sysck/map/mymap2.pbstream'}"
 ```
+
+# Turtlebot3 burger setup
+[Document - LeeJaewon](https://github.com/Lee-JaeWon/Turtlebot3-burger-backup)<br>
+[Document - ROBOTIS](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/)
