@@ -1,7 +1,43 @@
 <launch>
+    <arg name="namespace_one" default="robot_1"/>
+    <arg name="namespace_two" default="robot_2"/>
+
+    <!-- Arguments -->
+    <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+    <arg name="open_rviz" default="true"/>
+
+    <!-- For robot_2 -->
+    <group ns = "$(arg namespace_two)">
+
+        <!-- <include file="$(find turtlebot3_teleop)/launch/turtlebot3_teleop_key.launch" /> -->
+
+        <!-- TurtleBot3 -->
+        <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
+            <arg name="model" value="$(arg model)" />
+            <arg name="multi_robot_name" value="$(arg namespace_two)"/>
+        </include>
+
+        <!-- cartographer_node -->
+        <node pkg="cartographer_ros" type="cartographer_node" name="cartographer_node" 
+                args="-configuration_directory $(find multi_parking_sys)/lua -configuration_basename $(arg namespace_two)_rplidar.lua"
+                output="screen">
+            <remap from="/imu" to="/flat_imu"/>
+        </node>
+
+        <!-- cartographer_occupancy_grid_node -->
+        <node pkg="cartographer_ros" type="cartographer_occupancy_grid_node"
+                name="cartographer_occupancy_grid_node" 
+                args="-resolution 0.05" />
+
+        <!-- flat_world_imu_node -->
+        <node pkg="turtlebot3_slam" type="flat_world_imu_node" name="flat_world_imu_node" output="screen">
+            <remap from="imu_in" to="/imu" />
+            <remap from="imu_out" to="/flat_imu" />
+        </node>
+    </group>
+
 
     <!-- For robot_1 -->
-    <arg name="namespace_one" default="robot_1"/>
     <node name="wheel_operator" pkg="dynamixel_workbench_operators" type="wheel_operator" required="true" output="screen" ns="$(arg namespace_one)"/>
 
     <!-- For robot_1 -->
@@ -24,13 +60,11 @@
         </node>
     </group>
 
-    <!-- state publisher -->
-    <node pkg="tf" type="static_transform_publisher" name="world_to_$(arg namespace_one)_tf_broadcaster"  args="0 0 0 0 0 0 /map /$(arg namespace_one)/map 100"/>
+    <!-- state publisher for robot_1 -->
+    <!-- <node pkg="tf" type="static_transform_publisher" name="world_to_$(arg namespace_one)_tf_broadcaster"  args="0 0 0 0 0 0 /map /$(arg namespace_one)/map 100"/> -->
     <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_map_to_$(arg namespace_one)_odom"  args="0 0 0 0 0 0 /$(arg namespace_one)/map /$(arg namespace_one)/odom 100"/>
-    <!-- <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_odom_to_$(arg namespace_one)_baselink"  args="0 0 0 0 0 0 /$(arg namespace_one)/odom /$(arg namespace_one)/base_link 100"/> -->
-    <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_base_to_laser_broadcaster" args="0 0 0 0 0 3.141592 /$(arg namespace_one)/base_link /$(arg namespace_one)/laser 100" />
+    <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_base_to_laser_broadcaster" args="0 0 0 1.5708 0 3.141592 /$(arg namespace_one)/base_link /$(arg namespace_one)/laser 100" />
     <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_base_to_imu_broadcaster" args="0 0 0 0 0 0 /$(arg namespace_one)/base_link /$(arg namespace_one)/imu 100" />
 
-    <!-- rviz -->
-    <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find multi_parking_sys)/rviz/multi.rviz" />
+
 </launch>
