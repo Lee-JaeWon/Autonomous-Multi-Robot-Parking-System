@@ -40,3 +40,7 @@ target_link_libraries(odom_node ${catkin_LIBRARIES})
 add_executable(imu_pub src/imu_pub.cpp)
 add_dependencies(imu_pub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(imu_pub ${catkin_LIBRARIES})
+
+add_executable(dynamixel_state_sub src/state_subscribe.cpp)
+add_dependencies(dynamixel_state_sub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(dynamixel_state_sub ${catkin_LIBRARIES})

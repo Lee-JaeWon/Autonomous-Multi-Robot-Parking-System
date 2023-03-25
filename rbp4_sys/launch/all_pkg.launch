@@ -8,7 +8,7 @@
     <!-- DYNAMIXEL node -->
     <arg name="usb_port"                default="/dev/DYNA0"/>
     <arg name="dxl_baud_rate"           default="1000000"/>
-    <arg name="namespace"               default="dynamixel_workbench_one"/>
+    <arg name="namespace"               default="robot_1"/>
 
     <arg name="use_moveit"              default="false"/>
     <arg name="use_joint_state"         default="true"/>

@@ -55,8 +55,8 @@ int main(int argc, char **argv)
 
     ros::init(argc, argv, "Odometry");
     ros::NodeHandle nh;
-    odom_pub = nh.advertise<nav_msgs::Odometry>("odom", 100);
-    ros::Subscriber ros_dynamixel_sub = nh.subscribe("/dynamixel_workbench_one/dynamixel_state", 100, msgCallback);
+    odom_pub = nh.advertise<nav_msgs::Odometry>("robot_1/odom", 100);
+    ros::Subscriber ros_dynamixel_sub = nh.subscribe("/robot_1/dynamixel_state", 100, msgCallback);
     ros::Rate loop_rate(100);
     ROS_INFO("--- odometry node ---");
 
@@ -76,8 +76,8 @@ int main(int argc, char **argv)
 
         odom_msg.header.stamp = ros::Time::now();
 
-        odom_msg.header.frame_id = "odom";
-        odom_msg.child_frame_id = "base_link";
+        odom_msg.header.frame_id = "robot_1/odom";
+        odom_msg.child_frame_id = "robot_1/base_link";
         odom_msg.pose.pose.position.x = x;
         odom_msg.pose.pose.position.y = y;
         odom_msg.pose.pose.position.z = 0.0;
