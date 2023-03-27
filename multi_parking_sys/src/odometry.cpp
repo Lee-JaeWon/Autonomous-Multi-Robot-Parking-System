@@ -3,6 +3,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include "dynamixel_workbench_msgs/DynamixelStateList.h"
 #include "sensor_msgs/LaserScan.h"
+#include <tf/transform_broadcaster.h>
 
 #define WHEEL_RADIUS 0.033
 #define WHEEL_BASE 0.33
@@ -10,7 +11,6 @@
 #define TORPM 0.229
 #define DT 1.0 / 100.0
 ros::Publisher odom_pub;
-nav_msgs::Odometry odom_msg;
 tf2::Quaternion Quaternion_;
 
 double x = 0.0;              // robot's x position in meters
@@ -28,7 +28,6 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr &msg)
 
 void msgCallback(const dynamixel_workbench_msgs::DynamixelStateList::ConstPtr &msg)
 {
-
     dynamixel_workbench_msgs::DynamixelState dynamixel_state[2];
 
     dynamixel_state[0].present_position = msg->dynamixel_state[0].present_position;
@@ -54,7 +53,7 @@ int main(int argc, char **argv)
     // param check
     std::string s;
     if (ros::param::get("~namespace", s))
-        ROS_INFO("Got param: %s", s.c_str());
+        ROS_INFO("Odom node got param: %s", s.c_str());
     else
         ROS_ERROR("Failed to get param 'namespace'");
 
@@ -63,11 +62,14 @@ int main(int argc, char **argv)
     std::string odom_path = s + "/odom";
     std::string baselink_path = s + "/base_link";
 
+    ROS_INFO("odom_path is : %s", odom_path.c_str());
+    ROS_INFO("base_link path is : %s", baselink_path.c_str());
+
     //
     odom_pub = nh.advertise<nav_msgs::Odometry>(odom_path, 100);
     ros::Subscriber ros_dynamixel_sub = nh.subscribe(path, 100, msgCallback);
     ros::Rate loop_rate(100);
-    
+    tf::TransformBroadcaster odom_broadcaster;
 
     while (ros::ok())
     {
@@ -78,11 +80,31 @@ int main(int argc, char **argv)
         y += velocity * DT * sin(theta + (omega * DT / 2.0));
 
         theta += omega * DT;
-        // std::cout<<theta * 180 / PI << std::endl;
 
         Quaternion_.setRPY(0, 0, theta);
         Quaternion_ = Quaternion_.normalize();
 
+        // About TF Transform
+        ///////////////////////////////////////////////////////////////////////////////////
+        geometry_msgs::TransformStamped odom_trans;
+        odom_trans.header.stamp = ros::Time::now();
+        odom_trans.header.frame_id = odom_path;
+        odom_trans.child_frame_id = baselink_path;
+
+        odom_trans.transform.translation.x = x;
+        odom_trans.transform.translation.y = y;
+        odom_trans.transform.translation.z = 0.0;
+
+        odom_trans.transform.rotation.x = Quaternion_.x();
+        odom_trans.transform.rotation.y = Quaternion_.y();
+        odom_trans.transform.rotation.z = Quaternion_.z();
+        odom_trans.transform.rotation.w = Quaternion_.w();
+
+        odom_broadcaster.sendTransform(odom_trans);
+        ///////////////////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////////////////
+        nav_msgs::Odometry odom_msg;
         odom_msg.header.stamp = ros::Time::now();
 
         odom_msg.header.frame_id = odom_path;
@@ -100,6 +122,7 @@ int main(int argc, char **argv)
         odom_msg.twist.twist.angular.z = omega;
 
         odom_pub.publish(odom_msg);
+        ///////////////////////////////////////////////////////////////////////////////////
 
         ros::spinOnce();
         loop_rate.sleep();

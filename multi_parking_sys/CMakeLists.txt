@@ -10,7 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
   dynamixel_workbench_toolbox
   cmake_modules
   nav_msgs
-  tf2 
+  tf2
+  tf
   serial
   tf2_ros
   dynamixel_sdk
