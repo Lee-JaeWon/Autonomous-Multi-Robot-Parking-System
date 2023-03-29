@@ -1,3 +1,4 @@
+
 #include <ros/ros.h>
 #include <cartographer_ros_msgs/StartTrajectory.h>
 #include <cartographer_ros_msgs/FinishTrajectory.h>
@@ -8,8 +9,8 @@
 #include <tf2/LinearMath/Quaternion.h>
 
 // Initialize ROS node
-geometry_msgs::Pose Quat2RPY2Quat(const geometry_msgs::ConstPtr& odom_pose,const geometry_msgs::ConstPtr& init_pose);
-
+void serviceCall(const geometry_msgs::Pose& odom_msg,const geometry_msgs::Pose& init_msg)
+geometry_msgs::Pose Quat2RPY2Quat(const geometry_msgs::Pose& odom_msg,const geometry_msgs::Pose& init_msg)
 // Create ROS node handle
 int cnt = 1;
 
@@ -31,10 +32,9 @@ void PoseCallback_2(const geometry_msgs::PoseStamped::ConstPtr& msg){
     odom_pose2 = *msg;
 }
 
-
 void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
-    // serviceCall(msg->pose.pose ,odom_pose.pose); // odom, init
+    // serviceCall(msg.pose.pose ,odom_pose.pose); // odom, init
  
     ROS_INFO("POSE_0 subscribed");
 
@@ -91,10 +91,9 @@ void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::Const
     // target_pose.orientation.y = target_quat.getY();
     // target_pose.orientation.z = target_quat.getZ();
     // target_pose.orientation.w = target_quat.getW();
-
-
     // startreq.initial_pose = target_pose; // geometry _msgs
-    startreq.initial_pose = Quat2RPY2Quat(odom_pose.pose, msg->pose.pose); // geometry _msgs
+
+    startreq.initial_pose = Quat2RPY2Quat(odom_pose.pose, msg->pose.pose); // geometry_msgs/Pose data type
 
     startreq.relative_to_trajectory_id = cnt; /// int 
     // Call the start_trajectory service
@@ -108,12 +107,17 @@ void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::Const
 
 void initialPoseCallback_1(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
-    serviceCall(msg->pose.pose ,odom_pose1.pose); // odom, init
+    geometry_msgs::Pose odom = msg->pose.pose;
+    geometry_msgs::Pose init = odom_pose1.pose;
+    serviceCall(odom ,init); // odom, init
 }
 
 void initialPoseCallback_2(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
-    serviceCall(msg->pose.pose ,odom_pose2.pose); // odom, init
+
+    geometry_msgs::Pose odom = msg->pose.pose;
+    geometry_msgs::Pose init = odom_pose2.pose;
+    serviceCall(odom ,init); // odom, init
 }
 
 int main(int argc, char** argv)
@@ -126,17 +130,13 @@ int main(int argc, char** argv)
     ros::Subscriber initialPoseSub_2 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>("/initialpose_2", 1, initialPoseCallback_2);
 
     ros::Subscriber odom_sub = nh.subscribe<geometry_msgs::PoseStamped>("/tracked_pose", 1, PoseCallback_0);
-
-
-
-
     // Spin and process callbacks
     ros::spin();
 
     return 0;
 }
 
-geometry_msgs::Pose Quat2RPY2Quat(const geometry_msgs::ConstPtr& odom_msg,const geometry_msgs::ConstPtr& init_msg)
+geometry_msgs::Pose Quat2RPY2Quat(const geometry_msgs::Pose& odom_msg,const geometry_msgs::Pose& init_msg)
 {
     // method that returns angle differences
 
@@ -146,11 +146,11 @@ geometry_msgs::Pose Quat2RPY2Quat(const geometry_msgs::ConstPtr& odom_msg,const 
     geometry_msgs::Pose target_pose;
 
     //  odom_Quaternion to RPY
-    tf::Quaternion odom_quat(odom_msg->orientation.x,odom_msg->orientation.y,odom_msg->orientation.z,odom_msg->orientation.w)
+    tf::Quaternion odom_quat(odom_msg.orientation.x,odom_msg.orientation.y,odom_msg.orientation.z,odom_msg.orientation.w)
     tf::Matrix3x3(odom_quat).getRPY(odom_roll, odom_pitch, odom_yaw);
 
     // initialpose_Quaternion to RPY
-    tf::Quaternion init_quat(init_msg->orientation.x,init_msg->orientation.y,init_msg->orientation.z,init_msg->orientation.w)
+    tf::Quaternion init_quat(init_msg.orientation.x,init_msg.orientation.y,init_msg.orientation.z,init_msg.orientation.w)
     tf::Matrix3x3(init_quat).getRPY(init_roll, init_pitch, init_yaw);
   
     double target_roll,target_pitch,target_yaw;
@@ -165,9 +165,9 @@ geometry_msgs::Pose Quat2RPY2Quat(const geometry_msgs::ConstPtr& odom_msg,const 
     target_quat.setRPY( 0, 0, target_yaw ); 
     target_quat = target_quat.normalize();
 
-    // msg->pose.pose
-    target_pose.position.x = init_msg->position.x - odom_msg->position.x;
-    target_pose.position.y = init_msg->position.y - odom_msg->position.y;
+    // msg.pose.pose
+    target_pose.position.x = init_msg.position.x - odom_msg.position.x;
+    target_pose.position.y = init_msg.position.y - odom_msg.position.y;
     target_pose.position.z = 0 ;
 
     target_pose.orientation.x = target_quat.x();
@@ -178,7 +178,7 @@ geometry_msgs::Pose Quat2RPY2Quat(const geometry_msgs::ConstPtr& odom_msg,const 
     return target_pose;
 }
 
-void serviceCall(const geometry_msgs::Pose::ConstPtr& odom_msg,const geometry_msgs::Pose::ConstPtr& init_msg)
+void serviceCall(const geometry_msgs::Pose& odom_msg,const geometry_msgs::Pose& init_msg)
 
 {
     // Create a service client for the start_trajectory service
