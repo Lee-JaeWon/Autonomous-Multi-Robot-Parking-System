@@ -10,10 +10,8 @@
 #include "Astar.h"
 #include "OccMapTransform.h"
 
-
 using namespace cv;
 using namespace std;
-
 
 //-------------------------------- Global variables ---------------------------------//
 // Subscriber
@@ -40,17 +38,17 @@ bool startpoint_flag;
 bool targetpoint_flag;
 bool start_flag;
 int rate;
-int origin_x,origin_y;
+int origin_x, origin_y;
 double resol;
-int mx,my;
+int mx, my;
 
 //-------------------------------- Callback function ---------------------------------//
-void MapCallback(const nav_msgs::OccupancyGrid& msg)
+void MapCallback(const nav_msgs::OccupancyGrid &msg)
 {
     // Get parameter
     resol = msg.info.resolution;
-  origin_x = msg.info.origin.position.x;
-  origin_y =msg.info.origin.position.y;
+    origin_x = msg.info.origin.position.x;
+    origin_y = msg.info.origin.position.y;
     OccGridParam.GetOccupancyGridParam(msg);
 
     // Get map
@@ -58,14 +56,14 @@ void MapCallback(const nav_msgs::OccupancyGrid& msg)
     int width = OccGridParam.width;
     int OccProb;
     Mat Map(height, width, CV_8UC1);
-    for(int i=0;i<height;i++)
+    for (int i = 0; i < height; i++)
     {
-        for(int j=0;j<width;j++)
+        for (int j = 0; j < width; j++)
         {
             OccProb = msg.data[i * width + j];
             OccProb = (OccProb < 0) ? 100 : OccProb; // set Unknown to 0
             // The origin of the OccGrid is on the bottom left corner of the map
-            Map.at<uchar>(height-i-1, j) = 255 - round(OccProb * 255.0 / 100.0);
+            Map.at<uchar>(height - i - 1, j) = 255 - round(OccProb * 255.0 / 100.0);
         }
     }
 
@@ -79,11 +77,11 @@ void MapCallback(const nav_msgs::OccupancyGrid& msg)
     OccGridMask.header.frame_id = "map";
     OccGridMask.info = msg.info;
     OccGridMask.data.clear();
-    for(int i=0;i<height;i++)
+    for (int i = 0; i < height; i++)
     {
-        for(int j=0;j<width;j++)
+        for (int j = 0; j < width; j++)
         {
-            OccProb = Mask.at<uchar>(height-i-1, j) * 255;
+            OccProb = Mask.at<uchar>(height - i - 1, j) * 255;
             OccGridMask.data.push_back(OccProb);
         }
     }
@@ -94,54 +92,58 @@ void MapCallback(const nav_msgs::OccupancyGrid& msg)
     targetpoint_flag = false;
 }
 
-void StartPointCallback(const geometry_msgs::PoseWithCovarianceStamped& msg)
+void StartPointCallback(const geometry_msgs::PoseWithCovarianceStamped &msg)
 {
-    
 
-//    ROS_INFO("startPoint: %f %f %d %d", msg.pose.pose.position.x, msg.pose.pose.position.y,
-//             startPoint.x, startPoint.y);
+    //    ROS_INFO("startPoint: %f %f %d %d", msg.pose.pose.position.x, msg.pose.pose.position.y,
+    //             startPoint.x, startPoint.y);
 }
 
-void TargetPointtCallback(const geometry_msgs::PoseStamped& msg)
+void TargetPointtCallback(const geometry_msgs::PoseStamped &msg)
 {
     Point2d src_point = Point2d(msg.pose.position.x, msg.pose.position.y);
     OccGridParam.Map2ImageTransform(src_point, targetPoint);
 
     // Set flag
     targetpoint_flag = true;
-    if(map_flag && startpoint_flag && targetpoint_flag)
+    if (map_flag && startpoint_flag && targetpoint_flag)
     {
         start_flag = true;
     }
 
-//    ROS_INFO("targetPoint: %f %f %d %d", msg.pose.position.x, msg.pose.position.y,
-//             targetPoint.x, targetPoint.y);
+    //    ROS_INFO("targetPoint: %f %f %d %d", msg.pose.position.x, msg.pose.position.y,
+    //             targetPoint.x, targetPoint.y);
 }
-void odomCallback(const nav_msgs::Odometry& msg)
+void odomCallback(const geometry_msgs::PoseStamped &msg)
 {
-  mx = int ((msg.pose.pose.position.x  - origin_x)/(resol)); //world to map
-  my = int ((msg.pose.pose.position.y - origin_y)/(resol)); //world to map
-  ROS_INFO("%d",mx);
-  ROS_INFO("%d",my);
-    Point2d src_point = Point2d(msg.pose.pose.position.x ,msg.pose.pose.position.y );
+    mx = int((msg.pose.position.x - origin_x) / (resol)); // world to map
+    my = int((msg.pose.position.y - origin_y) / (resol)); // world to map
+    Point2d src_point = Point2d(msg.pose.position.x, msg.pose.position.y);
     OccGridParam.Map2ImageTransform(src_point, startPoint);
 
     // Set flag
     startpoint_flag = true;
-    if(map_flag && startpoint_flag && targetpoint_flag)
+    if (map_flag && startpoint_flag && targetpoint_flag)
     {
         start_flag = true;
     }
 }
 
 //-------------------------------- Main function ---------------------------------//
-int main(int argc, char * argv[])
+int main(int argc, char *argv[])
 {
     //  Initial node
     ros::init(argc, argv, "astar");
     ros::NodeHandle nh;
     ros::NodeHandle nh_priv("~");
     ROS_INFO("Start astar node!\n");
+
+    // param check
+    std::string s;
+    if (ros::param::get("~namespace_one", s))
+        ROS_INFO("Astar node got param: %s", s.c_str());
+    else
+        ROS_ERROR("Astar Failed to get param 'namespace'");
 
     // Initial variables
     map_flag = false;
@@ -156,38 +158,43 @@ int main(int argc, char * argv[])
     nh_priv.param<int>("rate", rate, 10);
 
     // Subscribe topics
-    map_sub = nh.subscribe("map", 10, MapCallback);
-    startPoint_sub = nh.subscribe("initialpose", 10, StartPointCallback);
-    targetPoint_sub = nh.subscribe("move_base_simple/goal", 10, TargetPointtCallback);
-    odom_sub = nh.subscribe("/odom", 10, odomCallback);
+    std::string map_ns = s + "/map";
+    std::string goal_ns = s + "/move_base_simple/goal";
+    std::string track_ns = s + "/tracked_pose";
+    std::string initpose_ns = s + "/initialpose";
+    map_sub = nh.subscribe((map_ns), 10, MapCallback);
+    startPoint_sub = nh.subscribe(initpose_ns, 10, StartPointCallback);
+    targetPoint_sub = nh.subscribe(goal_ns, 10, TargetPointtCallback);
+    odom_sub = nh.subscribe(track_ns, 10, odomCallback);
 
     // Advertise topics
-    mask_pub = nh.advertise<nav_msgs::OccupancyGrid>("mask", 1);
-    path_pub = nh.advertise<nav_msgs::Path>("nav_path", 10);
+    std::string path_ns = s + "/path";
+    mask_pub = nh.advertise<nav_msgs::OccupancyGrid>("mask", 1); //potential problem
+    path_pub = nh.advertise<nav_msgs::Path>(path_ns, 10);
 
     // Loop and wait for callback
     ros::Rate loop_rate(rate);
-    while(ros::ok())
+    while (ros::ok())
     {
-        if(start_flag)
+        if (start_flag)
         {
             double start_time = ros::Time::now().toSec();
             // Start planning path
             vector<Point> PathList;
             astar.PathPlanning(startPoint, targetPoint, PathList);
-            if(!PathList.empty())
+            if (!PathList.empty())
             {
                 path.header.stamp = ros::Time::now();
-                path.header.frame_id = "map";
+                path.header.frame_id = map_ns;
                 path.poses.clear();
-                for(int i=0;i<PathList.size();i++)
+                for (int i = 0; i < PathList.size(); i++)
                 {
                     Point2d dst_point;
                     OccGridParam.Image2MapTransform(PathList[i], dst_point);
 
                     geometry_msgs::PoseStamped pose_stamped;
                     pose_stamped.header.stamp = ros::Time::now();
-                    pose_stamped.header.frame_id = "map";
+                    pose_stamped.header.frame_id = map_ns;
                     pose_stamped.pose.position.x = dst_point.x;
                     pose_stamped.pose.position.y = dst_point.y;
                     pose_stamped.pose.position.z = 0;
@@ -207,7 +214,7 @@ int main(int argc, char * argv[])
             start_flag = false;
         }
 
-        if(map_flag)
+        if (map_flag)
         {
             mask_pub.publish(OccGridMask);
         }
@@ -215,7 +222,6 @@ int main(int argc, char * argv[])
         loop_rate.sleep();
         ros::spinOnce();
     }
-
 
     return 0;
 }

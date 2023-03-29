@@ -1,6 +1,7 @@
 <launch>
     <arg name="namespace_one" default="robot_1"/>
     <arg name="namespace_two" default="robot_2"/>
+    <arg name="namespace_three" default="robot_3"/>
 
     <!-- Arguments -->
     <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
@@ -38,7 +39,7 @@
 
 
     <!-- For robot_1 -->
-    <node name="wheel_operator" pkg="dynamixel_workbench_operators" type="wheel_operator" required="true" output="screen" ns="$(arg namespace_one)"/>
+    <!-- <node name="wheel_operator" pkg="dynamixel_workbench_operators" type="wheel_operator" required="true" output="screen" ns="$(arg namespace_one)"/> -->
 
     <!-- For robot_1 -->
     <group ns = "$(arg namespace_one)">
@@ -47,7 +48,7 @@
         <param name="use_pose_extrapolator" value="true"/>
         <node pkg="cartographer_ros" type="cartographer_node" name="cartographer_node" 
             args="-configuration_directory $(find multi_parking_sys)/lua -configuration_basename $(arg namespace_one)_rplidar.lua 
-            -load_state_filename /home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/multi_parking_sys/map/mymap0315.pbstream
+            -load_state_filename /home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/multi_parking_sys/map/mymap0327.pbstream
             "
             output="screen">
             <param name="use_pose_extrapolator" value="true"/>
@@ -60,11 +61,41 @@
         </node>
     </group>
 
+    <!-- init pose node -->
+    <node name="pose_init" pkg="pose" type="srv_pose" output="screen">
+        <param name="namespace_one" value="$(arg namespace_one)"/>
+        <param name="namespace_two" value="$(arg namespace_two)"/>
+        <param name="namespace_three" value="$(arg namespace_three)"/>
+    </node>
+
     <!-- state publisher for robot_1 -->
     <!-- <node pkg="tf" type="static_transform_publisher" name="world_to_$(arg namespace_one)_tf_broadcaster"  args="0 0 0 0 0 0 /map /$(arg namespace_one)/map 100"/> -->
     <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_map_to_$(arg namespace_one)_odom"  args="0 0 0 0 0 0 /$(arg namespace_one)/map /$(arg namespace_one)/odom 100"/>
     <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_base_to_laser_broadcaster" args="0 0 0 1.5708 0 3.141592 /$(arg namespace_one)/base_link /$(arg namespace_one)/laser 100" />
     <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_base_to_imu_broadcaster" args="0 0 0 0 0 0 /$(arg namespace_one)/base_link /$(arg namespace_one)/imu 100" />
+
+    <!-- rviz -->
+    <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find multi_parking_sys)/rviz/multi_carto.rviz" />
+
+    <!-- Stanley Tracker -->
+    <node pkg="pathTracking" type="tracker" name="tracker" output="screen">
+        <param name="k" type="double" value="4.0"/>
+        <param name="k2" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.1"/>
+        <param name="namespace_one" value="$(arg namespace_one)"/>
+    </node>
+
+    <!-- Path Maker -->
+    <!-- <node pkg="test_pkg" type="test_map.py" name="map_node"/> -->
+
+    <!-- astar node -->
+    <!-- <node pkg="astar" type="astar" name="astar" output="screen">
+        <param name="Euclidean" value="true"/>
+        <param name="OccupyThresh" value="-1"/>
+        <param name="InflateRadius" value="0.1"/>
+        <param name="rate" value="10"/>
+        <param name="namespace_one" value="$(arg namespace_one)"/>
+    </node> -->
 
 
 </launch>
