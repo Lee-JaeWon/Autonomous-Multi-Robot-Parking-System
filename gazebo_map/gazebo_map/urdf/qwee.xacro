@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<robot name="qwee" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find gazebo_map)/urdf/materials.xacro" />
+<xacro:include filename="$(find gazebo_map)/urdf/qwee.trans" />
+<xacro:include filename="$(find gazebo_map)/urdf/qwee.gazebo" />
+<link name="base_link">
+  <inertial>
+    <origin xyz="-0.09121255774675902 0.13984228304608404 0.18200623416618342" rpy="0 0 0"/>
+    <mass value="201.31"/>
+    <inertia ixx="293.102378" iyy="317.820351" izz="606.430044" ixy="-30.334954" iyz="0.042971" ixz="-0.010813"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://gazebo_map/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://gazebo_map/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+</robot>
