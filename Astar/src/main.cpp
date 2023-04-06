@@ -37,6 +37,7 @@ bool map_flag;
 bool startpoint_flag;
 bool targetpoint_flag;
 bool start_flag;
+bool traked_flag = false;
 int rate;
 int origin_x, origin_y;
 double resol;
@@ -101,6 +102,7 @@ void StartPointCallback(const geometry_msgs::PoseWithCovarianceStamped &msg)
 
 void TargetPointtCallback(const geometry_msgs::PoseStamped &msg)
 {
+    traked_flag = true;
     Point2d src_point = Point2d(msg.pose.position.x, msg.pose.position.y);
     OccGridParam.Map2ImageTransform(src_point, targetPoint);
 
@@ -116,16 +118,19 @@ void TargetPointtCallback(const geometry_msgs::PoseStamped &msg)
 }
 void odomCallback(const geometry_msgs::PoseStamped &msg)
 {
-    mx = int((msg.pose.position.x - origin_x) / (resol)); // world to map
-    my = int((msg.pose.position.y - origin_y) / (resol)); // world to map
-    Point2d src_point = Point2d(msg.pose.position.x, msg.pose.position.y);
-    OccGridParam.Map2ImageTransform(src_point, startPoint);
-
-    // Set flag
-    startpoint_flag = true;
-    if (map_flag && startpoint_flag && targetpoint_flag)
+    if (traked_flag)
     {
-        start_flag = true;
+        mx = int((msg.pose.position.x - origin_x) / (resol)); // world to map
+        my = int((msg.pose.position.y - origin_y) / (resol)); // world to map
+        Point2d src_point = Point2d(msg.pose.position.x, msg.pose.position.y);
+        OccGridParam.Map2ImageTransform(src_point, startPoint);
+
+        // Set flag
+        startpoint_flag = true;
+        if (map_flag && startpoint_flag && targetpoint_flag)
+        {
+            start_flag = true;
+        }
     }
 }
 
@@ -162,14 +167,15 @@ int main(int argc, char *argv[])
     std::string goal_ns = s + "/move_base_simple/goal";
     std::string track_ns = s + "/tracked_pose";
     std::string initpose_ns = s + "/initialpose";
+
     map_sub = nh.subscribe((map_ns), 10, MapCallback);
-    startPoint_sub = nh.subscribe(initpose_ns, 10, StartPointCallback);
+    // startPoint_sub = nh.subscribe(initpose_ns, 10, StartPointCallback);
     targetPoint_sub = nh.subscribe(goal_ns, 10, TargetPointtCallback);
     odom_sub = nh.subscribe(track_ns, 10, odomCallback);
 
     // Advertise topics
     std::string path_ns = s + "/path";
-    mask_pub = nh.advertise<nav_msgs::OccupancyGrid>("mask", 1); //potential problem
+    mask_pub = nh.advertise<nav_msgs::OccupancyGrid>("mask", 1); // potential problem
     path_pub = nh.advertise<nav_msgs::Path>(path_ns, 10);
 
     // Loop and wait for callback
