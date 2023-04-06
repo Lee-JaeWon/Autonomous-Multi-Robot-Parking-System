@@ -37,7 +37,6 @@
         </node>
     </group>
 
-
     <!-- For robot_1 -->
     <!-- <node name="wheel_operator" pkg="dynamixel_workbench_operators" type="wheel_operator" required="true" output="screen" ns="$(arg namespace_one)"/> -->
 
@@ -78,6 +77,7 @@
     <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find multi_parking_sys)/rviz/multi_carto.rviz" />
 
     <!-- Stanley Tracker -->
+    <!-- For robot_1 -->
     <node pkg="pathTracking" type="tracker" name="tracker" output="screen">
         <param name="k" type="double" value="4.0"/>
         <param name="k2" type="double" value="1.5"/>
@@ -85,17 +85,15 @@
         <param name="namespace_one" value="$(arg namespace_one)"/>
     </node>
 
-    <!-- Path Maker -->
-    <!-- <node pkg="test_pkg" type="test_map.py" name="map_node"/> -->
-
     <!-- astar node -->
-    <!-- <node pkg="astar" type="astar" name="astar" output="screen">
+    <!-- For robot_1 -->
+    <node pkg="astar" type="astar" name="astar" output="screen">
         <param name="Euclidean" value="true"/>
         <param name="OccupyThresh" value="-1"/>
         <param name="InflateRadius" value="0.1"/>
         <param name="rate" value="10"/>
         <param name="namespace_one" value="$(arg namespace_one)"/>
-    </node> -->
+    </node>
 
 
 </launch>
