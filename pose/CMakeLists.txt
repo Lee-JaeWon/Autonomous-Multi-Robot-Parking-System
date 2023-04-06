@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   cartographer_ros_msgs
+  tf2
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
