@@ -32,6 +32,9 @@ namespace ui_emergency
   {
     ui.setupUi(this);
     qnode.init();
+
+    QIcon appIcon("/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/ui_emergency/images/icon.png");
+    this->setWindowIcon(appIcon);
   }
 
   void ui_emergency::MainWindow::on_pushButton_clicked()
