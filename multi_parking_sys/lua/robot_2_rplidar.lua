@@ -22,6 +22,8 @@ options = {
   tracking_frame = "robot_2/imu_link", -- imu_link, If you are using gazebo, use 'base_footprint' (libgazebo_ros_imu's bug)
   published_frame = "robot_2/odom",
   odom_frame = "robot_2/odom",
+
+  publish_tracked_pose = true,
   provide_odom_frame = false,
   publish_frame_projected_to_2d = false,
   use_odometry = true,
