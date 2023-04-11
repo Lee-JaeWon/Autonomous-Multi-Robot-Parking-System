@@ -17,18 +17,18 @@
   <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
 
   <!-- rviz -->
-  <group if="$(arg open_rviz)"> 
+  <group if="$(arg open_rviz)">
     <node pkg="rviz" type="rviz" name="rviz" required="true"
           args="-d $(find pathTracking)/rviz/tracker.rviz"/>
   </group>
 
-  <!-- Stanley Tracker -->
+  <!-- Kanayama Tracker -->
   <node pkg="pathTracking" type="tracker" name="tracker" output="screen">
-    <param name="tracker" type="string" value="Stanley"/>
-    <param name="k" type="double" value="4.0"/>
-    <param name="k2" type="double" value="1.5"/>
-    <param name="v" type="double" value="0.2"/>
-    <param name="hz" type="int" value="10"/>
+    <param name="tracker" type="string" value="Kanayama"/>
+    <param name="k_x" type="double" value="0.6"/>
+    <param name="k_y" type="double" value="12"/>
+    <param name="timeStep" type="double" value="0.4"/>
+    <param name="hz" type="int" value="33"/>
   </node>
 
   <!-- Path Maker -->

@@ -25,6 +25,9 @@ private:
   double v = 1.0;
   int hz = 33;
 
+  //Time
+  double nowTime;
+
   //Now pose
   double robot_pos_x;
   double robot_pos_y;
@@ -45,22 +48,28 @@ private:
 
 public:
 
+  void Set_robot_pos(double x, double y, double theta, double time)
+  {
+    this->robot_pos_x = x;
+    this->robot_pos_y = y;
+    this->robot_heading = theta;
+    this->nowTime = time;
+  }
+
   void Set_robot_pos(double x, double y, double theta)
   {
     this->robot_pos_x = x;
     this->robot_pos_y = y;
     this->robot_heading = theta;
-
-//    if(theta>PI) this->robot_heading = theta - (2*PI);
-//    else if(theta<-PI) this->robot_heading = theta + (2*PI);
-//    else this->robot_heading = theta;
   }
 
   void Set_trajectory(nav_msgs::Path trajectory_)
   {
     this->trajectory=trajectory_;
-    this->trajectory_length = this->trajectory.poses.size();
+    this->trajectory_length = (int)this->trajectory.poses.size();
+    std::cout<<this->trajectory_length<<"\n";
   }
+
 
   void Set_parameters(double k_, double k2_, double v_, int hz_)
   {
@@ -138,7 +147,7 @@ public:
 
   bool End_trajectory()
   {
-    if(trajectory_length<5)
+    if(trajectory_length<3)
     {
       return true;
     }
@@ -177,9 +186,6 @@ public:
       }
     }
 
-
-
-
     double heading_error = this->desire_heading-this->robot_heading;
 
 //    if(heading_error>2*PI) heading_error-=2*PI;
@@ -194,14 +200,13 @@ public:
 //    std::cout <<"angular_vel  : "<<angular_vel<<"\n";
 
     //Saturation
-    double cmd_value = 1.0;
-    if(angular_vel >= cmd_value)
+    if(angular_vel>=3)
     {
-      angular_vel = cmd_value;
+      angular_vel = 3;
     }
-    else if(angular_vel <= -cmd_value)
+    else if(angular_vel<=-3)
     {
-      angular_vel = -cmd_value;
+      angular_vel = -3;
     }
 
     desired_robot_vel.linear.x = this->v;
@@ -213,6 +218,11 @@ public:
   geometry_msgs::Pose Get_Dp()
   {
     return this->trajectory.poses[0].pose;
+  }
+
+  nav_msgs::Path Left_Traj()
+  {
+    return this->trajectory;
   }
 
 };

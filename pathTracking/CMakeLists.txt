@@ -15,6 +15,11 @@ find_package(catkin REQUIRED COMPONENTS
   tf2
 )
 
+find_package(cmake_modules REQUIRED)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+find_package(Eigen REQUIRED)
+include_directories(${Eigen_INCLUDE_DIRS})
+
 # find_package(Boost REQUIRED COMPONENTS system)
 
 # catkin_python_setup()
@@ -22,7 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 # add_message_files(
 #   FILES
-#   Message1.msg
+#   Message1.msg￣
 #   Message2.msg
 # )
 
@@ -51,6 +56,7 @@ catkin_package(
 #  LIBRARIES pathTracking
 #  CATKIN_DEPENDS geometry_msgs roscpp std_msgs tf tf2
 #  DEPENDS system_lib
+  DEPENDS Eigen
 )
 
 ###########
@@ -68,6 +74,7 @@ include_directories(
  add_library(${PROJECT_NAME}
    #src/${PROJECT_NAME}/tracker.cpp
    src/stanley.cpp
+   src/kanayama.cpp
  )
 
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -80,6 +87,7 @@ add_executable(tracker src/tracker.cpp)
 
  target_link_libraries(tracker
    ${catkin_LIBRARIES}
+   ${Eigen_LIBRARIES}
  )
 
 #############

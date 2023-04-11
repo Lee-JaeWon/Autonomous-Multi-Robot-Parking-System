@@ -22,14 +22,16 @@ tf2_ros::Buffer tfBuffer;
 //Publishers
 ros::Publisher pub;
 ros::Publisher pub_vel;
+
+//Publishers-rviz
 ros::Publisher pub_dp;
+ros::Publisher pub_left_traj;
 
 //Subscribers
 ros::Subscriber sub;
 ros::Subscriber sub_trajectory;
 
 //variables
-int hz = 33;
 bool tf_listened = false;
 bool trajectiory_subscribed = false;
 bool start_tracking = false;
@@ -39,10 +41,20 @@ double robot_X;
 double robot_Y;
 double robot_Yaw;
 
+//Hz Paramaeter
+int hz = 33;
+std::string tracker_name = "Stanley";
+
 //Stanley Parameters
-double k=2.5;
-double k2=1.5;
-double v=0.3;
+double k = 4.0;
+double k2 = 1.5;
+double v = 0.22;
+
+//Kanayama Parameters
+double k_x = 0;
+double k_y = 0;
+double k_theta = 0;
+double timeStep = 0.3;
 
 
 void tf_Listener();
