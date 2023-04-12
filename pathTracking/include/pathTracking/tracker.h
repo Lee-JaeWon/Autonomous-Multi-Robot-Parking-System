@@ -9,6 +9,8 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PointStamped.h>
 
+#include <std_msgs/Bool.h>
+
 
 //Messages
 nav_msgs::Odometry  state;
@@ -30,6 +32,7 @@ ros::Publisher pub_left_traj;
 //Subscribers
 ros::Subscriber sub;
 ros::Subscriber sub_trajectory;
+ros::Subscriber emer_sub;
 
 //variables
 bool tf_listened = false;
@@ -55,6 +58,9 @@ double k_x = 0;
 double k_y = 0;
 double k_theta = 0;
 double timeStep = 0.3;
+
+//emergency
+bool emer_flag = true;
 
 
 void tf_Listener();
