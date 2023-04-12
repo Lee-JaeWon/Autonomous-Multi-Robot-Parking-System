@@ -16,6 +16,7 @@
 #include <std_msgs/String.h>
 #include <sstream>
 #include <QApplication> // Include QApplication header
+#include <std_msgs/Bool.h>
 #include "../include/ui_emergency/qnode.hpp"
 
 /*****************************************************************************
@@ -79,21 +80,19 @@ namespace ui_emergency
       ros::spinOnce();   // callback 호출
       loop_rate.sleep(); // 루프 주기
 
+      ros::NodeHandle nh;
+      chatter_emer = nh.advertise<std_msgs::Bool>("/emer_flag", 1000);
+
       if (emer_btn_flag)
       {
-        ros::NodeHandle nh;
-
-        cmd_vel1_publisher = nh.advertise<geometry_msgs::Twist>("/robot_1/cmd_vel", 1);
-        cmd_vel2_publisher = nh.advertise<geometry_msgs::Twist>("/robot_2/cmd_vel", 1);
-        cmd_vel3_publisher = nh.advertise<geometry_msgs::Twist>("/robot_3/cmd_vel", 1);
-
-        geometry_msgs::Twist msg;
-        msg.linear.x = 0.0;
-        msg.angular.z = 0.0;
-
-        cmd_vel1_publisher.publish(msg);
-        cmd_vel2_publisher.publish(msg);
-        cmd_vel3_publisher.publish(msg);
+        std_msgs::Bool msg1;
+        msg1.data = false;
+        chatter_emer.publish(msg1);
+      }
+      else{
+        std_msgs::Bool msg1;
+        msg1.data = true;
+        chatter_emer.publish(msg1);
       }
 
       if (!ros::master::check())

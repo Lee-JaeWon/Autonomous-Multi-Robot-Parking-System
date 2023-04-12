@@ -41,9 +41,7 @@ namespace ui_emergency
     char **init_argv;
 
     ros::Publisher chatter_publisher;
-    ros::Publisher cmd_vel1_publisher;
-    ros::Publisher cmd_vel2_publisher;
-    ros::Publisher cmd_vel3_publisher;
+    ros::Publisher chatter_emer;
 
   };
 
