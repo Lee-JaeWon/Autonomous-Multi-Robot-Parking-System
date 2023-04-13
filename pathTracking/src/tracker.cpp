@@ -120,7 +120,7 @@ int main(int argc, char **argv)
   ros::Rate rate(hz);
   while (ros::ok())
   {
-    std::cout << emer_flag;
+    // std::cout << emer_flag;
     tf_Listener(map_ns, baselink_ns);
 
     if (trajectiory_subscribed)
