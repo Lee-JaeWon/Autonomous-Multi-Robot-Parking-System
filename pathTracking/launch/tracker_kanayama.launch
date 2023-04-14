@@ -25,9 +25,9 @@
   <!-- Kanayama Tracker -->
   <node pkg="pathTracking" type="tracker" name="tracker" output="screen">
     <param name="tracker" type="string" value="Kanayama"/>
-    <param name="k_x" type="double" value="0.6"/>
-    <param name="k_y" type="double" value="12"/>
-    <param name="timeStep" type="double" value="0.4"/>
+    <param name="k_x" type="double" value="0.5"/>
+    <param name="k_y" type="double" value="15"/>
+    <param name="timeStep" type="double" value="0.3"/>
     <param name="hz" type="int" value="33"/>
   </node>
 

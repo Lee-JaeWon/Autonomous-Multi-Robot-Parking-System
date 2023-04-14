@@ -42,6 +42,7 @@ nav_msgs::Path Reader(std::string fileName)
       std::cout<<" length : "<<length<<"\n";
       for(int i=0;i<length;i++)
       {
+        path.poses[i].header.frame_id="map";
         double x,y,z;
         readile >> x;
         readile >> y;
@@ -62,7 +63,7 @@ nav_msgs::Path Reader(std::string fileName)
   }
   readile.close();
   std::cout<<"Read Success!! \n";
-  //pub_trajectory.publish(path);
+  pub_trajectory.publish(path);
   return path;
 }
 
@@ -168,8 +169,8 @@ int main(int argc, char** argv){
      }
      else if(topicMode=="pub"&&(trigger==2))
      {
-       //Reader(filePath+fileName);
-       pub_trajectory.publish(Reader(filePath+fileName));
+       Reader(filePath+fileName);
+       //pub_trajectory.publish(Reader(filePath+fileName));
        Once = false;
      }
      trigger++;

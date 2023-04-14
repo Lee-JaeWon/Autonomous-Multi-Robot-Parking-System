@@ -79,6 +79,11 @@ public:
     this->hz = hz_;
   }
 
+  double return_Dist()
+  {
+    return this->distP2R;
+  }
+
   void Calc_desired_point()
   {
     //calc desire pose, theta, dist
@@ -88,7 +93,7 @@ public:
     {
       x = this->trajectory.poses[i].pose.position.x;
       y = this->trajectory.poses[i].pose.position.y;
-      double dist_ = (x-this->robot_pos_x)*(x-this->robot_pos_x) + (y-this->robot_pos_y)*(y-this->robot_pos_y);
+      double dist_ = sqrt((x-this->robot_pos_x)*(x-this->robot_pos_x) + (y-this->robot_pos_y)*(y-this->robot_pos_y));
 
       if(min_dist > dist_)
       {
@@ -112,9 +117,6 @@ public:
         double Xprod = a11*a22-a12*a21;
 
         theta = atan2(a12,a11);
-
-//        if(theta>PI) theta -=(2*PI);
-//        else if(theta<-PI) theta +=(2*PI);
 
         if(Xprod >0){
             sign =-1;
@@ -142,7 +144,8 @@ public:
       this->trajectory.poses.erase(this->trajectory.poses.begin());
       trajectory_length--;
     }
-    //std::cout<<trajectory_length<<"\n";
+
+    //std::cout<<"min_dist : "<<min_dist<<"\n";
   }
 
   bool End_trajectory()

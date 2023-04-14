@@ -43,6 +43,8 @@ private:
   int target_index;
   int last_index;
 
+  double distP2R;
+
   int sign; //where is the robot (left or right side by path)
 
   nav_msgs::Path trajectory;
@@ -176,6 +178,12 @@ public:
     this->hz  = hz_;
   }
 
+  double return_Dist()
+  {
+    return this->distP2R;
+  }
+
+
   int Calc_Closest_Point()
   {
     //calc desire pose, theta, dist
@@ -191,7 +199,7 @@ public:
     {
       x = this->trajectory.poses[i].pose.position.x;
       y = this->trajectory.poses[i].pose.position.y;
-      double dist_ = (x-this->robot_pos_x)*(x-this->robot_pos_x) + (y-this->robot_pos_y)*(y-this->robot_pos_y);
+      double dist_ = sqrt((x-this->robot_pos_x)*(x-this->robot_pos_x) + (y-this->robot_pos_y)*(y-this->robot_pos_y));
 
       if(min_dist > dist_)
       {
@@ -228,6 +236,7 @@ public:
         cNum = i;
       }
     }
+    this->distP2R = min_dist;
 
     //Delete an already passed trajectory
     for(int i=0;i<cNum;i++)
@@ -264,7 +273,7 @@ public:
 
   bool End_trajectory()
   {
-    if(this->last_index == this->target_index && (this->target_index-this->closetIndex<2) )
+    if(this->last_index == this->target_index && (this->target_index-this->closetIndex<3) )
     {
       return true;
     }
@@ -330,22 +339,22 @@ public:
 
 
     //Saturation
-    if(angular_vel >= 0.6)
+    if(angular_vel>=2)
     {
-      angular_vel = 0.6;
+      angular_vel = 2;
     }
-    else if(angular_vel <= -0.6)
+    else if(angular_vel<=-2)
     {
-      angular_vel = -0.6;
+      angular_vel = -2;
     }
 
-    if(linear_vel >= 0.18)
+    if(linear_vel>=0.22)
     {
-      linear_vel = 0.18;
+      linear_vel = 0.22;
     }
-    else if(linear_vel <= -0.18)
+    else if(linear_vel<=-0.22)
     {
-      linear_vel = -0.18;
+      linear_vel = -0.22;
     }
 
     desired_robot_vel.linear.x = linear_vel;
