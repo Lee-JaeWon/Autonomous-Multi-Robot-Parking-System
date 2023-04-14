@@ -20,10 +20,27 @@
 #include <visualization_msgs/Marker.h>
 #include "../include/ui_main/qnode.hpp"
 #include <geometry_msgs/PoseStamped.h>
+#include <tf/tf.h>
+#include <cmath>
 
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
+
+double robot_1_x, robot_1_y, robot_1_z;
+double robot_1_ox, robot_1_oy, robot_1_oz, robot_1_ow;
+
+void trackCallBack(const geometry_msgs::PoseStamped::ConstPtr &msg)
+{
+  robot_1_x = msg->pose.position.x;
+  robot_1_y = msg->pose.position.y;
+  robot_1_z = msg->pose.position.z;
+
+  robot_1_ox = msg->pose.orientation.x;
+  robot_1_oy = msg->pose.orientation.y;
+  robot_1_oz = msg->pose.orientation.z;
+  robot_1_ow = msg->pose.orientation.w;
+}
 
 namespace ui_main
 {
@@ -67,22 +84,16 @@ namespace ui_main
 
   void QNode::run()
   {
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(100);
 
-    ros::NodeHandle n("~");
+    ros::NodeHandle nh;
 
-    int num_of_robots = 0;
-    if (n.getParam("num_of_robots", num_of_robots))
-    {
-      ROS_INFO("UI_emer node got param: %d", num_of_robots);
-    }
+    tracked_sub = nh.subscribe(track_ns_robot1, 100, trackCallBack);
 
     while (ros::ok())
     {
       ros::spinOnce();   // callback 호출
       loop_rate.sleep(); // 루프 주기
-
-      ros::NodeHandle nh;
 
       if (btn_marker_pub_flag) // goal marker
       {
@@ -93,24 +104,24 @@ namespace ui_main
         ////////////////////////////////////////////////////////
         visualization_msgs::Marker marker;
 
-        uint32_t shape = visualization_msgs::Marker::SPHERE;
+        uint32_t shape = visualization_msgs::Marker::ARROW;
 
-        marker.header.frame_id = "robot_1/map";
+        marker.header.frame_id = robot_1_map;
         marker.header.stamp = ros::Time::now();
         marker.ns = "basic_shapes";
         marker.id = 0;
         marker.type = shape;
         marker.action = visualization_msgs::Marker::ADD;
-        marker.pose.position.x = 1.8;
-        marker.pose.position.y = 1.6;
+        marker.pose.position.x = goal_x;
+        marker.pose.position.y = goal_y;
         marker.pose.position.z = 0.0;
         marker.pose.orientation.x = 0.0;
         marker.pose.orientation.y = 0.0;
-        marker.pose.orientation.z = 0.69862;
-        marker.pose.orientation.w = 0.71548;
-        marker.scale.x = 0.2;
-        marker.scale.y = 0.2;
-        marker.scale.z = 0.2;
+        marker.pose.orientation.z = goal_oz;
+        marker.pose.orientation.w = goal_ow;
+        marker.scale.x = 0.4;
+        marker.scale.y = 0.1;
+        marker.scale.z = 0.1;
         marker.color.r = 1.0f; // yellow
         marker.color.g = 1.0f;
         marker.color.b = 0.0f;
@@ -123,22 +134,22 @@ namespace ui_main
         ////////////////////////////////////////////////////////
         visualization_msgs::Marker marker_waypoint;
 
-        marker_waypoint.header.frame_id = "robot_1/map";
+        marker_waypoint.header.frame_id = robot_1_map;
         marker_waypoint.header.stamp = ros::Time::now();
         marker_waypoint.ns = "basic_shapes";
         marker_waypoint.id = 0;
         marker_waypoint.type = shape;
         marker_waypoint.action = visualization_msgs::Marker::ADD;
-        marker_waypoint.pose.position.x = 1.8;
-        marker_waypoint.pose.position.y = 1.10;
+        marker_waypoint.pose.position.x = pre_goal_x;
+        marker_waypoint.pose.position.y = pre_goal_y;
         marker_waypoint.pose.position.z = 0.0;
         marker_waypoint.pose.orientation.x = 0.0;
         marker_waypoint.pose.orientation.y = 0.0;
-        marker_waypoint.pose.orientation.z = 0.69862;
-        marker_waypoint.pose.orientation.w = 0.71548;
-        marker_waypoint.scale.x = 0.2;
-        marker_waypoint.scale.y = 0.2;
-        marker_waypoint.scale.z = 0.2;
+        marker_waypoint.pose.orientation.z = pre_goal_oz;
+        marker_waypoint.pose.orientation.w = pre_goal_ow;
+        marker_waypoint.scale.x = 0.4;
+        marker_waypoint.scale.y = 0.1;
+        marker_waypoint.scale.z = 0.1;
         marker_waypoint.color.r = 0.0f; // blue
         marker_waypoint.color.g = 0.0f;
         marker_waypoint.color.b = 1.0f;
@@ -151,18 +162,18 @@ namespace ui_main
         ////////////////////////////////////////////////////////
         visualization_msgs::Marker marker_text;
 
-        marker_text.header.frame_id = "robot_1/map";
+        marker_text.header.frame_id = robot_1_map;
         marker_text.header.stamp = ros::Time::now();
         marker_text.ns = "text_marker";
         marker_text.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
         marker_text.action = visualization_msgs::Marker::ADD;
-        marker_text.pose.position.x = 1.8;
-        marker_text.pose.position.y = 1.8;
+        marker_text.pose.position.x = text_first_goal_x;
+        marker_text.pose.position.y = text_first_goal_y;
         marker_text.pose.position.z = 0.0;
         marker_text.pose.orientation.x = 0.0;
         marker_text.pose.orientation.y = 0.0;
-        marker_text.pose.orientation.z = 0.69862;
-        marker_text.pose.orientation.w = 0.71548;
+        marker_text.pose.orientation.z = text_first_goal_oz;
+        marker_text.pose.orientation.w = text_first_goal_ow;
         marker_text.scale.x = 0.2;
         marker_text.scale.y = 0.2;
         marker_text.scale.z = 0.2;
@@ -201,7 +212,8 @@ namespace ui_main
         btn_goal_flag = false;
       }
 
-      if(btn_return_flag){
+      if (btn_return_flag)
+      {
         return_pub = nh.advertise<geometry_msgs::PoseStamped>("/robot_1/move_base_simple/goal", 1);
 
         geometry_msgs::PoseStamped goal_msg_return;
@@ -222,9 +234,106 @@ namespace ui_main
         btn_return_flag = false;
       }
 
-      if(btn_poseset_flag){
-        // std::string track_ns = "robot_1/tracked_pose";
-        // tracked_pose_sub = nh.subscribe(track_ns, 10, TrackedPoseCallback);
+      if (btn_poseset_flag) // 버튼 눌림시
+      {
+        tf::Quaternion Quat( // 각 변환
+            robot_1_ox,
+            robot_1_oy,
+            robot_1_oz,
+            robot_1_ow);
+        tf::Matrix3x3 m(Quat);
+        m.getRPY(roll, pitch, yaw);
+
+        tf::Quaternion Quat2( // 각 변환
+            goal_ox,
+            goal_oy,
+            goal_oz,
+            goal_ow);
+        tf::Matrix3x3 m2(Quat2);
+        m2.getRPY(roll2, pitch2, yaw2);
+
+        cmd_stop_pub_1 = nh.advertise<std_msgs::Bool>("/robot_1/cmd_vel_stop", 1000);
+        std_msgs::Bool msg_temp;
+
+        // 본 명령 수행
+        pub_vel = nh.advertise<geometry_msgs::Twist>("/robot_1/cmd_vel", 1);
+        geometry_msgs::Twist cmd_vel;
+        if (stop_flag)
+        {
+          msg_temp.data = false;
+          cmd_stop_pub_1.publish(msg_temp);
+          cmd_vel.linear.x = 0.0;
+          cmd_vel.angular.z = 0.0;
+          
+          stop_flag = false;
+        }
+
+        if (rotate_flag)
+        {
+          double sign = yaw - yaw2;
+          double range = abs(yaw - yaw2);
+          if (range_flag)
+          {
+            ROS_INFO_ONCE("Now in range_flag");
+            // ROS_INFO("Now in range_flag");
+
+            if (range < 0.05)
+            {
+              cmd_vel.linear.x = 0.0;
+              cmd_vel.angular.z = 0.0;
+              ROS_INFO("Pose set finish");
+              dist_flag = true;   // 진입 1
+              range_flag = false; // 탈출 1
+            }
+            else
+            {
+              if (sign < 0)
+              {
+                cmd_vel.linear.x = 0.0;
+                cmd_vel.angular.z = 0.4;
+              }
+              else
+              {
+                cmd_vel.linear.x = 0.0;
+                cmd_vel.angular.z = -0.4;
+              }
+            }
+          } // 탈출 1
+
+          // double dist_range = sqrt((goal_x - robot_1_x) * (goal_x - robot_1_x) + (goal_y - robot_1_y) * (goal_y - robot_1_y));
+          double dist_range = abs(goal_y - robot_1_y); // 수정요구
+          if (dist_flag) // 진입 1
+          {
+            // ROS_INFO("Now in dist_flag");
+            ROS_INFO_ONCE("Now in dist_flag");
+            cmd_vel.linear.x = 0.1;
+            cmd_vel.angular.z = 0.0;
+
+            if (dist_range < 0.05)
+            {
+              ROS_INFO("distance set finish");
+
+              cmd_vel.linear.x = 0.0;
+              cmd_vel.angular.z = 0.0;
+
+              // traker 복구
+              msg_temp.data = true;
+              cmd_stop_pub_1.publish(msg_temp);
+
+              dist_flag = false;
+              rotate_flag = false;
+              btn_return_flag = false;
+            }
+            else
+            {
+              msg_temp.data = false;
+              cmd_stop_pub_1.publish(msg_temp);
+            }
+          }
+
+          pub_vel.publish(cmd_vel);
+          // ROS_INFO("range_flag %d, range %f", range_flag, range);
+        }
       }
 
       if (!ros::master::check())
@@ -264,8 +373,13 @@ namespace ui_main
     btn_return_flag = true;
   }
 
-  void QNode::Q_btnPoseset(){
+  void QNode::Q_btnPoseset()
+  {
     ROS_INFO("Q_btnPoseset");
+    stop_flag = true;
+    rotate_flag = true;
+    range_flag = true;
+    dist_flag = false;
     btn_poseset_flag = true;
   }
 

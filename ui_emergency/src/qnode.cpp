@@ -89,7 +89,8 @@ namespace ui_emergency
         msg1.data = false;
         chatter_emer.publish(msg1);
       }
-      else{
+      else
+      {
         std_msgs::Bool msg1;
         msg1.data = true;
         chatter_emer.publish(msg1);

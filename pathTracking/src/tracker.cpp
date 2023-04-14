@@ -22,6 +22,11 @@ void emer_Callback(const std_msgs::Bool::ConstPtr &msg)
   emer_flag = msg->data;
 }
 
+void cmd_velstop_Callback(const std_msgs::Bool::ConstPtr &msg)
+{
+  velstop_flag = msg->data;
+}
+
 void tf_Listener(std::string map_ns, std::string baselink_ns)
 {
   geometry_msgs::TransformStamped transformStamped;
@@ -117,10 +122,12 @@ int main(int argc, char **argv)
   sub_trajectory = nh.subscribe(s + "path", 1, pathCallback);
   // pub = nh.advertise<nav_msgs::Path>("path_",1);
   pub_vel = nh.advertise<geometry_msgs::Twist>(s + "cmd_vel", 1);
+  fake_pub_vel = nh.advertise<geometry_msgs::Twist>(s + "fake_cmd_vel", 1);
   pub_dp = nh.advertise<geometry_msgs::PointStamped>(s + "dp", 1);
   pub_left_traj = nh.advertise<nav_msgs::Path>(s + "left_traj", 1);
 
   emer_sub = nh.subscribe("/emer_flag", 1000, emer_Callback);
+  vel_stop_sub = nh.subscribe("/robot_1/cmd_vel_stop", 1000, cmd_velstop_Callback);
 
   tf2_ros::TransformListener tfListener(tfBuffer);
 
@@ -234,8 +241,24 @@ int main(int argc, char **argv)
       cmd_vel.angular.z = 0.0;
     }
 
-    // pub robot velocity
-    pub_vel.publish(cmd_vel);
+    if (emer_flag)
+    {
+      // pub robot velocity
+      if (velstop_flag)
+      {
+        pub_vel.publish(cmd_vel);
+      }
+      else
+      {
+        fake_pub_vel.publish(cmd_vel);
+      }
+    }
+    else
+    {
+      cmd_vel.linear.x = 0.0;
+      cmd_vel.angular.z = 0.0;
+      pub_vel.publish(cmd_vel);
+    }
 
     ros::spinOnce();
     rate.sleep();

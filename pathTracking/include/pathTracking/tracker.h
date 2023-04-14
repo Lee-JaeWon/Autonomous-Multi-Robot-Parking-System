@@ -23,6 +23,7 @@ tf2_ros::Buffer tfBuffer;
 //Publishers
 ros::Publisher pub;
 ros::Publisher pub_vel;
+ros::Publisher fake_pub_vel;
 
 //Publishers-rviz
 ros::Publisher pub_dp;
@@ -31,7 +32,9 @@ ros::Publisher pub_left_traj;
 //Subscribers
 ros::Subscriber sub;
 ros::Subscriber sub_trajectory;
+
 ros::Subscriber emer_sub;
+ros::Subscriber vel_stop_sub;
 
 //variables
 bool tf_listened = false;
@@ -69,6 +72,7 @@ double dc = 1.5;
 
 //emergency
 bool emer_flag = true;
+bool velstop_flag = true;
 
 
 void pathCallback(const nav_msgs::Path::ConstPtr& path_);
