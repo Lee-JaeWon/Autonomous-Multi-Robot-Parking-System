@@ -146,10 +146,10 @@ int main(int argc, char *argv[])
 
     // param check
     std::string s;
-    if (ros::param::get("~namespace_one", s))
+    if (ros::param::get("~namespace", s))
         ROS_INFO("Astar node got param: %s", s.c_str());
     else
-        ROS_ERROR("Astar Failed to get param 'namespace'");
+        ROS_ERROR("Astar Failed to get param '%s'", s.c_str());
 
     // Initial variables
     map_flag = false;
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
     nh_priv.param<int>("rate", rate, 10);
 
     // Subscribe topics
-    std::string map_ns = s + "/map";
+    std::string map_ns = "robot_1/map"; // fixed frame
     std::string goal_ns = s + "/move_base_simple/goal";
     std::string track_ns = s + "/tracked_pose";
     std::string initpose_ns = s + "/initialpose";

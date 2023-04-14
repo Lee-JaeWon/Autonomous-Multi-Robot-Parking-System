@@ -84,7 +84,7 @@ namespace ui_main
 
       ros::NodeHandle nh;
 
-      if (btn_marker_pub_flag)
+      if (btn_marker_pub_flag) // goal marker
       {
         vis_pub = nh.advertise<visualization_msgs::Marker>("Park_marker", 1);
         vis_way = nh.advertise<visualization_msgs::Marker>("way_marker", 1);
@@ -222,6 +222,11 @@ namespace ui_main
         btn_return_flag = false;
       }
 
+      if(btn_poseset_flag){
+        // std::string track_ns = "robot_1/tracked_pose";
+        // tracked_pose_sub = nh.subscribe(track_ns, 10, TrackedPoseCallback);
+      }
+
       if (!ros::master::check())
       {
         ROS_ERROR("ROS master disconnected");
@@ -257,6 +262,11 @@ namespace ui_main
   {
     ROS_INFO("btnReturnPub");
     btn_return_flag = true;
+  }
+
+  void QNode::Q_btnPoseset(){
+    ROS_INFO("Q_btnPoseset");
+    btn_poseset_flag = true;
   }
 
 } // namespace ui_main

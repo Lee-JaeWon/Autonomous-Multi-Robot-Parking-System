@@ -339,22 +339,22 @@ public:
 
 
     //Saturation
-    if(angular_vel>=2)
+    if(angular_vel>=0.65)
     {
-      angular_vel = 2;
+      angular_vel = 0.65;
     }
-    else if(angular_vel<=-2)
+    else if(angular_vel<=-0.65)
     {
-      angular_vel = -2;
+      angular_vel = -0.65;
     }
 
-    if(linear_vel>=0.22)
+    if(linear_vel>=0.1)
     {
-      linear_vel = 0.22;
+      linear_vel = 0.1;
     }
-    else if(linear_vel<=-0.22)
+    else if(linear_vel<=-0.1)
     {
-      linear_vel = -0.22;
+      linear_vel = -0.1;
     }
 
     desired_robot_vel.linear.x = linear_vel;

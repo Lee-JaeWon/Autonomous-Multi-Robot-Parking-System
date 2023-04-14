@@ -8,6 +8,8 @@
 
 // #include <pathTracking/errorData.h>
 
+std::string s;
+
 void pathCallback(const nav_msgs::Path::ConstPtr &path_)
 {
   path = *path_;
@@ -15,12 +17,17 @@ void pathCallback(const nav_msgs::Path::ConstPtr &path_)
   // pub.publish(path_);
 }
 
-void tf_Listener()
+void emer_Callback(const std_msgs::Bool::ConstPtr &msg)
+{
+  emer_flag = msg->data;
+}
+
+void tf_Listener(std::string map_ns, std::string baselink_ns)
 {
   geometry_msgs::TransformStamped transformStamped;
   try
   {
-    transformStamped = tfBuffer.lookupTransform("map", "base_link",
+    transformStamped = tfBuffer.lookupTransform(map_ns, baselink_ns,
                                                 ros::Time(0));
     // pub.publish(transformStamped);
   }
@@ -75,6 +82,17 @@ int main(int argc, char **argv)
   n.getParam("k_y", k_y);
   n.getParam("timeStep", timeStep);
 
+  if (ros::param::get("~namespace", s))
+  {
+    ROS_INFO("Traker node got param: %s", s.c_str());
+    s += '/';
+  }
+  else
+    ROS_ERROR("Traker Failed to get param '%s'", s.c_str());
+
+  std::string baselink_ns = s + "base_link";
+  std::string map_ns = "robot_1/map";
+
   // Stanley tracker;
   Stanley *stanley = new Stanley;
   Kanayama *kanayama = new Kanayama;
@@ -96,11 +114,13 @@ int main(int argc, char **argv)
   }
 
   // sub = nh.subscribe("tf",1000,odomCallback);
-  sub_trajectory = nh.subscribe("path", 1, pathCallback);
+  sub_trajectory = nh.subscribe(s + "path", 1, pathCallback);
   // pub = nh.advertise<nav_msgs::Path>("path_",1);
-  pub_vel = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
-  pub_dp = nh.advertise<geometry_msgs::PointStamped>("dp", 1);
-  pub_left_traj = nh.advertise<nav_msgs::Path>("left_traj", 1);
+  pub_vel = nh.advertise<geometry_msgs::Twist>(s + "cmd_vel", 1);
+  pub_dp = nh.advertise<geometry_msgs::PointStamped>(s + "dp", 1);
+  pub_left_traj = nh.advertise<nav_msgs::Path>(s + "left_traj", 1);
+
+  emer_sub = nh.subscribe("/emer_flag", 1000, emer_Callback);
 
   tf2_ros::TransformListener tfListener(tfBuffer);
 
@@ -115,7 +135,7 @@ int main(int argc, char **argv)
   while (ros::ok())
   {
 
-    tf_Listener();
+    tf_Listener(map_ns, baselink_ns);
 
     if (trajectiory_subscribed)
     {
@@ -142,7 +162,7 @@ int main(int argc, char **argv)
       ros::Time startTime = ros::Time::now();
       sT = startTime.sec + startTime.nsec * (1e-9);
     }
-    else if (tf_listened && start_tracking)
+    else if (tf_listened && start_tracking && emer_flag)
     {
       ros::Time presentTime = ros::Time::now();
       nT = presentTime.sec + presentTime.nsec * (1e-9) - sT;
@@ -150,7 +170,7 @@ int main(int argc, char **argv)
       // for visualization about reference pose
       geometry_msgs::PointStamped pnt;
       geometry_msgs::Pose pose_;
-      pnt.header.frame_id = "map";
+      pnt.header.frame_id = "robot_1/map";
 
       // for visualization about left trajectory
       nav_msgs::Path leftTraj;
@@ -195,10 +215,11 @@ int main(int argc, char **argv)
       {
         pid->Set_robot_pos(robot_X, robot_Y, robot_Yaw);
         cmd_vel = pid->Get_vel();
-        if(pid->End_trajectory()){
-        ROS_INFO("Tracking Done!!");
-        start_tracking =false;
-      }
+        if (pid->End_trajectory())
+        {
+          ROS_INFO("Tracking Done!!");
+          start_tracking = false;
+        }
       }
 
       // pub to rviz

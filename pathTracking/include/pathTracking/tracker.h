@@ -9,6 +9,7 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PointStamped.h>
 
+#include <std_msgs/Bool.h>
 
 //Messages
 nav_msgs::Odometry  state;
@@ -30,6 +31,7 @@ ros::Publisher pub_left_traj;
 //Subscribers
 ros::Subscriber sub;
 ros::Subscriber sub_trajectory;
+ros::Subscriber emer_sub;
 
 //variables
 bool tf_listened = false;
@@ -64,6 +66,9 @@ double dh = 1.3;
 double pc = 1.8;
 double ic = 0.0;
 double dc = 1.5;
+
+//emergency
+bool emer_flag = true;
 
 
 void pathCallback(const nav_msgs::Path::ConstPtr& path_);

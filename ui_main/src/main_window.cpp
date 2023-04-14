@@ -53,6 +53,10 @@ namespace ui_main
     qnode.btnReturnPub();
   }
 
+  void ui_main::MainWindow::on_btnposeset_clicked(){
+    qnode.Q_btnPoseset();
+  }
+
   MainWindow::~MainWindow() {}
 
 } // namespace ros_qt_format

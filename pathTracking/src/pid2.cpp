@@ -44,7 +44,6 @@ private:
     double calsteer_y = 0.0;
     double cnt = 0;
 
-
     int sign = 0;
 
     // robot condition
@@ -146,11 +145,11 @@ public:
             else
                 this->sign = -1;
         }
-    
-        ROS_INFO("SIGN = %d", sign);
+
+        //ROS_INFO("index = %d", this->index);
         double temp1;
         double temp2;
-        if (index == trajectory_length - 2)
+        if (index == trajectory_length - 1)
         {
             arrive_goal = true;
         }
@@ -190,10 +189,10 @@ public:
         this->desired_robot_vel.linear.x = this->v;
         this->desired_robot_vel.angular.z = this->steering_head + sign * this->sterring_ctr;
 
-        if (this->desired_robot_vel.angular.z > 1.5)
-            this->desired_robot_vel.angular.z = 1.5;
-        if (this->desired_robot_vel.angular.z < -1.5)
-            this->desired_robot_vel.angular.z = -1.5;
+         if (this->desired_robot_vel.angular.z > 0.65)
+             this->desired_robot_vel.angular.z = 0.65;
+         if (this->desired_robot_vel.angular.z < -0.65)
+             this->desired_robot_vel.angular.z = -0.65;
         if (arrive_goal)
         {
             this->desired_robot_vel.linear.x = 0;
