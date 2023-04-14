@@ -56,6 +56,16 @@ double k_y = 0;
 double k_theta = 0;
 double timeStep = 0.3;
 
+//Stanley + PID Parameters
+double ph = 1.8;
+double ih = 0.0;
+double dh = 1.3;
+//
+double pc = 1.8;
+double ic = 0.0;
+double dc = 1.5;
+
+
 void pathCallback(const nav_msgs::Path::ConstPtr& path_);
 void tf_Listener();
 

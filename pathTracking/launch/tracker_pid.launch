@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Arguments -->
+  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="map_file" default="$(find turtlebot3_navigation)/maps/map.yaml"/>
+  <arg name="open_rviz" default="true"/>
+  <arg name="move_forward_only" default="false"/>
+
+  <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0.0 0 0.0 0 0 0 map odom 200" />
+
+  <!-- Turtlebot3 -->
+  <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
+    <arg name="model" value="$(arg model)" />
+  </include>
+
+  <!-- Map server -->
+  <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+
+  <!-- rviz -->
+  <group if="$(arg open_rviz)"> 
+    <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find pathTracking)/rviz/tracker.rviz"/>
+  </group>
+
+  <!-- Stanley + PID Tracker -->
+  <node pkg="pathTracking" type="tracker" name="tracker" output="screen">
+    <param name="tracker" type="string" value="PID"/>
+    <param name="ph" type="double" value="3.2"/>
+    <param name="ih" type="double" value="0.0"/>
+    <param name="dh" type="double" value="1.3"/>
+    <param name="pc" type="double" value="3.5"/>
+    <param name="ic" type="double" value="0.0"/>
+    <param name="dc" type="double" value="1.5"/>
+    <param name="v" type="double" value="0.2"/>
+    <param name="hz" type="int" value="33"/>
+  </node>
+
+  <!-- Path Maker -->
+  <node pkg="test_pkg" type="test_map.py" name="map_node"/>
+
+</launch>
+
+

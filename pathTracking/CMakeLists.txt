@@ -82,8 +82,6 @@ include_directories(
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(tracker src/tracker.cpp)
-add_executable(error_logger src/error_logger.cpp)
-add_executable(pathTopic src/pathTopic.cpp)
 
 # set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
 
@@ -94,14 +92,7 @@ add_dependencies(pathTracking pathTracking)
    ${Eigen_LIBRARIES}
  )
 
-target_link_libraries(error_logger
-  ${catkin_LIBRARIES}
-  ${Eigen_LIBRARIES}
-)
 
-target_link_libraries(pathTopic
-  ${catkin_LIBRARIES}
-)
 
 #############
 ## Install ##
