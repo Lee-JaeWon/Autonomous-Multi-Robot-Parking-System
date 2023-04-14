@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Arguments -->
+  <arg name="topicMode" default="pub"/>
+
+  <group if="$(eval topicMode == 'sub')">
+
+    <!-- Arguments -->
+    <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+    <arg name="map_file" default="$(find turtlebot3_navigation)/maps/map.yaml"/>
+    <arg name="open_rviz" default="true"/>
+    <arg name="move_forward_only" default="false"/>
+
+    <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0.0 0 0.0 0 0 0 map odom 200" />
+
+    <node pkg="tf" type="static_transform_publisher" name="odom_to_base_footprint" args="-2.0 -0.5 -0.001 0 0 0 odom base_footprint 200" />
+
+    <!-- Turtlebot3 -->
+    <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
+      <arg name="model" value="$(arg model)" />
+    </include>
+
+    <!-- Map server -->
+    <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+
+    <!-- rviz -->
+    <group if="$(arg open_rviz)">
+      <node pkg="rviz" type="rviz" name="rviz" required="true"
+            args="-d $(find pathTracking)/rviz/pathTopic.rviz"/>
+    </group>
+
+    <!-- Path Maker -->
+    <node pkg="test_pkg" type="test_map.py" name="map_node"/>
+
+  </group>
+
+
+  <node pkg="pathTracking" type="pathTopic" name="pathTopic" output="screen">
+    <param name="topicMode" type="string" value="$(arg topicMode)"/>
+    <param name="filePath" type="string" value="/home/hyedo/catkin_ws/src/pathTracking/pathData/"/>
+    <param name="fileName" type="string" value="path1.txt"/>
+  </node>
+
+
+</launch>
+
+

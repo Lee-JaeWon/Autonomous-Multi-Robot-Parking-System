@@ -9,10 +9,12 @@ project(pathTracking)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  nav_msgs
   roscpp
   std_msgs
   tf
   tf2
+  message_generation
 )
 
 find_package(cmake_modules REQUIRED)
@@ -25,11 +27,10 @@ include_directories(${Eigen_INCLUDE_DIRS})
 # catkin_python_setup()
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg￣
-#   Message2.msg
-# )
+ add_message_files(
+   FILES
+   errorData.msg
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -46,10 +47,10 @@ include_directories(${Eigen_INCLUDE_DIRS})
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs#   std_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   std_msgs
+ )
 
 catkin_package(
 #  INCLUDE_DIRS include
@@ -67,6 +68,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   include
+  msg
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -80,15 +82,26 @@ include_directories(
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(tracker src/tracker.cpp)
+add_executable(error_logger src/error_logger.cpp)
+add_executable(pathTopic src/pathTopic.cpp)
 
 # set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
 
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(pathTracking pathTracking)
 
  target_link_libraries(tracker
    ${catkin_LIBRARIES}
    ${Eigen_LIBRARIES}
  )
+
+target_link_libraries(error_logger
+  ${catkin_LIBRARIES}
+  ${Eigen_LIBRARIES}
+)
+
+target_link_libraries(pathTopic
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
