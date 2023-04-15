@@ -37,24 +37,34 @@ namespace ui_main
     this->setWindowIcon(appIcon);
   }
 
-  void ui_main::MainWindow::on_btnexit_clicked(){
+  void ui_main::MainWindow::on_btnexit_clicked()
+  {
     qnode.btnExit();
   }
 
-  void ui_main::MainWindow::on_btntaskmark_clicked(){
+  void ui_main::MainWindow::on_btntaskmark_clicked()
+  {
     qnode.btnMarkerPub();
   }
 
-  void ui_main::MainWindow::on_btngo_clicked(){
+  void ui_main::MainWindow::on_btngo_clicked()
+  {
     qnode.btnGoalPub();
   }
 
-  void ui_main::MainWindow::on_btnreturn_clicked(){
+  void ui_main::MainWindow::on_btnreturn_clicked()
+  {
     qnode.btnReturnPub();
   }
 
-  void ui_main::MainWindow::on_btnposeset_clicked(){
+  void ui_main::MainWindow::on_btnposeset_clicked()
+  {
     qnode.Q_btnPoseset();
+  }
+
+  void ui_main::MainWindow::on_btnemer_clicked()
+  {
+    qnode.Q_btnemerset();
   }
 
   MainWindow::~MainWindow() {}

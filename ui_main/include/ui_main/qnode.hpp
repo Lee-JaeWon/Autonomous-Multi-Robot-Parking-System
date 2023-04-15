@@ -35,6 +35,7 @@ namespace ui_main
     void btnGoalPub();
     void btnReturnPub();
     void Q_btnPoseset();
+    void Q_btnemerset();
 
     int count = 0;
     
@@ -52,6 +53,8 @@ namespace ui_main
     bool rotate_flag = true;
     bool range_flag = true;
     bool dist_flag = false;
+
+    bool emer_btn_flag = false;
     /////////////////////////////////////////////
 
     // robot_1::Tracked Pose
@@ -61,22 +64,39 @@ namespace ui_main
     /////////////////////////////////////////////
 
     // goal, pre_goal, text
-    double goal_x = 1.8;
-    double goal_y = 1.6;
-    double goal_ox = 0.0;
-    double goal_oy = 0.0;
-    double goal_oz = 0.69862;
-    double goal_ow = 0.71548;
+    double one_goal_x = 1.8;
+    double one_goal_y = 1.6;
+    double one_goal_ox = 0.0;
+    double one_goal_oy = 0.0;
+    double one_goal_oz = 0.69862;
+    double one_goal_ow = 0.71548;
 
-    double pre_goal_x = 1.8;
-    double pre_goal_y = 1.1;
-    double pre_goal_oz = 0.69862;
-    double pre_goal_ow = 0.71548;
+    double one_pre_goal_x = 1.8;
+    double one_pre_goal_y = 1.1;
+    double one_pre_goal_oz = 0.69862;
+    double one_pre_goal_ow = 0.71548;
 
     double text_first_goal_x = 1.8;
     double text_first_goal_y = 1.8;
     double text_first_goal_oz = 0.69862;
     double text_first_goal_ow = 0.71548;
+
+    double two_goal_x = 1.8;
+    double two_goal_y = 0.1;
+    double two_goal_ox = 0.0;
+    double two_goal_oy = 0.0;
+    double two_goal_oz = 0.0;
+    double two_goal_ow = 1.0;
+
+    double two_pre_goal_x = 1.4;
+    double two_pre_goal_y = 0.1;
+    double two_pre_goal_oz = 0.0;
+    double two_pre_goal_ow = 1.0;
+
+    double text_two_goal_x = 1.8;
+    double text_two_goal_y = 0.3;
+    double text_two_goal_oz = 0.0;
+    double text_two_goal_ow = 1.0;
     /////////////////////////////////////////////
 
   Q_SIGNALS:
@@ -87,14 +107,21 @@ namespace ui_main
     char **init_argv;
 
     // Publisher
-    ros::Publisher vis_pub;
-    ros::Publisher vis_pub_text;
-    ros::Publisher vis_way;
+    ros::Publisher vis_pub_one;
+    ros::Publisher vis_pub_one_text;
+
+    ros::Publisher vis_pub_two;
+    ros::Publisher vis_pub_two_text;
+
+    ros::Publisher vis_one_way;
+    ros::Publisher vis_two_way;
+
     ros::Publisher goal_pub;
     ros::Publisher return_pub;
     ros::Publisher pub_vel;
 
     ros::Publisher cmd_stop_pub_1;
+    ros::Publisher chatter_emer;
     /////////////////////////////////////////////
 
     // Subscriber

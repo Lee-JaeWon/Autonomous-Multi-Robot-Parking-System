@@ -45,6 +45,7 @@ namespace ui_main
 		void on_btngo_clicked();
 		void on_btnreturn_clicked();
 		void on_btnposeset_clicked();
+		void on_btnemer_clicked();
 
 	private:
 		Ui::MainWindowDesign ui;
