@@ -178,6 +178,8 @@
 #include <string>
 #include <typeinfo>
 
+#define PI 3.141592
+
 using namespace std;
 serial::Serial ser;
 int publish_rate = 30;
@@ -208,9 +210,9 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "imu"); // 노드이름 imu
     ros::NodeHandle nh;
     // ros::Subscriber imu_sub = nh.subscribe("write", publish_rate, write_callback);
-    ros::Publisher imu_pub0 = nh.advertise<sensor_msgs::Imu>("imu0", publish_rate);
-    ros::Publisher imu_pub1 = nh.advertise<sensor_msgs::Imu>("imu1", publish_rate);
-    ros::Publisher imu_pub2 = nh.advertise<sensor_msgs::Imu>("imu2", publish_rate);
+    ros::Publisher imu_pub0 = nh.advertise<sensor_msgs::Imu>("/robot_1/imu_0", publish_rate);
+    ros::Publisher imu_pub1 = nh.advertise<sensor_msgs::Imu>("/robot_1/imu_1", publish_rate);
+    ros::Publisher imu_pub2 = nh.advertise<sensor_msgs::Imu>("/robot_1/imu_2", publish_rate);
 
     tf2::Quaternion q;
     // static tf2_ros::TransformBroadcaster br;
@@ -326,9 +328,9 @@ int main(int argc, char **argv)
                 imu.linear_acceleration.y = linear_acceleration_y;
                 imu.linear_acceleration.z = linear_acceleration_z;
 
-                imu.angular_velocity.x = angular_velocity_x;
-                imu.angular_velocity.y = angular_velocity_y;
-                imu.angular_velocity.z = angular_velocity_z;
+                imu.angular_velocity.x = angular_velocity_x * (PI / 180.0) ;
+                imu.angular_velocity.y = angular_velocity_y * (PI / 180.0) ;
+                imu.angular_velocity.z = angular_velocity_z * (PI / 180.0) ;
 
                 // transformStamped.transform.translation.x = distance_x;
                 // transformStamped.transform.translation.y = distance_y;
@@ -346,19 +348,19 @@ int main(int argc, char **argv)
                 if (id == '0')
                 {
                     imu0 = imu;
-                    imu0.header.frame_id = "imu0";
+                    imu0.header.frame_id = "robot_1/imu0";
                     imu_pub0.publish(imu0);
                 }
                 else if (id == '1')
                 {
                     imu1 = imu;
-                    imu1.header.frame_id = "imu1";
+                    imu1.header.frame_id = "robot_1/imu1";
                     imu_pub1.publish(imu1);
                 }
                 else if (id == '2')
                 {
                     imu2 = imu;
-                    imu2.header.frame_id = "imu2";
+                    imu2.header.frame_id = "robot_1/imu2";
                     imu_pub2.publish(imu2);
                 }
              }
