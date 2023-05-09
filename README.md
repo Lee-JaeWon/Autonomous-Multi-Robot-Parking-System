@@ -10,12 +10,10 @@ Please read the [abstract.md file](./abstract.md) of our study.
 
 |Member|Role|
 |:---:|:---:|
-|[Chunggil An(팀장)](https://github.com/chunggilan)|NULL|
-|[Jaewon Lee](https://github.com/Lee-JaeWon)|NULL|
-|[Hyedo Kim](https://github.com/HYEDO-KIM)|NULL|
-|[Hyoseok Joo](https://github.com/JooHyoSeok)|NULL|  
+|[Chunggil An(팀장)](https://github.com/chunggilan)|Global Path Planning, Path Tracking|
+|[Jaewon Lee](https://github.com/Lee-JaeWon)|Multi Robot System, Collision Avoidance, GUI|
+|[Hyedo Kim](https://github.com/KIM-HYEDO)|Path Tracking, GUI|
+|[Hyoseok Joo](https://github.com/JooHyoSeok)|Global Path Planning, Local Path Planning|  
 
 ## About Setting
 [About_Setting.md](./About_Setting/)
-
-## Test
