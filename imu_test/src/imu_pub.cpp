@@ -210,9 +210,9 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "imu"); // 노드이름 imu
     ros::NodeHandle nh;
     // ros::Subscriber imu_sub = nh.subscribe("write", publish_rate, write_callback);
-    ros::Publisher imu_pub0 = nh.advertise<sensor_msgs::Imu>("/robot_1/imu_0", publish_rate);
-    ros::Publisher imu_pub1 = nh.advertise<sensor_msgs::Imu>("/robot_1/imu_1", publish_rate);
-    ros::Publisher imu_pub2 = nh.advertise<sensor_msgs::Imu>("/robot_1/imu_2", publish_rate);
+    ros::Publisher imu_pub0 = nh.advertise<sensor_msgs::Imu>("/robot_1/imu", publish_rate);
+    ros::Publisher imu_pub1 = nh.advertise<sensor_msgs::Imu>("/robot_2/imu", publish_rate);
+    ros::Publisher imu_pub2 = nh.advertise<sensor_msgs::Imu>("/robot_3/imu", publish_rate);
 
     tf2::Quaternion q;
     // static tf2_ros::TransformBroadcaster br;
@@ -348,19 +348,19 @@ int main(int argc, char **argv)
                 if (id == '0')
                 {
                     imu0 = imu;
-                    imu0.header.frame_id = "robot_1/imu0";
+                    imu0.header.frame_id = "robot_1/imu";
                     imu_pub0.publish(imu0);
                 }
                 else if (id == '1')
                 {
                     imu1 = imu;
-                    imu1.header.frame_id = "robot_1/imu1";
+                    imu1.header.frame_id = "robot_2/imu";
                     imu_pub1.publish(imu1);
                 }
                 else if (id == '2')
                 {
                     imu2 = imu;
-                    imu2.header.frame_id = "robot_1/imu2";
+                    imu2.header.frame_id = "robot_3/imu";
                     imu_pub2.publish(imu2);
                 }
              }
