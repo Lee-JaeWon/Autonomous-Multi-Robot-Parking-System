@@ -1,12 +1,12 @@
 <launch>
-
+<!-- 
     <arg name="serial_port" default="/dev/IMU0"/>
     <include file="$(find rplidar_ros)/launch/rplidar.launch">
       <param name="serial_port" value="$(arg serial_port)"/>
-    </include>
+    </include> -->
 
     <!-- DYNAMIXEL node -->
-    <arg name="usb_port"                default="/dev/DYNA0"/>
+    <arg name="usb_port"                default="/dev/LIDAR0"/>
     <arg name="dxl_baud_rate"           default="1000000"/>
     <arg name="namespace"               default="robot_1"/>
 

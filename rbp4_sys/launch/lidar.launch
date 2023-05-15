@@ -1,0 +1,10 @@
+<launch>
+
+    <arg name="serial_port" default="/dev/LIDAR0"/>
+    <node name="rplidarNode" pkg="rplidar_ros" type="rplidarNode" output="screen">
+      <param name="serial_port" value="$(arg serial_port)"/>
+      <remap from="/scan" to="/robot_2/scan"/>
+      <param name="frame_id" value="robot_2/laser"/>
+    </node>
+
+</launch>
