@@ -23,6 +23,7 @@ ros::Subscriber odom_sub;
 // Publisher
 ros::Publisher mask_pub;
 ros::Publisher path_pub;
+ros::Publisher local_goal_pub;
 
 // Object
 nav_msgs::OccupancyGrid OccGridMask;
@@ -31,6 +32,7 @@ pathplanning::AstarConfig config;
 pathplanning::Astar astar;
 OccupancyGridParam OccGridParam;
 Point startPoint, targetPoint;
+geometry_msgs::PoseStamped path_point;
 
 // Parameter
 double InflateRadius;
@@ -43,6 +45,7 @@ int rate;
 int origin_x, origin_y;
 double resol;
 int mx, my;
+double present_x, present_y;
 
 //-------------------------------- Callback function ---------------------------------//
 void MapCallback(const nav_msgs::OccupancyGrid &msg)
@@ -76,7 +79,7 @@ void MapCallback(const nav_msgs::OccupancyGrid &msg)
 
     // Publish Mask
     OccGridMask.header.stamp = ros::Time::now();
-    OccGridMask.header.frame_id = "map";
+    OccGridMask.header.frame_id = "robot_1/map";
     OccGridMask.info = msg.info;
     OccGridMask.data.clear();
     for (int i = 0; i < height; i++)
@@ -103,7 +106,7 @@ void StartPointCallback(const geometry_msgs::PoseWithCovarianceStamped &msg)
 
 void TargetPointtCallback(const geometry_msgs::PoseStamped &msg)
 {
-    traked_flag = true;
+     traked_flag = true;
     Point2d src_point = Point2d(msg.pose.position.x, msg.pose.position.y);
     OccGridParam.Map2ImageTransform(src_point, targetPoint);
 
@@ -119,20 +122,20 @@ void TargetPointtCallback(const geometry_msgs::PoseStamped &msg)
 }
 void odomCallback(const geometry_msgs::PoseStamped &msg)
 {
-    if (traked_flag)
-    {
-        mx = int((msg.pose.position.x - origin_x) / (resol)); // world to map
-        my = int((msg.pose.position.y - origin_y) / (resol)); // world to map
-        Point2d src_point = Point2d(msg.pose.position.x, msg.pose.position.y);
-        OccGridParam.Map2ImageTransform(src_point, startPoint);
+     if (traked_flag)
+     {
+    mx = int((msg.pose.position.x - origin_x) / (resol)); // world to map
+    my = int((msg.pose.position.y - origin_y) / (resol)); // world to map
+    Point2d src_point = Point2d(msg.pose.position.x, msg.pose.position.y);
+    OccGridParam.Map2ImageTransform(src_point, startPoint);
 
-        // Set flag
-        startpoint_flag = true;
-        if (map_flag && startpoint_flag && targetpoint_flag)
-        {
-            start_flag = true;
-        }
+    // Set flag
+    startpoint_flag = true;
+    if (map_flag && startpoint_flag && targetpoint_flag)
+    {
+        start_flag = true;
     }
+     }
 }
 
 //-------------------------------- Main function ---------------------------------//
@@ -178,6 +181,7 @@ int main(int argc, char *argv[])
     std::string path_ns = s + "/path";
     mask_pub = nh.advertise<nav_msgs::OccupancyGrid>("mask", 1); // potential problem
     path_pub = nh.advertise<nav_msgs::Path>(path_ns, 10);
+    local_goal_pub = nh.advertise<geometry_msgs::PoseStamped>(s + "/local_goal", 10);
 
     // Loop and wait for callback
     ros::Rate loop_rate(rate);
@@ -216,9 +220,20 @@ int main(int argc, char *argv[])
             {
                 ROS_ERROR("Can not find a valid path");
             }
+            int i = 0;
+            if ((path_point.pose.position.x - present_x) + (path_point.pose.position.y - present_y) > 0.3)
+                i++;
+            ROS_INFO("%d\n", i);
+            path_point = path.poses[7];
+            path_point.pose.orientation.w = 1;
+            path_point.pose.orientation.x = 0;
+            path_point.pose.orientation.y = 0;
+            path_point.pose.orientation.z = 0;
+
+            local_goal_pub.publish(path_point);
 
             // Set flag
-            start_flag = false;
+            // start_flag = false;
         }
 
         if (map_flag)
@@ -226,8 +241,9 @@ int main(int argc, char *argv[])
             mask_pub.publish(OccGridMask);
         }
 
-        loop_rate.sleep();
+        
         ros::spinOnce();
+        loop_rate.sleep();
     }
 
     return 0;

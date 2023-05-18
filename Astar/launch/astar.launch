@@ -15,6 +15,7 @@
     </node>
 
     <!-- ################ start rviz ################ -->
+    <!-- <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find multi_parking_sys)/rviz/multi_carto.rviz" /> -->
     <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d $(find astar)/rviz/astar.rviz"/> -->
 
 </launch>
