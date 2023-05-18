@@ -325,12 +325,19 @@ std::vector<std::vector<float>> DWAPlanner::scan_to_obs()
 {
     std::vector<std::vector<float>> obs_list;
     float angle = scan.angle_min;
+    int idx = 0;
     for(auto r : scan.ranges){
+        if (r < 0.185 && r > 0.165 )
+        {
+            r = (scan.ranges[idx-1] + scan.ranges[idx+1]) / 2.0;
+        }
         float x = r * cos(angle);
         float y = r * sin(angle);
         std::vector<float> obs_state = {x, y};
         obs_list.push_back(obs_state);
         angle += scan.angle_increment;
+
+        idx++;
     }
     return obs_list;
 }
