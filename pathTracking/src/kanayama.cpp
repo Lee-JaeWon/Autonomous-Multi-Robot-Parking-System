@@ -262,11 +262,11 @@ public:
 
     if(this->target_index >= this->last_index) this->target_index = this->last_index;
 
-    std::cout <<"last_index      : "<<last_index<<"\n";
-    std::cout <<"index           : "<<index<<"\n";
-    std::cout <<"target_index    : "<<target_index<<"\n";
-    std::cout <<"closet_index    : "<<closetIndex<<"\n";
-    std::cout <<"indexdjust      : "<<this->indexdjust<<"\n";
+    // std::cout <<"last_index      : "<<last_index<<"\n";
+    // std::cout <<"index           : "<<index<<"\n";
+    // std::cout <<"target_index    : "<<target_index<<"\n";
+    // std::cout <<"closet_index    : "<<closetIndex<<"\n";
+    // std::cout <<"indexdjust      : "<<this->indexdjust<<"\n";
 
     return this->target_index;
   }
@@ -329,8 +329,8 @@ public:
 //    std::cout <<"error_theta  : "<<error_theta<<"\n";
 //    std::cout <<"cos(Etheta)  : "<<cos(error_theta)<<"\n";
 //    std::cout <<"sin(Etheta)  : "<<sin(error_theta)<<"\n";
-//    std::cout <<"linear_vel   : "<<linear_vel<<"\n";
-//    std::cout <<"angular_vel  : "<<angular_vel<<"\n";
+    std::cout <<"linear_vel   : "<<linear_vel<<"\n";
+    std::cout <<"angular_vel  : "<<angular_vel<<"\n";
 //    std::cout <<"q_r[index].angular.z      : "<<q_r[index].angular.z<<"\n";
 //    std::cout <<"q_r[index].linear.x       : "<<q_r[index].linear.x<<"\n";
 //    std::cout <<"k_y * error_y             : "<<k_y * error_y<<"\n";
@@ -348,13 +348,13 @@ public:
       angular_vel = -0.65;
     }
 
-    if(linear_vel>=0.1)
+    if(linear_vel>=0.2)
     {
-      linear_vel = 0.1;
+      linear_vel = 0.2;
     }
-    else if(linear_vel<=-0.1)
+    else if(linear_vel<=-0.2)
     {
-      linear_vel = -0.1;
+      linear_vel = -0.2;
     }
 
     desired_robot_vel.linear.x = linear_vel;
