@@ -10,12 +10,19 @@
 
 std::string s;
 
-void pathCallback(const nav_msgs::Path::ConstPtr &path_)
+void localpathCallback(const nav_msgs::Path::ConstPtr &path_)
 {
-  path = *path_;
+  local_path = *path_;
   trajectiory_subscribed = true;
   // pub.publish(path_);
 }
+
+// void globalpathCallback(const nav_msgs::Path::ConstPtr &path_)
+// {
+//   global_path = *path_;
+//   trajectiory_subscribed = true;
+//   // pub.publish(path_);
+// }
 
 void emer_Callback(const std_msgs::Bool::ConstPtr &msg)
 {
@@ -119,12 +126,16 @@ int main(int argc, char **argv)
   }
 
   // sub = nh.subscribe("tf",1000,odomCallback);
-  sub_trajectory = nh.subscribe(s + "path", 1, pathCallback);
+  // sub_trajectory = nh.subscribe(s + "local_path", 1, pathCallback);
+  sub_local_trajectory = nh.subscribe(s + "local_path", 1, localpathCallback);
+ // sub_global_trajectory = nh.subscribe(s + "global_path", 1, globalpathCallback);
   // pub = nh.advertise<nav_msgs::Path>("path_",1);
   pub_vel = nh.advertise<geometry_msgs::Twist>(s + "cmd_vel", 1);
   fake_pub_vel = nh.advertise<geometry_msgs::Twist>(s + "fake_cmd_vel", 1);
   pub_dp = nh.advertise<geometry_msgs::PointStamped>(s + "dp", 1);
   pub_left_traj = nh.advertise<nav_msgs::Path>(s + "left_traj", 1);
+
+  pub_vel_pt = nh.advertise<geometry_msgs::Twist>(s + "cmd_vel_pt", 1);
 
   emer_sub = nh.subscribe("/emer_flag", 1000, emer_Callback);
   vel_stop_sub = nh.subscribe("/robot_1/cmd_vel_stop", 1000, cmd_velstop_Callback);
@@ -150,26 +161,26 @@ int main(int argc, char **argv)
       {
         stanley->Set_parameters(k, k2, v, hz);
         stanley->Set_robot_pos(robot_X, robot_Y, robot_Yaw);
-        stanley->Set_trajectory(path);
+        stanley->Set_trajectory(local_path);
       }
       else if (tracker_name == "Kanayama")
       {
         kanayama->Set_parameters(k_x, k_y, timeStep, hz);
         kanayama->Set_robot_pos(robot_X, robot_Y, robot_Yaw);
-        kanayama->Set_trajectory(path);
+        kanayama->Set_trajectory(local_path);
       }
       else if (tracker_name == "PID")
       {
         pid->Set_parameters(ph, ih, dh, pc, ic, dc, hz, v);
         pid->Set_robot_pos(robot_X, robot_Y, robot_Yaw);
-        pid->Set_trajectory(path);
+        pid->Set_trajectory(local_path);
       }
-      trajectiory_subscribed = false;
+      trajectiory_subscribed = true;
       start_tracking = true;
       ros::Time startTime = ros::Time::now();
       sT = startTime.sec + startTime.nsec * (1e-9);
     }
-    else if (tf_listened && start_tracking && emer_flag)
+    if (tf_listened && start_tracking && emer_flag)
     {
       ros::Time presentTime = ros::Time::now();
       nT = presentTime.sec + presentTime.nsec * (1e-9) - sT;
@@ -222,11 +233,11 @@ int main(int argc, char **argv)
       {
         pid->Set_robot_pos(robot_X, robot_Y, robot_Yaw);
         cmd_vel = pid->Get_vel();
-        if (pid->End_trajectory())
-        {
-          ROS_INFO("Tracking Done!!");
-          start_tracking = false;
-        }
+        // if (pid->End_trajectory())
+        // {
+        //   ROS_INFO("Tracking Done!!");
+        //   start_tracking = false;
+        // }
       }
 
       // pub to rviz
@@ -246,7 +257,8 @@ int main(int argc, char **argv)
       // pub robot velocity
       if (velstop_flag)
       {
-        pub_vel.publish(cmd_vel);
+         pub_vel.publish(cmd_vel);
+        //pub_vel_pt.publish(cmd_vel);
       }
       else
       {
@@ -257,7 +269,8 @@ int main(int argc, char **argv)
     {
       cmd_vel.linear.x = 0.0;
       cmd_vel.angular.z = 0.0;
-      pub_vel.publish(cmd_vel);
+       pub_vel.publish(cmd_vel);
+      //pub_vel_pt.publish(cmd_vel);
     }
 
     ros::spinOnce();

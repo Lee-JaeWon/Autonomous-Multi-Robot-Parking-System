@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
     odom_sub = nh.subscribe(track_ns, 10, odomCallback);
 
     // Advertise topics
-    std::string path_ns = s + "/path";
+    std::string path_ns = s + "/global_path";
     mask_pub = nh.advertise<nav_msgs::OccupancyGrid>("mask", 1); // potential problem
     path_pub = nh.advertise<nav_msgs::Path>(path_ns, 10);
     local_goal_pub = nh.advertise<geometry_msgs::PoseStamped>(s + "/local_goal", 10);
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
             if ((path_point.pose.position.x - present_x) + (path_point.pose.position.y - present_y) > 0.3)
                 i++;
             ROS_INFO("%d\n", i);
-            path_point = path.poses[7];
+            path_point = path.poses[20];
             path_point.pose.orientation.w = 1;
             path_point.pose.orientation.x = 0;
             path_point.pose.orientation.y = 0;
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
             local_goal_pub.publish(path_point);
 
             // Set flag
-            // start_flag = false;
+           //  start_flag = false;
         }
 
         if (map_flag)

@@ -13,7 +13,8 @@
 
 //Messages
 nav_msgs::Odometry  state;
-nav_msgs::Path path;
+nav_msgs::Path global_path;
+nav_msgs::Path local_path;
 geometry_msgs::TransformStamped transformStamped;
 geometry_msgs::Twist cmd_vel;
 
@@ -23,6 +24,7 @@ tf2_ros::Buffer tfBuffer;
 //Publishers
 ros::Publisher pub;
 ros::Publisher pub_vel;
+ros::Publisher pub_vel_pt;
 ros::Publisher fake_pub_vel;
 
 //Publishers-rviz
@@ -31,7 +33,8 @@ ros::Publisher pub_left_traj;
 
 //Subscribers
 ros::Subscriber sub;
-ros::Subscriber sub_trajectory;
+ros::Subscriber sub_global_trajectory;
+ros::Subscriber sub_local_trajectory;
 
 ros::Subscriber emer_sub;
 ros::Subscriber vel_stop_sub;

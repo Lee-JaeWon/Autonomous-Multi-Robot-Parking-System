@@ -10,6 +10,7 @@
 #include <nav_msgs/Path.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <visualization_msgs/Marker.h>
+#include <std_msgs/Bool.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
@@ -52,6 +53,10 @@ public:
     void local_goal_callback(const geometry_msgs::PoseStampedConstPtr&);
     void path_callback(const nav_msgs::PathConstPtr&);
     void scan_callback(const sensor_msgs::LaserScanConstPtr&);
+
+    void cmd_velstop_Callback(const std_msgs::Bool::ConstPtr &msg);
+
+    void global_path_callback(const nav_msgs::PathConstPtr&);
     void local_map_callback(const nav_msgs::OccupancyGridConstPtr&);
     void odom_callback(const nav_msgs::OdometryConstPtr&);
     void target_velocity_callback(const geometry_msgs::TwistConstPtr&);
@@ -96,24 +101,31 @@ protected:
     ros::Publisher candidate_trajectories_pub;
     ros::Publisher selected_trajectory_pub;
     ros::Publisher path_pub;
+    
     ros::Subscriber local_map_sub;
+    ros::Subscriber global_path_sub;
     ros::Subscriber scan_sub;
     ros::Subscriber local_goal_sub;
     ros::Subscriber odom_sub;
     ros::Subscriber path_sub;
     ros::Subscriber target_velocity_sub;
     tf::TransformListener listener;
+    ros::Subscriber stop_flag_sub;
 
     geometry_msgs::PoseStamped local_goal;
     geometry_msgs::PoseStamped current_position;
     sensor_msgs::LaserScan scan;
     nav_msgs::OccupancyGrid local_map;
     geometry_msgs::Twist current_velocity;
+    nav_msgs::Path global_path;
     
     bool local_goal_subscribed;
     bool scan_updated;
     bool local_map_updated;
     bool odom_updated;
+    bool global_path_update;
+
+    bool vel_stop_flag;
 };
 
 #endif //__DWA_PLANNER_H
