@@ -99,18 +99,23 @@ public:
     geometry_msgs::Twist Get_vel()
     {
         this->cnt = cnt + 1;
-        this->dist_min = 10000000000.0;
+        // this->dist_min = 10000000000.0;
+        index = 0;
         for (int i = 0; i < this->trajectory_length; i++)
         {
             this->desire_x = this->trajectory.poses[i].pose.position.x;
             this->desire_y = this->trajectory.poses[i].pose.position.y;
-            dist = sqrt((this->robot_pos_x - desire_x) * (this->robot_pos_x - desire_x) + (this->robot_pos_y - desire_y) * (this->robot_pos_y - desire_y));
-            if (this->dist_min > this->dist)
+            dist = sqrt((this->robot_pos_x - this->desire_x) * (this->robot_pos_x - this->desire_x) + (this->robot_pos_y - this->desire_y) * (this->robot_pos_y - this->desire_y));
+            if (dist < this->dist_min)
             {
-                this->dist_min = this->dist;
-                this->index = i;
+                this->dist_min = dist;
+
+                index = i;
             }
         }
+
+        // ROS_INFO("index = %d",index);
+        index += 30;
 
         this->desire_x = this->trajectory.poses[index].pose.position.x;
         this->desire_y = this->trajectory.poses[index].pose.position.y;
@@ -149,8 +154,11 @@ public:
         //ROS_INFO("index = %d", this->index);
         double temp1;
         double temp2;
-        if (index == trajectory_length - 1)
+        if (index == this->trajectory_length - 1)
         {
+            
+            // ROS_INFO("index = %d",index);
+            ROS_INFO("trajectory_length = %d",this->trajectory_length-1);
             arrive_goal = true;
         }
         else
@@ -197,12 +205,13 @@ public:
         {
             this->desired_robot_vel.linear.x = 0;
             this->desired_robot_vel.angular.z = 0;
+            ROS_INFO("TRAKING DONE");
             return desired_robot_vel;
         }
         else
         {
-            ROS_INFO("DIST  = %f", this->dist_err);
-            ROS_INFO("DIST AVR = %f", this->dist_err_sum / this->cnt);
+            // ROS_INFO("DIST  = %f", this->dist_err);
+            // ROS_INFO("DIST AVR = %f", this->dist_err_sum / this->cnt);
         }
         return desired_robot_vel;
     }
