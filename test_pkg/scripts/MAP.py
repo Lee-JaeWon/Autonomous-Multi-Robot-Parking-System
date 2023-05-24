@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 class MapData():
     
     def __init__(self,map,resolution,height,width,origin_x,origin_y):

@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
             local_goal_pub.publish(path_point);
 
             // Set flag
-           //  start_flag = false;
+            start_flag = false;
         }
 
         if (map_flag)
