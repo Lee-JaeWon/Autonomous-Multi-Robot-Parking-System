@@ -13,7 +13,8 @@
 
 int calc_current_index(double x , double y ,const nav_msgs::Path& gPath );
 int calc_target_index(double mx, double my , const nav_msgs::Path& gPath, int curIdx);
-
+geometry_msgs::Quaternion calc_target_quat(double cx, double cy , double nx, double ny);
+double calc_dist(double x , double y , double nx  , double ny);
 
 nav_msgs::Path global_path;
 geometry_msgs::PoseStamped local_goal;
