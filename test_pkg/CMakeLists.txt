@@ -34,22 +34,16 @@ include_directories(
 
 ## topic_publisher노드에대한빌드옵션이다. 
 ## 실행파일, 타깃링크라이브러리, 추가의존성등을설정한다.
-add_executable(topic_publisher_node src/topic_publisher.cpp)
-add_dependencies(topic_publisher_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(topic_publisher_node ${catkin_LIBRARIES})
-## topic_subscriber노드에대한빌드옵션이다. 
-add_executable(topic_subscriber_node src/topic_subscriber.cpp)
-add_dependencies(topic_subscriber_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(topic_subscriber_node ${catkin_LIBRARIES})
+
 
 add_executable(path_publisher src/path_publisher.cpp)
 add_dependencies(path_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(path_publisher ${catkin_LIBRARIES})
 
 
-add_executable(imu_pub src/imu_pub.cpp)
-add_dependencies(imu_pub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(imu_pub ${catkin_LIBRARIES})
+## add_executable(imu_pub src/imu_pub.cpp)
+## add_dependencies(imu_pub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+## target_link_libraries(imu_pub ${catkin_LIBRARIES})
 
 add_executable(local_goal_pub src/local_goal_pub.cpp)
 add_dependencies(local_goal_pub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

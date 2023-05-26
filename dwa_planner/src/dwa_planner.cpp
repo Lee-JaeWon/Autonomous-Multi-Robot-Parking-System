@@ -59,14 +59,15 @@ DWAPlanner::DWAPlanner(void)
     //     ROS_INFO_STREAM("GOAL_THRESHOLD: " << GOAL_THRESHOLD);
     //     ROS_INFO_STREAM("TURN_DIRECTION_THRESHOLD: " << TURN_DIRECTION_THRESHOLD);
 
-    velocity_pub = nh.advertise<geometry_msgs::Twist>("/robot_1/cmd_vel", 1);
+
+    velocity_pub = nh.advertise<geometry_msgs::Twist>(ns + "/cmd_vel", 1);
     path_pub = nh.advertise<nav_msgs::Path>(ns + "/local_path", 1);
     candidate_trajectories_pub = local_nh.advertise<visualization_msgs::MarkerArray>(ns + "/candidate_trajectories", 1);
     selected_trajectory_pub = local_nh.advertise<visualization_msgs::Marker>(ns + "/selected_trajectory", 1);
 
     local_goal_sub = nh.subscribe(ns + "/local_goal", 1, &DWAPlanner::local_goal_callback, this);
     global_path_sub = nh.subscribe(ns + "/global_path", 1, &DWAPlanner::global_path_callback, this);
-    stop_flag_sub = nh.subscribe(ns + "cmd_vel_stop", 1, &DWAPlanner::cmd_velstop_Callback, this);
+    stop_flag_sub = nh.subscribe("/emer_flag", 1, &DWAPlanner::cmd_velstop_Callback, this);
 
 
     // path_sub = =nh.subscribe("/nav_path",1, &DWAPlanner::path_callback, this);
@@ -190,7 +191,7 @@ std::vector<DWAPlanner::State> DWAPlanner::dwa_planning(
             trajectories.push_back(traj);
 
             float to_goal_cost = calc_to_goal_cost(traj, goal);
-            float speed_cost = calc_speed_cost(traj, TARGET_VELOCITY);
+            float speed_cost = calc_speed_cost(traj, TARGET_VELOCITY); // target_speed 
             float obstacle_cost = calc_obstacle_cost(traj, obs_list);
             float final_cost = TO_GOAL_COST_GAIN * to_goal_cost + SPEED_COST_GAIN * speed_cost + OBSTACLE_COST_GAIN * obstacle_cost;
             if (min_cost >= final_cost)
@@ -203,6 +204,7 @@ std::vector<DWAPlanner::State> DWAPlanner::dwa_planning(
             }
         }
     }
+
     ROS_INFO_STREAM("Cost: " << min_cost);
     ROS_INFO_STREAM("- Goal cost: " << min_goal_cost);
     ROS_INFO_STREAM("- Obs cost: " << min_obs_cost);
@@ -248,6 +250,7 @@ void DWAPlanner::process(void)
 
             geometry_msgs::Twist cmd_vel;
             geometry_msgs::Twist cmd_vel_temp;
+            geometry_msgs::Twist cmd_vel_stop;
             ROS_INFO("norm = %f", goal.segment(0, 2).norm());
             if (goal.segment(0, 2).norm() > GOAL_THRESHOLD)
             {
@@ -288,8 +291,14 @@ void DWAPlanner::process(void)
             ROS_INFO_STREAM("cmd_vel: (" << cmd_vel.linear.x << "[m/s], " << cmd_vel.angular.z << "[rad/s])");
             current_velocity = cmd_vel;
 
+            cmd_vel_stop.linear.x = 0.0;
+            cmd_vel_stop.angular.z = 0.0;
+
             if(vel_stop_flag){
                 velocity_pub.publish(cmd_vel);
+            }
+            else{
+                velocity_pub.publish(cmd_vel_stop);
             }
             
 
@@ -390,6 +399,7 @@ std::vector<std::vector<float>> DWAPlanner::scan_to_obs()
         if (r < 0.185 && r > 0.165 )
         {
             r = (scan.ranges[idx-1] + scan.ranges[idx+1]) / 2.0;
+            continue;
         }
         float x = r * cos(angle);
         float y = r * sin(angle);

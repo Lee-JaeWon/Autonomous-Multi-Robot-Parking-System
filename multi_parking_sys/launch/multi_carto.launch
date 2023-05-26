@@ -6,6 +6,9 @@
     <!-- For robot_1 -->
     <!-- <node name="wheel_operator" pkg="dynamixel_workbench_operators" type="wheel_operator" required="true" output="screen" ns="$(arg namespace_one)"/> -->
 
+    <!-- imu pub node -->
+    <node name="imu_pub" pkg="imu_test" type="imu_pub" output="screen"/>
+
     <!-- For robot_1 -->
     <group ns = "$(arg namespace_one)">
         <!-- cartographer_node -->
@@ -13,53 +16,35 @@
         <param name="use_pose_extrapolator" value="true"/>
         <node pkg="cartographer_ros" type="cartographer_node" name="cartographer_node" 
             args="-configuration_directory $(find multi_parking_sys)/lua -configuration_basename $(arg namespace_one)_rplidar.lua 
-            -load_state_filename /home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/multi_parking_sys/map/mymap0327.pbstream
-            "
-            output="screen">
+            -load_state_filename /home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/multi_parking_sys/map/mymap0527.pbstream
+            ">
             <param name="use_pose_extrapolator" value="true"/>
         </node>
 
         <!-- cartographer_occupancy_grid_node -->
         <node pkg="cartographer_ros" type="cartographer_occupancy_grid_node"
                 name="cartographer_occupancy_grid_node" 
-                args="-resolution 0.05" >
+                args="-resolution 0.01" >
         </node>
     </group>
 
-    <!-- Arguments -->
-    <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
-    <arg name="open_rviz" default="true"/>
-
     <!-- For robot_2 -->
     <group ns = "$(arg namespace_two)">
-
-        <!-- <include file="$(find turtlebot3_teleop)/launch/turtlebot3_teleop_key.launch" /> -->
-
-        <!-- TurtleBot3 -->
-        <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
-            <arg name="model" value="$(arg model)" />
-            <arg name="multi_robot_name" value="$(arg namespace_two)"/>
-        </include>
-
         <!-- cartographer_node -->
+        <param name="/use_sim_time" value="false" />
+        <param name="use_pose_extrapolator" value="true"/>
         <node pkg="cartographer_ros" type="cartographer_node" name="cartographer_node" 
-                args="-configuration_directory $(find multi_parking_sys)/lua -configuration_basename $(arg namespace_two)_rplidar.lua
-                "
-                output="screen">
-            <remap from="/imu" to="/flat_imu"/>
+            args="-configuration_directory $(find multi_parking_sys)/lua -configuration_basename $(arg namespace_two)_rplidar.lua 
+            "
+            >
             <param name="use_pose_extrapolator" value="true"/>
         </node>
 
         <!-- cartographer_occupancy_grid_node -->
-        <node pkg="cartographer_ros" type="cartographer_occupancy_grid_node"
+        <!-- <node pkg="cartographer_ros" type="cartographer_occupancy_grid_node"
                 name="cartographer_occupancy_grid_node" 
-                args="-resolution 0.05" />
-
-        <!-- flat_world_imu_node -->
-        <node pkg="turtlebot3_slam" type="flat_world_imu_node" name="flat_world_imu_node" output="screen">
-            <remap from="imu_in" to="/imu" />
-            <remap from="imu_out" to="/flat_imu" />
-        </node>
+                args="-resolution 0.05" >
+        </node> -->
     </group>
 
     <!-- init pose node -->
@@ -71,22 +56,91 @@
 
     <!-- state publisher for robot_1 -->
     <!-- <node pkg="tf" type="static_transform_publisher" name="world_to_$(arg namespace_one)_tf_broadcaster"  args="0 0 0 0 0 0 /map /$(arg namespace_one)/map 100"/> -->
-    <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_map_to_$(arg namespace_one)_odom"  args="0 0 0 0 0 0 /$(arg namespace_one)/map /$(arg namespace_one)/odom 100"/>
-    <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_base_to_laser_broadcaster" args="0 0 0 1.5708 0 3.141592 /$(arg namespace_one)/base_link /$(arg namespace_one)/laser 100" />
+    <!-- <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_map_to_$(arg namespace_one)_odom"  args="0 0 0 0 0 0 /$(arg namespace_one)/map /$(arg namespace_one)/odom 100"/> -->
+    <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_base_to_laser_broadcaster" args="0 0 0 0 0 3.141592 /$(arg namespace_one)/base_link /$(arg namespace_one)/laser 100" />
     <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_base_to_imu_broadcaster" args="0 0 0 0 0 0 /$(arg namespace_one)/base_link /$(arg namespace_one)/imu 100" />
+
+    <!-- <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_one)_map_to_$(arg namespace_two)_odom"  args="0 1.0 0 0 0 0 /$(arg namespace_one)/map /$(arg namespace_two)/odom 100"/> -->
+    <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_two)_base_to_laser_broadcaster" args="0 0 0 0 0 3.141592 /$(arg namespace_two)/base_link /$(arg namespace_two)/laser 100" />
+    <node pkg="tf" type="static_transform_publisher" name="$(arg namespace_two)_base_to_imu_broadcaster" args="0 0 0 0 0 0 /$(arg namespace_two)/base_link /$(arg namespace_two)/imu 100" />
 
     <!-- rviz -->
     <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find multi_parking_sys)/rviz/multi_carto.rviz" />
 
+    <!-- Arguments -->
+    <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+    <arg name="open_rviz" default="true"/>
+
+    <!-- astar node -->
+    <!-- For robot_1 -->
+    <node pkg="astar" type="astar" name="robot_1_astar">
+        <param name="Euclidean" value="true"/>
+        <param name="OccupyThresh" value="-1"/>
+        <param name="InflateRadius" value="0.1"/>
+        <param name="rate" value="10"/>
+        <param name="namespace" value="$(arg namespace_one)"/>
+    </node>
+
+    <!-- astar node -->
+    <!-- For robot_2 -->
+    <node pkg="astar" type="astar" name="robot_2_astar">
+        <param name="Euclidean" value="true"/>
+        <param name="OccupyThresh" value="-1"/>
+        <param name="InflateRadius" value="0.1"/>
+        <param name="rate" value="10"/>
+        <param name="namespace" value="$(arg namespace_two)"/>
+    </node>
+
+    <!-- Local Path Planner -->
+    <arg name="hz" default="20"/>
+    <arg name="use_scan_as_input" default="true"/>
+    <arg name="robot_param" default="$(find dwa_planner)/config/robot_param.yaml"/>
+    <arg name="dwa_param" default="$(find dwa_planner)/config/dwa_param.yaml"/>
+
+    <node pkg="dwa_planner" type="dwa_planner" name="dwa_planner_one" ns="local_planner" output ="screen">
+        <rosparam command="load" file="$(arg robot_param)"/>
+        <rosparam command="load" file="$(arg dwa_param)"/>
+        <param name="HZ" value="$(arg hz)"/>
+        <param name="USE_SCAN_AS_INPUT" value="$(arg use_scan_as_input)"/>
+        <remap from="/odom" to="/odom"/>
+        <param name="namespace" value="$(arg namespace_one)"/>
+    </node>
+
+    <node pkg="dwa_planner" type="dwa_planner" name="dwa_planner_two" ns="local_planner" output ="screen">
+        <rosparam command="load" file="$(arg robot_param)"/>
+        <rosparam command="load" file="$(arg dwa_param)"/>
+        <param name="HZ" value="$(arg hz)"/>
+        <param name="USE_SCAN_AS_INPUT" value="$(arg use_scan_as_input)"/>
+        <remap from="/odom" to="/odom"/>
+        <param name="namespace" value="$(arg namespace_two)"/>
+    </node>
+
+    <node pkg="test_pkg" type="local_goal_pub" name="local_goal_pub_one" output ="screen">
+        <param name="namespace" value="$(arg namespace_one)"/>
+    </node>
+
+    <node pkg="test_pkg" type="local_goal_pub" name="local_goal_pub_two" output ="screen">
+        <param name="namespace" value="$(arg namespace_two)"/>
+    </node>
+
     <!-- Stanley Tracker -->
     <!-- For robot_1 -->
-    <node pkg="pathTracking" type="tracker" name="robot_1_tracker" output="screen">
+        <!-- <node pkg="pathTracking" type="tracker" name="$(arg namespace_one)_tracker" output="screen">
+        <param name="tracker" type="string" value="Kanayama"/>
+        <param name="k_x" type="double" value="0.4"/>
+        <param name="k_y" type="double" value="11"/>
+        <param name="timeStep" type="double" value="0.2"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_one)"/>
+    </node> -->
+
+    <!-- <node pkg="pathTracking" type="tracker" name="robot_1_tracker" output="screen">
         <param name="k" type="double" value="4.0"/>
         <param name="k2" type="double" value="1.5"/>
-        <param name="v" type="double" value="0.1"/>
+        <param name="v" type="double" value="0.2"/>
         <param name="namespace" value="$(arg namespace_one)"/>
         <param name="tracker" type="string" value="Stanley"/>
-    </node>
+    </node> -->
 
     <!-- Stanley Tracker -->
     <!-- For robot_2 -->
@@ -95,6 +149,7 @@
         <param name="k2" type="double" value="1.5"/>
         <param name="v" type="double" value="0.1"/>
         <param name="namespace" value="$(arg namespace_two)"/>
+        <param name="tracker" type="string" value="Stanley"/>
     </node> -->
 
     <!-- Kanayama Tracker -->
@@ -121,26 +176,6 @@
         <param name="namespace" value="$(arg namespace_one)"/>
     </node> -->
 
-    <!-- astar node -->
-    <!-- For robot_1 -->
-    <node pkg="astar" type="astar" name="robot_1_astar" output="screen">
-        <param name="Euclidean" value="true"/>
-        <param name="OccupyThresh" value="-1"/>
-        <param name="InflateRadius" value="0.1"/>
-        <param name="rate" value="10"/>
-        <param name="namespace" value="$(arg namespace_one)"/>
-    </node>
-
-    <!-- astar node -->
-    <!-- For robot_2 -->
-    <node pkg="astar" type="astar" name="robot_2_astar" output="screen">
-        <param name="Euclidean" value="true"/>
-        <param name="OccupyThresh" value="-1"/>
-        <param name="InflateRadius" value="0.1"/>
-        <param name="rate" value="10"/>
-        <param name="namespace" value="$(arg namespace_two)"/>
-    </node>
-
     <!-- emergency node -->
     <!-- For all robots -->
     <node pkg="ui_emergency" type="ui_emergency" name="ui_emergency" output="screen">
@@ -149,8 +184,8 @@
 
     <!-- Main UI node -->
     <!-- For all robots -->
-    <node pkg="ui_main" type="ui_main" name="ui_main" output="screen">
-    </node>
+    <!-- <node pkg="ui_main" type="ui_main" name="ui_main" output="screen"> -->
+    <!-- </node> -->
 
 
 

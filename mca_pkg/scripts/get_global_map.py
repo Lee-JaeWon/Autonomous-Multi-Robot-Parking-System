@@ -9,7 +9,7 @@ GitHub : Lee-JaeWon
 
 import rospy
 from nav_msgs.msg import OccupancyGrid
-from geometry_msgs.msg import PoseStamped, PointStamped
+from geometry_msgs.msg import PoseStamped, PointStamped, Twist
 import numpy as np
 
 from matplotlib import pyplot as plt
@@ -35,6 +35,7 @@ class get_global_map():
         self.robot_1_pose_ns = "/robot_1"
         self.robot_2_pose_ns = "/robot_2"
         self.robot_3_pose_ns = "/robot_3"
+        self.PI = pi
 
         # ----------------------------------------
         # ------Subcriber
@@ -52,24 +53,46 @@ class get_global_map():
         rospy.Subscriber(self.robot_1_pose_ns + "/move_base_simple/goal", PoseStamped, self.goalCallback, callback_args=0)
         rospy.Subscriber(self.robot_2_pose_ns + "/move_base_simple/goal", PoseStamped, self.goalCallback, callback_args=1)
         rospy.Subscriber(self.robot_3_pose_ns + "/move_base_simple/goal", PoseStamped, self.goalCallback, callback_args=2)
+        # cmd_vel_pt from tracker.cpp
+        rospy.Subscriber(self.robot_1_pose_ns + "/cmd_vel_pt", Twist, self.cmdvelptCallback, callback_args=0)
+        rospy.Subscriber(self.robot_2_pose_ns + "/cmd_vel_pt", Twist, self.cmdvelptCallback, callback_args=1)
+        rospy.Subscriber(self.robot_3_pose_ns + "/cmd_vel_pt", Twist, self.cmdvelptCallback, callback_args=2)
+        # local_goal
+        rospy.Subscriber(self.robot_1_pose_ns + "/local_goal", PoseStamped, self.localgoalCallback, callback_args=0)
+        rospy.Subscriber(self.robot_2_pose_ns + "/local_goal", PoseStamped, self.localgoalCallback, callback_args=1)
+        rospy.Subscriber(self.robot_3_pose_ns + "/local_goal", PoseStamped, self.localgoalCallback, callback_args=2)
+
+        # ----------------------------------------
+        # ------Publisher
+        self.pub_one = rospy.Publisher(self.robot_1_pose_ns + "/cmd_vel", Twist, queue_size=10)
+        self.pub_two = rospy.Publisher(self.robot_2_pose_ns + "/cmd_vel", Twist, queue_size=10)
+        self.pub_thr = rospy.Publisher(self.robot_3_pose_ns + "/cmd_vel", Twist, queue_size=10)
         
         # ----------------------------------------
         # Real data
         self.mapData = None
         self.X = [[1.0, 1.0] for _ in range(self.num_robots)]
-        self.RX = [[1.0, 1.0] for _ in range(self.num_robots)]
-        self.P = [[1.0, 1.0] for _ in range(self.num_robots)] 
-        self.PQ = [[1.0, 1.0, 1.0, 1.0] for _ in range(self.num_robots)] 
+        self.RX = [[1.0, 1.0] for _ in range(self.num_robots)] # For real
+        self.P = [[1.0, 1.0] for _ in range(self.num_robots)] # Pose
+        self.PQ = [[1.0, 1.0, 1.0, 1.0] for _ in range(self.num_robots)] # Pose Quaternion
         self.WP = [[1.0, 1.0] for _ in range(self.num_robots)] # way point from /robot_n/dp
-        self.RWP = [[1.0, 1.0] for _ in range(self.num_robots)] # way point from /robot_n/dp
+        self.RWP = [[1.0, 1.0] for _ in range(self.num_robots)] # For real
         self.euler = [[1.0, 1.0, 1.0] for _ in range(self.num_robots)]
         self.V_des = [[0.0, 0.0] for _ in range(self.num_robots)]
+        self.V_res = [[0.0, 0.0] for _ in range(self.num_robots)]
         self.goal = [[1.0, 1.0] for _ in range(self.num_robots)]
-        self.R_goal = [[100.0, 100.0] for _ in range(self.num_robots)]
+        self.R_goal = [[100.0, 100.0] for _ in range(self.num_robots)] # For real
         self.vmax = [0.05 for _ in range(self.num_robots)]
-        self._yaw = 2
+        self._yaw = 2 # For indexing
+        self.V_pt = [[0.0, 0.0] for _ in range(self.num_robots)]
+        self.temp_V = [[0.0, 0.0] for _ in range(self.num_robots)]
+        self.LGP = [[0.0, 0.0] for _ in range(self.num_robots)]
+        self.R_LGP = [[0.0, 0.0] for _ in range(self.num_robots)]
 
-        self.RWP_flag = True
+        self.robot_1_twist = Twist()
+        self.robot_2_twist = Twist()
+        self.robot_3_twist = Twist()
+
 
         # ----------------------------------------
         self.ws_model = dict()
@@ -107,6 +130,19 @@ class get_global_map():
                 self.goal[i][0] = data.pose.position.x
                 self.goal[i][1] = data.pose.position.y
 
+    def cmdvelptCallback(self, data, robot_ns):
+        for i in range(self.num_robots):
+            if robot_ns == i:
+                self.V_pt[i][0] = data.linear.x
+                self.V_pt[i][1] = data.angular.z
+
+    def localgoalCallback(self, data, robot_ns):
+        for i in range(self.num_robots):
+            if robot_ns == i:
+                self.LGP[i][0] = data.pose.position.x
+                self.LGP[i][1] = data.pose.position.y
+
+
     def get_data(self):
         figure = plt.figure()
         map_plt = figure.add_subplot(1, 1, 1)
@@ -134,6 +170,9 @@ class get_global_map():
                     self.R_goal[i][0] = (self.goal[i][0] - self.map_startx)/self.map_resolution
                     self.R_goal[i][1] = (self.goal[i][1] - self.map_starty)/self.map_resolution
 
+                    self.R_LGP[i][0] = (self.LGP[i][0] - self.map_startx)/self.map_resolution
+                    self.R_LGP[i][1] = (self.LGP[i][1] - self.map_starty)/self.map_resolution
+
                     quaternion = (
                         self.PQ[i][0],
                         self.PQ[i][1],
@@ -155,21 +194,42 @@ class get_global_map():
                                                          alpha=1,
                                                          zorder=2)
                     map_plt.add_patch(self.robot_patch[i])
-                    map_plt.arrow(self.RX[i][0], self.RX[i][1],
-                                  30*self.P[i][0],
-                                  30*self.P[i][1],
-                                  head_width=2.0, head_length=1.5, fc=cmap(i), ec=cmap(i))
+                    # map_plt.arrow(self.RX[i][0], self.RX[i][1],
+                    #               30*self.P[i][0],
+                    #               30*self.P[i][1],
+                    #               head_width=2.0, head_length=1.5, fc=cmap(i), ec=cmap(i))
                     
-                    self.goal_patch[i] = patches.Rectangle((self.R_goal[i][0], self.R_goal[i][1]),
+                    self.goal_patch[i] = patches.Rectangle((self.R_LGP[i][0], self.R_LGP[i][1]),
                                                                width=4.0, height=4.0, color=cmap(i)
                                                             )
                     map_plt.add_patch(self.goal_patch[i])
                 img = np.zeros((self.map_height, self.map_width, 3), np.uint8)
 
                 self.V_des = self.compute_V_des(
-                        X=self.RX, way=self.RWP, goal=self.R_goal)
+                        X=self.RX, way=self.R_LGP, goal=self.R_goal) # 이후 V_desired를 Path tracker의 desired로 바꿀 가능성 (얘도 Way point를 순간 추종하는데)
+                # (Path tracker와 기능이 동일하기에 우리가 구현한 속도로 가져와도 될듯)
+
+                for i in range(self.num_robots):
+                    self.temp_V[i][0] = self.P[i][0] * self.V_pt[i][0]
+                    self.temp_V[i][1] = self.P[i][1] * self.V_pt[i][0]
+                    # self.V_des[i][0] = self.P[i][0] * self.V_pt[i][0]
+                    # self.V_des[i][1] = self.P[i][1] * self.V_pt[i][0]
+
+                # self.V_des = self.V_pt # Desired Velocity
                 
-                print(self.V_des)
+                self.V_res = self.RVO_update(
+                    X=self.X, V_des=self.V_des, V_current=self.temp_V, ws_model=self.ws_model, mat_obj=map_plt)
+                
+                for i in range(self.num_robots):
+                    # map_plt.arrow(self.RX[i][0], self.RX[i][1],
+                    #               250*self.temp_V[i][0],
+                    #               250*self.temp_V[i][1],
+                    #               head_width=2.0, head_length=1.5, fc=cmap(i), ec=cmap(i))
+                    
+                    map_plt.arrow(self.RX[i][0], self.RX[i][1],
+                                  250*self.V_res[i][0],
+                                  250*self.V_res[i][1],
+                                  head_width=2.0, head_length=1.5, fc=cmap(i), ec=cmap(i))
 
                 for i in range(0, self.map_height):
                     for j in range(0, self.map_width):
@@ -181,6 +241,19 @@ class get_global_map():
                             img[i, j] = 100
                         else:
                             img[i, j] = 50
+
+                self.robot_1_twist.linear.x = self.V_res[0][0] * 3
+                self.robot_1_twist.angular.z = self.V_res[0][1] * 10
+
+                self.robot_2_twist.linear.x = self.V_res[1][0] * 3
+                self.robot_2_twist.angular.z = self.V_res[1][1] * 10
+
+                # self.robot_3_twist.linear.x = self.V_res[2][0] * 4
+                # self.robot_3_twist.angular.z = self.V_res[2][1] * 10
+
+                self.pub_one.publish(self.robot_1_twist)
+                self.pub_two.publish(self.robot_2_twist)
+                # self.pub_thr.publish(self.robot_3_twist)
 
                 map_plt.imshow(img, cmap='gray', origin='lower')
                 plt.draw()
@@ -215,6 +288,52 @@ class get_global_map():
                 V_des[i][1] = 0.0
         return V_des
     
+    def RVO_update(self, X, V_des, V_current, ws_model, mat_obj):
+
+        ROB_RAD = ws_model['robot_radius']+0.2
+
+        V_opt = list(V_current)
+
+        for i in range(self.num_robots):
+            vA = [V_current[i][0], V_current[i][1]]
+            pA = [X[i][0], X[i][1]]
+            RVO_BA_all = []
+            for j in range(self.num_robots):
+                if i != j:
+
+                    # Calculate with the others
+                    vB = [V_current[j][0], V_current[j][1]]
+                    pB = [X[j][0], X[j][1]]
+
+                    # For VO
+                    # transl_vB_vA = [pA[0]+vB[0], pA[1]+vB[1]]
+                    # For RVO
+                    transl_vB_vA = [pA[0]+0.5*(vB[0]+vA[0]), pA[1]+0.5*(vB[1]+vA[1])]
+
+                    # For Visualization
+                    # mat_obj.plot([X[i][0], X[j][0]], [
+                    #              X[i][1], X[j][1]], color="green")
+
+                    dist_BA = self.distance(pA, pB)
+
+                    theta_BA = atan2(pB[1]-pA[1], pB[0]-pA[0])
+
+                    if 2*ROB_RAD > dist_BA:
+                        dist_BA = 2*ROB_RAD
+
+                    theta_BAort = asin(2*ROB_RAD/dist_BA)
+                    theta_ort_left = theta_BA+theta_BAort
+                    bound_left = [cos(theta_ort_left), sin(theta_ort_left)]
+                    theta_ort_right = theta_BA-theta_BAort
+                    bound_right = [cos(theta_ort_right), sin(theta_ort_right)]
+                    VO_BA = [transl_vB_vA, bound_left,
+                             bound_right, dist_BA, 2*ROB_RAD]
+                    RVO_BA_all.append(VO_BA)
+
+            vA_post = self.intersect(pA, V_des[i], RVO_BA_all)
+            V_opt[i] = vA_post[:]
+        return V_opt
+    
     def reach(self, p1, p2, bound=0.5):
         if self.distance(p1, p2) < bound:
             return True
@@ -224,6 +343,117 @@ class get_global_map():
     def distance(self, pose1, pose2):
         # compute Euclidean distance for 2D
         return sqrt((pose1[0]-pose2[0])**2+(pose1[1]-pose2[1])**2)+0.001
+    
+    def intersect(self, pA, vA, VO_BA_all):
+        norm_v = self.distance(vA, [0, 0])
+        suitable_V = []
+        unsuitable_V = []
+        for theta in np.arange(0, 2*self.PI, 0.1):
+            for rad in np.arange(0.02, norm_v+0.02, norm_v/5.0):
+                new_v = [rad*cos(theta), rad*sin(theta)]
+                suit = True
+                for RVO_BA in VO_BA_all:
+                    p_0 = RVO_BA[0]
+                    left = RVO_BA[1]
+                    right = RVO_BA[2]
+                    dif = [new_v[0]+pA[0]-p_0[0], new_v[1]+pA[1]-p_0[1]]
+                    theta_dif = atan2(dif[1], dif[0])
+                    theta_right = atan2(right[1], right[0])
+                    theta_left = atan2(left[1], left[0])
+                    if self.in_between(theta_right, theta_dif, theta_left):
+                        suit = False
+                        break
+                if suit:
+                    suitable_V.append(new_v)
+                else:
+                    unsuitable_V.append(new_v)
+        new_v = vA[:]
+        suit = True
+        for VO_BA in VO_BA_all:
+            p_0 = VO_BA[0]
+            left = VO_BA[1]
+            right = VO_BA[2]
+            dif = [new_v[0]+pA[0]-p_0[0], new_v[1]+pA[1]-p_0[1]]
+            theta_dif = atan2(dif[1], dif[0])
+            theta_right = atan2(right[1], right[0])
+            theta_left = atan2(left[1], left[0])
+            if self.in_between(theta_right, theta_dif, theta_left):
+                suit = False
+                break
+        if suit:
+            suitable_V.append(new_v)
+        else:
+            unsuitable_V.append(new_v)
+        #----------------------
+        if suitable_V:
+            # print 'Suitable found'
+            vA_post = min(suitable_V, key=lambda v: self.distance(v, vA))
+            new_v = vA_post[:]
+            for VO_BA in VO_BA_all:
+                p_0 = VO_BA[0]
+                left = VO_BA[1]
+                right = VO_BA[2]
+                dif = [new_v[0]+pA[0]-p_0[0], new_v[1]+pA[1]-p_0[1]]
+                theta_dif = atan2(dif[1], dif[0])
+                theta_right = atan2(right[1], right[0])
+                theta_left = atan2(left[1], left[0])
+        else:
+            # print 'Suitable not found'
+            tc_V = dict()
+            for unsuit_v in unsuitable_V:
+                tc_V[tuple(unsuit_v)] = 0
+                tc = []
+                for VO_BA in VO_BA_all:
+                    p_0 = VO_BA[0]
+                    left = VO_BA[1]
+                    right = VO_BA[2]
+                    dist = VO_BA[3]
+                    rad = VO_BA[4]
+                    dif = [unsuit_v[0]+pA[0]-p_0[0], unsuit_v[1]+pA[1]-p_0[1]]
+                    theta_dif = atan2(dif[1], dif[0])
+                    theta_right = atan2(right[1], right[0])
+                    theta_left = atan2(left[1], left[0])
+                    if self.in_between(theta_right, theta_dif, theta_left):
+                        small_theta = abs(
+                            theta_dif-0.5*(theta_left+theta_right))
+                        if abs(dist*sin(small_theta)) >= rad:
+                            rad = abs(dist*sin(small_theta))
+                        big_theta = asin(abs(dist*sin(small_theta))/rad)
+                        dist_tg = abs(dist*cos(small_theta)) - \
+                            abs(rad*cos(big_theta))
+                        if dist_tg < 0:
+                            dist_tg = 0
+                        tc_v = dist_tg/self.distance(dif, [0, 0])
+                        tc.append(tc_v)
+                tc_V[tuple(unsuit_v)] = min(tc)+0.001
+            WT = 0.2
+            vA_post = min(unsuitable_V, key=lambda v: (
+                (WT/tc_V[tuple(v)])+self.distance(v, vA)))
+        return vA_post
+    
+    def in_between(self, theta_right, theta_dif, theta_left):
+        if abs(theta_right - theta_left) <= self.PI:
+            if theta_right <= theta_dif <= theta_left:
+                return True
+            else:
+                return False
+        else:
+            if (theta_left < 0) and (theta_right > 0):
+                theta_left += 2*self.PI
+                if theta_dif < 0:
+                    theta_dif += 2*self.PI
+                if theta_right <= theta_dif <= theta_left:
+                    return True
+                else:
+                    return False
+            if (theta_left > 0) and (theta_right < 0):
+                theta_right += 2*self.PI
+                if theta_dif < 0:
+                    theta_dif += 2*self.PI
+                if theta_left <= theta_dif <= theta_right:
+                    return True
+                else:
+                    return False
 
 
 if __name__ == '__main__':

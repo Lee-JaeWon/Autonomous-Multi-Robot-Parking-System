@@ -20,9 +20,9 @@
 
 // geometry_msgs::PoseStamped Pose_msg;
 
-// void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg)
-// {
-//     ROS_INFO("robot_1 pose is subscribed.");
+// void initialPoseCallback_1(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg)
+// 2
+// 3   ROS_INFO("robot_1 pose is subscribed.");
 
 //     // Create a service client for the start_trajectory service
 //     ros::NodeHandle nh;
@@ -186,9 +186,9 @@
 //     std::string init_pose_two = '/' + s2 + "/initialpose";
 //     std::string init_pose_three = '/' + s3 + "/initialpose";
 
-//     ros::Subscriber initialPoseSub_0 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(init_pose_one, 1, initialPoseCallback_0);
-//     ros::Subscriber initialPoseSub_1 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(init_pose_two, 1, initialPoseCallback_1);
-//     ros::Subscriber initialPoseSub_2 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(init_pose_three, 1, initialPoseCallback_2);
+//     ros::Subscriber initialPoseSub_0 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(init_pose_one, 1, initialPoseCallback_1);
+//     ros::Subscriber initialPoseSub_1 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(init_pose_two, 1, initialPoseCallback_2);
+//     ros::Subscriber initialPoseSub_2 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(init_pose_three, 1, initialPoseCallbac3_2);
 
 //     ros::Subscriber odom_sub = nh.subscribe<geometry_msgs::PoseStamped>("/tracked_pose", 1, PoseCallback_0);
 
@@ -244,30 +244,30 @@
 // // #include <tf/tf.h>
 
 // // // Initialize ROS node
-// // geometry_msgs::Pose Quat2RPY2Quat(const geometry_msgs::Pose::ConstPtr& odom_pose,const geometry_msgs::Pose::ConstPtr& init_pose);
+// // geometry_msgs::Pose Quat2RPY2Quat(const geometry_msgs::Pose::ConstPtr& odom_pose1,const geometry_msgs::Pose::ConstPtr& init_pose);
 // // void serviceCall(const geometry_msgs::Pose odom_msg,const geometry_msgs::Pose  init_msg);
 // // // Create ROS node handle
 // // int cnt = 1;
 
-// // geometry_msgs::PoseStamped odom_pose;
 // // geometry_msgs::PoseStamped odom_pose1;
 // // geometry_msgs::PoseStamped odom_pose2;
+// // geometry_msgs::PoseStamped odom_pose3;
 
 // // void PoseCallback_0(const geometry_msgs::PoseStamped::ConstPtr& msg){
-// //     odom_pose = *msg;
-// // }
-
-// // void PoseCallback_1(const geometry_msgs::PoseStamped::ConstPtr& msg){
 // //     odom_pose1 = *msg;
 // // }
 
-// // void PoseCallback_2(const geometry_msgs::PoseStamped::ConstPtr& msg){
+// // void PoseCallback_1(const geometry_msgs::PoseStamped::ConstPtr& msg){
 // //     odom_pose2 = *msg;
 // // }
 
-// // void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped msg)
-// // {
-// //     // serviceCall(msg->pose.pose ,odom_pose.pose); // odom, init
+// // void PoseCallback_2(const geometry_msgs::PoseStamped::ConstPtr& msg){
+// //     odom_pose3 = *msg;
+// // }
+
+// // void initialPoseCallback_1(const geometry_msgs::PoseWithCovarianceStamped msg)
+// // 2
+// // 3   // serviceCall(msg->pose.pose ,odom_pose1.pose); // odom, init
 
 // //     ROS_INFO("POSE_0 subscribed");
 
@@ -297,7 +297,7 @@
 // //     // double init_roll, init_pitch, init_yaw;
 
 // //     // //  odom_Quaternion to RPY
-// //     // tf::Quaternion odom_quat(odom_pose.pose.orientation.x,odom_pose.pose.orientation.y,odom_pose.pose.orientation.z,odom_pose.pose.orientation.w)
+// //     // tf::Quaternion odom_quat(odom_pose1.pose.orientation.x,odom_pose1.pose.orientation.y,odom_pose1.pose.orientation.z,odom_pose1.pose.orientation.w)
 // //     // tf::Matrix3x3(odom_quat).getRPY(odom_roll, odom_pitch, odom_yaw);
 
 // //     // // initialpose_Quaternion to RPY
@@ -315,8 +315,8 @@
 // //     // target_quat.setRPY( target_pitch, target_roll, target_yaw );
 
 // //     // // msg->pose.pose
-// //     // target_pose.position.x = msg->pose.pose.position.x - odom_pose.pose.position.x
-// //     // target_pose.position.y = msg->pose.pose.position.y - odom_pose.pose.position.y
+// //     // target_pose.position.x = msg->pose.pose.position.x - odom_pose1.pose.position.x
+// //     // target_pose.position.y = msg->pose.pose.position.y - odom_pose1.pose.position.y
 // //     // target_pose.position.z = 0
 
 // //     // target_pose.orientation.x = target_quat.getX();
@@ -325,7 +325,7 @@
 // //     // target_pose.orientation.w = target_quat.getW();
 
 // //     // startreq.initial_pose = target_pose; // geometry _msgs
-// //     startreq.initial_pose = Quat2RPY2Quat(odom_pose.pose, msg.pose.pose); // geometry _msgs
+// //     startreq.initial_pose = Quat2RPY2Quat(odom_pose1.pose, msg.pose.pose); // geometry _msgs
 
 // //     startreq.relative_to_trajectory_id = cnt; /// int
 // //     // Call the start_trajectory service
@@ -337,12 +337,12 @@
 
 // // void initialPoseCallback_1(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 // // {
-// //     serviceCall(msg->pose.pose ,odom_pose1.pose); // odom, init
+// //     serviceCall(msg->pose.pose ,odom_pose2.pose); // odom, init
 // // }
 
 // // void initialPoseCallback_2(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 // // {
-// //     serviceCall(msg->pose.pose ,odom_pose2.pose); // odom, init
+// //     serviceCall(msg->pose.pose ,odom_pose3.pose); // odom, init
 // // }
 
 // // int main(int argc, char** argv)
@@ -350,9 +350,9 @@
 // //     ros::init(argc, argv,"initial_pose_subscriber");
 // //     // Create subscriber to initial pose topic
 // //     ros::NodeHandle nh;
-// //     ros::Subscriber initialPoseSub_0 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>("/initialpose_0", 1, initialPoseCallback_0);
-// //     ros::Subscriber initialPoseSub_1 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>("/initialpose_1", 1, initialPoseCallback_1);
-// //     ros::Subscriber initialPoseSub_2 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>("/initialpose_2", 1, initialPoseCallback_2);
+// //     ros::Subscriber initialPoseSub_0 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>("/initialpose_0", 1, initialPoseCallback_1);
+// //     ros::Subscriber initialPoseSub_1 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>("/initialpose_1", 1, initialPoseCallback_2);
+// //     ros::Subscriber initialPoseSub_2 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>("/initialpose_2", 1, initialPoseCallback_3);
 
 // //     ros::Subscriber odom_sub = nh.subscribe<geometry_msgs::PoseStamped>("/tracked_pose", 1, PoseCallback_0);
 
@@ -453,18 +453,13 @@ geometry_msgs::Pose Quat2RPY2Quat(const geometry_msgs::Pose &odom_msg, const geo
 // Create ROS node handle
 int cnt = 1;
 
-geometry_msgs::PoseStamped odom_pose;
 geometry_msgs::PoseStamped odom_pose1;
 geometry_msgs::PoseStamped odom_pose2;
+geometry_msgs::PoseStamped odom_pose3;
 
 std::string s1 = "robot_1";
-std::string s2;
-std::string s3;
-
-void PoseCallback_0(const geometry_msgs::PoseStamped::ConstPtr &msg)
-{
-    odom_pose = *msg;
-}
+std::string s2 = "robot_2";
+std::string s3 = "robot_3";
 
 void PoseCallback_1(const geometry_msgs::PoseStamped::ConstPtr &msg)
 {
@@ -476,9 +471,14 @@ void PoseCallback_2(const geometry_msgs::PoseStamped::ConstPtr &msg)
     odom_pose2 = *msg;
 }
 
-void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg)
+void PoseCallback_3(const geometry_msgs::PoseStamped::ConstPtr &msg)
 {
-    // serviceCall(msg.pose.pose ,odom_pose.pose); // odom, init
+    odom_pose3 = *msg;
+}
+
+void initialPoseCallback_1(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg){
+
+   // serviceCall(msg.pose.pose ,odom_pose1.pose); // odom, init
 
     ROS_INFO("POSE_0 subscribed");
 
@@ -515,7 +515,7 @@ void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::Const
     // double init_roll, init_pitch, init_yaw;
 
     // //  odom_Quaternion to RPY
-    // tf::Quaternion odom_quat(odom_pose.pose.orientation.x,odom_pose.pose.orientation.y,odom_pose.pose.orientation.z,odom_pose.pose.orientation.w)
+    // tf::Quaternion odom_quat(odom_pose1.pose.orientation.x,odom_pose1.pose.orientation.y,odom_pose1.pose.orientation.z,odom_pose1.pose.orientation.w)
     // tf::Matrix3x3(odom_quat).getRPY(odom_roll, odom_pitch, odom_yaw);
 
     // // initialpose_Quaternion to RPY
@@ -533,8 +533,8 @@ void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::Const
     // target_quat.setRPY( target_pitch, target_roll, target_yaw );
 
     // // msg->pose.pose
-    // target_pose.position.x = msg->pose.pose.position.x - odom_pose.pose.position.x
-    // target_pose.position.y = msg->pose.pose.position.y - odom_pose.pose.position.y
+    // target_pose.position.x = msg->pose.pose.position.x - odom_pose1.pose.position.x
+    // target_pose.position.y = msg->pose.pose.position.y - odom_pose1.pose.position.y
     // target_pose.position.z = 0
 
     // target_pose.orientation.x = target_quat.getX();
@@ -543,7 +543,7 @@ void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::Const
     // target_pose.orientation.w = target_quat.getW();
     // startreq.initial_pose = target_pose; // geometry _msgs
 
-    startreq.initial_pose = Quat2RPY2Quat(odom_pose.pose, msg->pose.pose); // geometry_msgs/Pose data type
+    startreq.initial_pose = Quat2RPY2Quat(odom_pose1.pose, msg->pose.pose); // geometry_msgs/Pose data type
 
     startreq.relative_to_trajectory_id = cnt; /// int
     // Call the start_trajectory service
@@ -553,18 +553,18 @@ void initialPoseCallback_0(const geometry_msgs::PoseWithCovarianceStamped::Const
     cnt++;
 }
 
-void initialPoseCallback_1(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg)
+void initialPoseCallback_2(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg)
 {
     geometry_msgs::Pose odom = msg->pose.pose;
-    geometry_msgs::Pose init = odom_pose1.pose;
+    geometry_msgs::Pose init = odom_pose2.pose;
     serviceCall(odom, init); // odom, init
 }
 
-void initialPoseCallback_2(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg)
+void initialPoseCallback_3(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &msg)
 {
 
     geometry_msgs::Pose odom = msg->pose.pose;
-    geometry_msgs::Pose init = odom_pose2.pose;
+    geometry_msgs::Pose init = odom_pose3.pose;
     serviceCall(odom, init); // odom, init
 }
 
@@ -596,15 +596,24 @@ int main(int argc, char **argv)
     std::string Init_ns_2 = "/" + s2 + "/initialpose";
     std::string Init_ns_3 = "/" + s3 + "/initialpose";
 
-    std::string odom_ns_1 = "/" + s1 + "/tracked_pose";
+    std::string pose_ns_1 = "/" + s1 + "/tracked_pose";
+    std::string pose_ns_2 = "/" + s2 + "/tracked_pose";
+    std::string pose_ns_3 = "/" + s3 + "/tracked_pose";
+
+
 
     // Create subscriber to initial pose topic
     ros::NodeHandle nh;
-    ros::Subscriber initialPoseSub_0 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(Init_ns_1, 1, initialPoseCallback_0);
-    ros::Subscriber initialPoseSub_1 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(Init_ns_2, 1, initialPoseCallback_1);
-    ros::Subscriber initialPoseSub_2 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(Init_ns_3, 1, initialPoseCallback_2);
+    ros::Subscriber robot_1_pose_sub = nh.subscribe<geometry_msgs::PoseStamped>(pose_ns_1, 1, PoseCallback_1);
+    ros::Subscriber robot_2_pose_sub = nh.subscribe<geometry_msgs::PoseStamped>(pose_ns_2, 1, PoseCallback_2);
+    ros::Subscriber robot_3_pose_sub = nh.subscribe<geometry_msgs::PoseStamped>(pose_ns_3, 1, PoseCallback_3);
+    
+    ros::Subscriber initialPoseSub_1 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(Init_ns_1, 1, initialPoseCallback_1);
+    ros::Subscriber initialPoseSub_2 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(Init_ns_2, 1, initialPoseCallback_2);
+    ros::Subscriber initialPoseSub_3 = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>(Init_ns_3, 1, initialPoseCallback_3);
 
-    ros::Subscriber odom_sub = nh.subscribe<geometry_msgs::PoseStamped>(odom_ns_1, 1, PoseCallback_0);
+
+
     // Spin and process callbacks
     ros::spin();
 

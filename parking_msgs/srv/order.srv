@@ -1,0 +1,6 @@
+int64 order
+int64 parkinglot
+string carNum
+---
+bool accepted
+string answer

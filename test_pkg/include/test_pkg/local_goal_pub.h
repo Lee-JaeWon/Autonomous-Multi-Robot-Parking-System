@@ -27,5 +27,5 @@ ros::Publisher local_goal_pub;
 int PathSize ;
 double cur_rx;
 double cur_ry;
-double target = 0.3;
+double target = 0.5;
 bool Path_Sub = false;

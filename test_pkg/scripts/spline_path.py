@@ -10,8 +10,8 @@ class Spline_path:
     def __init__ (self):
 
         rospy.init_node("spline_path")
-        rospy.Subscriber("/map",OccupancyGrid,self.MapCB)
-        rospy.Subscriber("/move_base/DWAPlannerROS/global_plan",Path,self.PathCB)
+        rospy.Subscriber("/robot_1/map",OccupancyGrid,self.MapCB)
+        rospy.Subscriber("/robot_1/global_path",Path,self.PathCB)
         self.path_pub = rospy.Publisher("/spline_path",Path,queue_size=1)
         
                         ### map data ###
@@ -24,7 +24,7 @@ class Spline_path:
 
         rospy.spin()
     def MapCB(self,data):
-
+        print("map subscribed")
         self.height = data.info.height
         self.width = data.info.width
         self.resolution = data.info.resolution
@@ -63,18 +63,20 @@ class Spline_path:
         path_msg = Path()
         path_list = []
         path_msg.header.seq = rospy.Time.now()
-        path_msg.header.frame_id = "map"
+        path_msg.header.frame_id = "robot_1/map"
 
         for idx,(cur_x, cur_y) in enumerate(zip(cx,cy)):
             x,y = self.mapToworld(cur_x , cur_y)
             pose_msg = PoseStamped()
-            pose_msg.header.frame_id = "map"
+            pose_msg.header.frame_id = "robot_1/map"
             pose_msg.pose.position.x = x
             pose_msg.pose.position.y = y
             path_list.append(pose_msg)
 
         path_msg.poses = path_list
+        
         self.path_pub.publish(path_msg)
+        print("success")
 
     def mapToworld(self,mx,my):
     # OccupancyGrid의 좌표 (mx, my)를 지도상의 좌표 (wx, wy)로 변환

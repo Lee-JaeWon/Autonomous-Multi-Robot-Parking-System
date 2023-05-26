@@ -1,14 +1,18 @@
 #include <test_pkg/local_goal_pub.h>
+#include <iostream>
+
+std::string s;
+std::string ns;
 
 //  return euclidean distance
 double calc_dist(double x , double y , double nx  , double ny){
     return sqrt(pow(x-nx,2)+pow(y-ny,2));
 }
 // Odometry_subscribe and calc_local_goal
-void OdomCB(const nav_msgs::Odometry::ConstPtr& msg){
+void OdomCB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 
-    cur_rx = msg -> pose.pose.position.x;
-    cur_ry = msg -> pose.pose.position.y;
+    cur_rx = msg -> pose.position.x;
+    cur_ry = msg -> pose.position.y;
     double target_x,target_y ,target_nx ,target_ny;
     geometry_msgs::Quaternion target_quat;
 
@@ -43,10 +47,11 @@ void OdomCB(const nav_msgs::Odometry::ConstPtr& msg){
 
         }
 
-        local_goal.header.frame_id = "map";
+        local_goal.header.frame_id = "robot_1/map";
         local_goal.pose.position.x = target_x;
         local_goal.pose.position.y = target_y;
         local_goal.pose.orientation = target_quat;
+
 
         // publish local_goal topic 
 
@@ -133,10 +138,22 @@ int main(int argc, char **argv)// 노드메인함수
 {
     ros::init(argc, argv, "path_node");
     ros::NodeHandle nh; 
-    odom_sub = nh.subscribe("/odom",100,OdomCB);
-    gpath_sub = nh.subscribe("/path",100,PathCB);
-    local_goal_pub = nh.advertise<geometry_msgs::PoseStamped>("local_goal",1);
-    ROS_INFO("Local_goal node Start");
+
+    if (ros::param::get("~namespace", s))
+        ROS_INFO("local_goal_pub node got param: %s", s.c_str());
+    else
+        ROS_ERROR("local_goal_pub Failed to get param '%s'", s.c_str());
+
+    ns = '/' + s;
+
+    odom_sub = nh.subscribe(ns + "/tracked_pose",100,OdomCB);
+    gpath_sub = nh.subscribe(ns + "/global_path",100,PathCB);
+    // gpath_sub = nh.subscribe("spline_path",100,PathCB);
+    // gpath_sub = nh.subscribe("/right_path",100,PathCB);
+
+
+    local_goal_pub = nh.advertise<geometry_msgs::PoseStamped>(ns + "/local_goal",1);
+    std::cout << "start" <<std::endl;
     ros::spin();
 
     return 0;

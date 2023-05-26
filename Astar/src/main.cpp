@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
             path_point.pose.orientation.y = 0;
             path_point.pose.orientation.z = 0;
 
-            local_goal_pub.publish(path_point);
+          //  local_goal_pub.publish(path_point);
 
             // Set flag
             start_flag = false;
