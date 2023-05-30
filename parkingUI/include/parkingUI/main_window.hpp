@@ -331,6 +331,7 @@ public:
 	~MainWindow();
 
   //Variables
+  QPixmap map_ori;
   QPixmap map;
 
   //now Target

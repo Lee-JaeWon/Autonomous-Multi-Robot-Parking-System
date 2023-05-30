@@ -78,6 +78,9 @@ public:
 
   // Parameters
 public:
+  // Map data
+  double map_resolution=0.05;
+
   // <Parking-Lot Coordinates >
   std::vector<double> PL[4];
   int parkingNum;

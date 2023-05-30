@@ -50,18 +50,19 @@ bool QNode::init() {
   }
   ros::start(); // explicitly needed since our nodehandle is going out of scope.
 
-  // Prameters //
+  ros::NodeHandle nh;
   ros::NodeHandle n("~");
-  n.getParam("parkingNum",parkingNum);
 
+  // Prameters //
+  n.getParam("parkingNum",parkingNum);
   n.getParam("PL0", PL[0]);
   n.getParam("PL1", PL[1]);
   n.getParam("PL2", PL[2]);
   n.getParam("PL3", PL[3]);
-
   n.getParam("MainSpot",MainSpot);
 
-  ros::NodeHandle nh;
+  nh.getParam("map/resolution",map_resolution);
+
   // Publisher //
   chatter_publisher = nh.advertise<std_msgs::String>("chatter", 1000);
   parking_goal_publisher = nh.advertise<geometry_msgs::PointStamped>("clicked_point",1);
