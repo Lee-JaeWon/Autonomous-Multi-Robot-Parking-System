@@ -30,7 +30,7 @@
 #include <std_msgs/Bool.h>
 #include "src/ParkingInfo.cpp"
 #include <parking_msgs/order.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <parking_msgs/carNum.h>
 
 
 /*****************************************************************************
@@ -54,7 +54,6 @@ public:
 Q_SIGNALS:
   void rosShutdown();
   void RobotPose_SIGNAL(nav_msgs::Odometry::ConstPtr odom);
-  void RobotPose1_SIGNAL(geometry_msgs::PoseStamped::ConstPtr oodm);
   void ParkingDone_SIGNAL(std_msgs::Bool::ConstPtr data);
 
 private:
@@ -67,17 +66,21 @@ private:
 
 
   //Subscriber
-  ros::Subscriber robotPose_subsciber;
-  ros::Subscriber robotPose_subsciber1;
+  ros::Subscriber* robotPose_subsciber;
   ros::Subscriber parkingDone_subscriber;
 
 public:
   //Client
   ros::ServiceClient client;
+  ros::ServiceClient clientCarNum;
 
 
   // Parameters
 public:
+  // Robot data
+  int robot_num=3;
+  std::string* robot_namespace;
+
   // Map data
   double map_resolution=0.05;
 
@@ -94,7 +97,6 @@ public:
 
   //Callback Function
   void RobotPoseCallback(const nav_msgs::Odometry::ConstPtr &odom);
-  void RobotPoseCallback1(const geometry_msgs::PoseStamped::ConstPtr &odom);
   void ParkingDoneCallback(const std_msgs::Bool::ConstPtr &data);
 
   //Publish Function
