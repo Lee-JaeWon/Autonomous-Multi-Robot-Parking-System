@@ -20,6 +20,7 @@ find_package(cmake_modules REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include_directories(
+    launch
     include
     ${catkin_INCLUDE_DIRS}
 )
@@ -85,6 +86,6 @@ add_dependencies(parkingUI parkingUI)
 FIND_LIBRARY(mylib1_LIBRARIES parkingUI src/ParkingInfo.cpp)
 FIND_LIBRARY(mylib2_LIBRARIES parkingUI src/ParkingLot.cpp)
 
-target_link_libraries(parkingUI ${QT_LIBRARIES} ${catkin_LIBRARIES} )#${mylib_LIBRARIES})
+target_link_libraries(parkingUI ${QT_LIBRARIES} ${catkin_LIBRARIES} ${mylib_LIBRARIES})
 install(TARGETS parkingUI RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 

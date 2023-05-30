@@ -60,21 +60,31 @@ bool QNode::init() {
   n.getParam("PL2", PL[2]);
   n.getParam("PL3", PL[3]);
   n.getParam("MainSpot",MainSpot);
+  n.getParam("robot_num",robot_num);
 
   nh.getParam("map/resolution",map_resolution);
+
+  std::string baseName = "/robot";
+  robot_namespace = new std::string[robot_num];
+  robotPose_subsciber = new ros::Subscriber[robot_num];
+  for(int i=0;i<robot_num;i++)
+  {
+    robot_namespace[i] = baseName + std::to_string(i+1);
+    std::string message = robot_namespace[i] + "/odom";
+    robotPose_subsciber[i] = nh.subscribe(message,1,&QNode::RobotPoseCallback,this);
+  }
 
   // Publisher //
   chatter_publisher = nh.advertise<std_msgs::String>("chatter", 1000);
   parking_goal_publisher = nh.advertise<geometry_msgs::PointStamped>("clicked_point",1);
 
   // Subscriber //
-  robotPose_subsciber = nh.subscribe("odom",1,&QNode::RobotPoseCallback,this);
-  robotPose_subsciber1 = nh.subscribe("/robot_2/tracked_pose",1,&QNode::RobotPoseCallback1,this);
-  
+  //robotPose_subsciber = nh.subscribe("odom",1,&QNode::RobotPoseCallback,this);
   parkingDone_subscriber = nh.subscribe("parking_done",1,&QNode::ParkingDoneCallback,this);
 
   //Client
   client = nh.serviceClient<parking_msgs::order>("service");
+  clientCarNum = nh.serviceClient<parking_msgs::carNum>("carNumSignal");
 
   // Data Read & into Class //
   //free(ParkingData);
@@ -105,7 +115,7 @@ void QNode::run() {
 
 void QNode::ReadParkingData(ParkingInfo* ParkingData, int parkingNum)
 {
-  std::string filePath = "../catkin_ws/src/Autonomous-Multi-Robot-Parking-System/parkingUI/config/ParkingLotInfo.txt";
+  std::string filePath = "../catkin_ws/src/parkingUI/config/ParkingLotInfo.txt";
 
   //std::cout<<filePath<<"\n";
   std::ifstream readfile(filePath);
@@ -190,11 +200,6 @@ void QNode::WriteParkingData()
 void QNode::RobotPoseCallback(const nav_msgs::Odometry::ConstPtr &odom)
 {
   Q_EMIT RobotPose_SIGNAL(odom);
-}
-
-void QNode::RobotPoseCallback1(const geometry_msgs::PoseStamped::ConstPtr &odom)
-{
-  Q_EMIT RobotPose1_SIGNAL(odom);
 }
 
 void QNode::ParkingDoneCallback(const std_msgs::Bool::ConstPtr &data)

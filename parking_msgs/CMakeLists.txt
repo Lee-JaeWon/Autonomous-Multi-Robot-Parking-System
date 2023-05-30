@@ -16,6 +16,7 @@ add_service_files(
   DIRECTORY srv
   FILES
   order.srv
+  carNum.srv
 )
 
 generate_messages(

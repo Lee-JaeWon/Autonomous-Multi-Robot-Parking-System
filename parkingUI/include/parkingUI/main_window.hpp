@@ -24,7 +24,12 @@
 #include <list>
 #include "ui_main_window.h"
 #include "qnode.hpp"
-#include <geometry_msgs/PoseStamped.h>
+
+#define RED     QColor(255,0,0)
+#define GREEN   QColor(0,255,0)
+#define BLUE    QColor(0,0,255)
+#define YELLOW  QColor(255,255,0)
+#define CYAN    QColor(0,255,255)
 
 
 /*****************************************************************************
@@ -95,7 +100,6 @@ public:
   QPushButton* buttonIn;
   QPushButton* buttonOut;
   QPushButton* buttonCancel;
-
 
   QString str, str_parkinglot, str_status,
           str_status_kor, str_carNum, str_date;
@@ -357,7 +361,7 @@ public:
 
   void ParkingLotInit();
 
-  void UpdateTargetPose(float x, float y); //, QPixmap* pixmap);
+  void UpdateTargetPose(int num, float x, float y); //, QPixmap* pixmap);
 
 public Q_SLOTS:
 
@@ -365,7 +369,6 @@ public Q_SLOTS:
   void on_pushButton_ParkOut_clicked();
 
   void RobotPose_SLOT(nav_msgs::Odometry::ConstPtr odom);
-  void RobotPose1_SLOT(geometry_msgs::PoseStamped::ConstPtr odom);
   void ParkingDone_SLOT(std_msgs::Bool::ConstPtr data);
 
   // Second Window에서 오는 시그널을 받는 SLOT

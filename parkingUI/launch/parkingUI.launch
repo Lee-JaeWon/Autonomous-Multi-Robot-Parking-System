@@ -7,7 +7,9 @@
   <rosparam file="$(find parkingUI)/config/ParkingLotInfo.yaml" ns = "processmaker"/>
 
   <!-- parkingUI -->
-  <node pkg="parkingUI" type="parkingUI" name="parkingUI" output="screen"/>
+  <node pkg="parkingUI" type="parkingUI" name="parkingUI" output="screen">
+    <param name="robot_num" type="int" value="3"/>
+  </node>
 
   <!-- processmaker -->
   <node pkg="process" type="processmaker" name="processmaker" output="screen"/>

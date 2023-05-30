@@ -1,0 +1,5 @@
+bool signal
+---
+bool carExist
+uint8[] data
+string carNum

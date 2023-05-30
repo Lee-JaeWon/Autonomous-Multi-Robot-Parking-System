@@ -50,7 +50,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
   this->EmptyList=qnode.EmptyList;
 
   // You have to change user's name : hyedo->???
-  QString img_path = "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/multi_parking_sys/map/mymap0527.pgm";
+  QString img_path = "/home/hyedo/map.pgm";
+  //QString img_path = "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/multi_parking_sys/map/mymap0527.pgm";
   QImage img(img_path);
 
   // Load Image
@@ -63,7 +64,6 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
   #define MAP_HEIGHT map_ori.height()
   #define MAP_RESOLUTION qnode.map_resolution
 
-  // Map scaling MAP_WIDTH*MAP_HEIGHT -> MAP_RE_WIDTH*MAP_RE_HEIGHT
   map = map_ori.scaled(MAP_RE_WIDTH,MAP_RE_HEIGHT);
 
   // Show map Image on graphicsView
@@ -74,8 +74,6 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
   //SIGNAL//
   qRegisterMetaType<nav_msgs::Odometry::ConstPtr>("nav_msgs::Odometry::ConstPtr");
   QObject::connect(&qnode,SIGNAL(RobotPose_SIGNAL(nav_msgs::Odometry::ConstPtr)), this, SLOT(RobotPose_SLOT(nav_msgs::Odometry::ConstPtr)));
-  qRegisterMetaType<geometry_msgs::PoseStamped::ConstPtr>("geometry_msgs::PoseStamped::ConstPtr");
-  QObject::connect(&qnode,SIGNAL(RobotPose1_SIGNAL(geometry_msgs::PoseStamped::ConstPtr)), this, SLOT(RobotPose1_SLOT(geometry_msgs::PoseStamped::ConstPtr)));
 
   qRegisterMetaType<std_msgs::Bool::ConstPtr>("std_msgs::Bool::ConstPtr");
   QObject::connect(&qnode,SIGNAL(ParkingDone_SIGNAL(std_msgs::Bool::ConstPtr)), this, SLOT(ParkingDone_SLOT(std_msgs::Bool::ConstPtr)));
@@ -127,7 +125,6 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
       scene->addWidget(&PL[i]);
 
       connect(&PL[i], &ClickableLabel::clicked, this, &MainWindow::onParkingLabelClicked);
-
     }
   }
 
@@ -143,23 +140,10 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     x += 9.2 / (MAP_WIDTH * MAP_RESOLUTION) * MAP_RE_WIDTH;
     y += 9.2 / (MAP_HEIGHT * MAP_RESOLUTION) * MAP_RE_HEIGHT;
 
-    // Draw Point
-    UpdateTargetPose(x,y);
-  }
-
-  void MainWindow::RobotPose1_SLOT(geometry_msgs::PoseStamped::ConstPtr odom)
-  {
-    float y = -odom->pose.position.y;
-    float x = odom->pose.position.x;
-
-    // Location Scaling
-    x = x * MAP_RE_WIDTH / (MAP_WIDTH * MAP_RESOLUTION);
-    y = y * MAP_RE_HEIGHT / (MAP_HEIGHT * MAP_RESOLUTION);
-    x += 0.6 / (MAP_WIDTH * MAP_RESOLUTION) * MAP_RE_WIDTH; //491.52
-    y += 2.68 / (MAP_HEIGHT * MAP_RESOLUTION) * MAP_RE_HEIGHT;//491.52
 
     // Draw Point
-    UpdateTargetPose(x,y);
+    int frameNum = odom->header.frame_id[5]-'0';
+    UpdateTargetPose(frameNum,x,y);
   }
 
   // Callback is current parking mission done
@@ -182,7 +166,10 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
   {
     bool isCar=true;
 
-    if(isCar==true)
+    parking_msgs::carNum service;
+
+    //if(isCar)
+    if(qnode.clientCarNum.call(service))
     {
       QMessageBox msgBox;
       QString str1 = "차량번호가 올바른지 확인해주세요";
@@ -259,44 +246,56 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
   }
 
-  void MainWindow::UpdateTargetPose(float x, float y)  //, QPixmap* pixmap)
+  void MainWindow::UpdateTargetPose(int num, float x, float y)  //, QPixmap* pixmap)
   {
-  //  // 원을 그리기 위해 QPainter 객체 생성
-  //  QPainter painter(pixmap);
-  //  QPixmap* temp = pixmap;
-  //  // 원의 펜 속성 설정
-  //  painter.setPen(QPen(Qt::cyan, 1, Qt::SolidLine));
-
-  //  // 원의 브러시 속성 설정
-  //  painter.setBrush(QBrush(Qt::cyan));
-
-  //  // 원 그리기
-  //  int radius = 10;  // 반지름 설정
-  //  painter.drawEllipse(x - radius, y - radius, radius * 2, radius * 2);
-
-  //  // QGraphicsScene에서 이전 아이템 제거
-  //  QGraphicsScene* scene = ui.graphicsView->scene();
-  //  scene->clear();
-
-  //  // pixmap을 QGraphicsScene에 추가
-  //  scene->addPixmap(*pixmap);
-
-    // QGraphicsScene에서 이전 원 제거
+    // item-> data로 robot1,2,3 구분
     QGraphicsScene* scene = ui.graphicsView->scene();
     QList<QGraphicsItem*> items = scene->items();
     for (QGraphicsItem* item : items) {
-      if (item->type() == QGraphicsEllipseItem::Type) {
+      if (item->type() == (QGraphicsEllipseItem::Type && item->data(num)==num)) {
         scene->removeItem(item);
         delete item;
       }
     }
 
     // QGraphicsEllipseItem 생성 및 추가
-    int radius = 5;  // 반지름 설정
+    int radius = 6;  // 반지름 설정
     QGraphicsEllipseItem* ellipseItem = new QGraphicsEllipseItem(x - radius, y - radius, radius * 2, radius * 2);
-    ellipseItem->setPen(QPen(Qt::cyan, 1, Qt::SolidLine));
-    ellipseItem->setBrush(QBrush(Qt::cyan));
+    QColor color;
+    switch(num%5)
+    {
+    case 0:
+      color = RED;
+      break;
+    case 1:
+      color = GREEN;
+      break;
+    case 2:
+      color = BLUE;
+      break;
+    case 3:
+      color = YELLOW;
+      break;
+    case 4:
+      color = CYAN;
+      break;
+    }
+    ellipseItem->setPen(QPen(Qt::black, 1, Qt::SolidLine));
+    ellipseItem->setBrush(QBrush(color));
+    QVariant value = num;
+    ellipseItem->setData(num,value);
     scene->addItem(ellipseItem);
+
+    //Label 생성 및 추가
+    QString itemName = "Robot_"+QString::number(num);
+    QGraphicsTextItem* textItem = new QGraphicsTextItem(itemName);
+    //Label Font 설정
+    QFont font;
+    font.setPointSize(8);
+    font.setBold(false);
+    textItem->setFont(font);
+    textItem->setPos(x-20,y+10);
+    scene->addItem(textItem);
 
     // pixmap을 QGraphicsScene에 추가
     //QGraphicsPixmapItem* pixmapItem = new QGraphicsPixmapItem(*pixmap);
@@ -334,6 +333,7 @@ std::vector<double> parkingUI::MainWindow::TransXY(std::vector<double> point)
 
   result.at(1) = (-point.at(0)+9.2)*MAP_RE_HEIGHT/(MAP_HEIGHT * MAP_RESOLUTION);
   result.at(1) -= PARKING_HEIGHT/2;
+
   return result;
 }
 
