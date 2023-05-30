@@ -18,11 +18,11 @@
 #define UI_OFFSET_X 10
 #define UI_OFFSET_Y 40
 
-#define MAP_WIDTH 3.31
-#define MAP_HEIGHT 3.36
-
 #define PARKING_WIDTH 52
 #define PARKING_HEIGHT 52
+
+#define MAP_RE_WIDTH 1024
+#define MAP_RE_HEIGHT 1024
 
 enum {PARKIN, PARKOUT};
 
@@ -54,13 +54,17 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
   QImage img(img_path);
 
   // Load Image
-  map = QPixmap::fromImage(img);
+  map_ori = QPixmap::fromImage(img);
 
   // Rotate Image 90 degree (CCW)
   //map = map.transformed(QTransform().rotate(-90));
 
-  // Map scaling 384*384 -> 1024*1024
-  map = map.scaled(1024,1024);
+  #define MAP_WIDTH map_ori.width()
+  #define MAP_HEIGHT map_ori.height()
+  #define MAP_RESOLUTION qnode.map_resolution
+
+  // Map scaling MAP_WIDTH*MAP_HEIGHT -> MAP_RE_WIDTH*MAP_RE_HEIGHT
+  map = map_ori.scaled(MAP_RE_WIDTH,MAP_RE_HEIGHT);
 
   // Show map Image on graphicsView
   QGraphicsScene* scene = new QGraphicsScene;
@@ -133,13 +137,11 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     float y = -odom->pose.pose.position.x;
     float x = -odom->pose.pose.position.y;
 
-    
-
     // Location Scaling
-    x = x * 1024 / MAP_WIDTH;
-    y = y * 1024 / MAP_HEIGHT;
-    x += 0.6 / MAP_WIDTH * 1024; //491.52
-    y += 2.68 / MAP_HEIGHT * 1024;//491.52
+    x = x * MAP_RE_WIDTH / (MAP_WIDTH * MAP_RESOLUTION);
+    y = y * MAP_RE_HEIGHT / (MAP_HEIGHT * MAP_RESOLUTION);
+    x += 9.2 / (MAP_WIDTH * MAP_RESOLUTION) * MAP_RE_WIDTH;
+    y += 9.2 / (MAP_HEIGHT * MAP_RESOLUTION) * MAP_RE_HEIGHT;
 
     // Draw Point
     UpdateTargetPose(x,y);
@@ -150,13 +152,11 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     float y = -odom->pose.position.y;
     float x = odom->pose.position.x;
 
-    
-
     // Location Scaling
-    x = x * 1024 / MAP_WIDTH;
-    y = y * 1024 / MAP_HEIGHT;
-    x += 0.6 / MAP_WIDTH * 1024; //491.52
-    y += 2.68 / MAP_HEIGHT * 1024;//491.52
+    x = x * MAP_RE_WIDTH / (MAP_WIDTH * MAP_RESOLUTION);
+    y = y * MAP_RE_HEIGHT / (MAP_HEIGHT * MAP_RESOLUTION);
+    x += 0.6 / (MAP_WIDTH * MAP_RESOLUTION) * MAP_RE_WIDTH; //491.52
+    y += 2.68 / (MAP_HEIGHT * MAP_RESOLUTION) * MAP_RE_HEIGHT;//491.52
 
     // Draw Point
     UpdateTargetPose(x,y);
@@ -329,12 +329,11 @@ std::vector<double> parkingUI::MainWindow::TransXY(std::vector<double> point)
 {
   std::vector<double> result = point;
 
-  result.at(0) = point.at(0)*1024/MAP_WIDTH + 0.6 / MAP_WIDTH * 1024;
+  result.at(0) = (-point.at(1)+9.2)*MAP_RE_WIDTH/(MAP_WIDTH * MAP_RESOLUTION);
   result.at(0) -= PARKING_WIDTH/2;
 
-  result.at(1) = -point.at(1)*1024/MAP_HEIGHT + 2.68 / MAP_HEIGHT * 1024;
+  result.at(1) = (-point.at(0)+9.2)*MAP_RE_HEIGHT/(MAP_HEIGHT * MAP_RESOLUTION);
   result.at(1) -= PARKING_HEIGHT/2;
-
   return result;
 }
 
