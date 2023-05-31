@@ -224,8 +224,7 @@ int main(int argc, char **argv)
 
         if (kanayama->End_trajectory())
         {
-          // start_tracking = false;
-          end_flag = true;
+          start_tracking = false;
           ROS_INFO("Tracking Done!!");
           meanErr = distErr / errCnt;
           ROS_INFO("mean error : %f", meanErr);
