@@ -127,8 +127,8 @@ int main(int argc, char **argv)
 
   // sub = nh.subscribe("tf",1000,odomCallback);
   // sub_trajectory = nh.subscribe(s + "local_path", 1, pathCallback);
-  sub_local_trajectory = nh.subscribe(s + "local_path", 1, localpathCallback);
- // sub_global_trajectory = nh.subscribe(s + "global_path", 1, globalpathCallback);
+  sub_local_trajectory = nh.subscribe(s + "path", 1, localpathCallback);
+  // sub_global_trajectory = nh.subscribe(s + "global_path", 1, globalpathCallback);
   // pub = nh.advertise<nav_msgs::Path>("path_",1);
   pub_vel = nh.advertise<geometry_msgs::Twist>(s + "cmd_vel", 1);
   fake_pub_vel = nh.advertise<geometry_msgs::Twist>(s + "fake_cmd_vel", 1);
@@ -175,13 +175,14 @@ int main(int argc, char **argv)
         pid->Set_robot_pos(robot_X, robot_Y, robot_Yaw);
         pid->Set_trajectory(local_path);
       }
-      trajectiory_subscribed = true;
+      trajectiory_subscribed = false;
       start_tracking = true;
       ros::Time startTime = ros::Time::now();
       sT = startTime.sec + startTime.nsec * (1e-9);
     }
     if (tf_listened && start_tracking && emer_flag)
     {
+      // ROS_INFO("IF:tf_listened && start_tracking && emer_flag %d %d %d", tf_listened, start_tracking, emer_flag);
       ros::Time presentTime = ros::Time::now();
       nT = presentTime.sec + presentTime.nsec * (1e-9) - sT;
 
@@ -206,7 +207,7 @@ int main(int argc, char **argv)
         if (stanley->End_trajectory())
         {
           start_tracking = false;
-          ROS_INFO("Tracking Done!!");
+          ROS_INFO("Tracking Done!!start_tracking %d", start_tracking);
           meanErr = distErr / errCnt;
           ROS_INFO("mean error : %f", meanErr);
         }
@@ -223,7 +224,8 @@ int main(int argc, char **argv)
 
         if (kanayama->End_trajectory())
         {
-          start_tracking = false;
+          // start_tracking = false;
+          end_flag = true;
           ROS_INFO("Tracking Done!!");
           meanErr = distErr / errCnt;
           ROS_INFO("mean error : %f", meanErr);
@@ -233,6 +235,7 @@ int main(int argc, char **argv)
       {
         pid->Set_robot_pos(robot_X, robot_Y, robot_Yaw);
         cmd_vel = pid->Get_vel();
+        pose_ = pid->Get_Dp();
         // if (pid->End_trajectory())
         // {
         //   ROS_INFO("Tracking Done!!");
@@ -248,6 +251,8 @@ int main(int argc, char **argv)
     }
     else
     {
+      // ROS_INFO("Tracking Done!! for cmd_vel");
+      // ROS_INFO("ELSE:tf_listened && start_tracking && emer_flag %d %d %d", tf_listened, start_tracking, emer_flag);
       cmd_vel.linear.x = 0.0;
       cmd_vel.angular.z = 0.0;
     }
@@ -257,8 +262,8 @@ int main(int argc, char **argv)
       // pub robot velocity
       if (velstop_flag)
       {
-         pub_vel.publish(cmd_vel);
-        //pub_vel_pt.publish(cmd_vel);
+        pub_vel.publish(cmd_vel);
+        // pub_vel_pt.publish(cmd_vel);
       }
       else
       {
@@ -269,8 +274,8 @@ int main(int argc, char **argv)
     {
       cmd_vel.linear.x = 0.0;
       cmd_vel.angular.z = 0.0;
-       pub_vel.publish(cmd_vel);
-      //pub_vel_pt.publish(cmd_vel);
+      pub_vel.publish(cmd_vel);
+      // pub_vel_pt.publish(cmd_vel);
     }
 
     ros::spinOnce();
