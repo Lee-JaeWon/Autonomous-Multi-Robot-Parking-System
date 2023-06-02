@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
     odom_sub = nh.subscribe(track_ns, 10, odomCallback);
 
     // Advertise topics
-    std::string path_ns = s + "/global_path";
+    std::string path_ns = s + "/path";
     mask_pub = nh.advertise<nav_msgs::OccupancyGrid>("mask", 1); // potential problem
     path_pub = nh.advertise<nav_msgs::Path>(path_ns, 10);
     local_goal_pub = nh.advertise<geometry_msgs::PoseStamped>(s + "/local_goal", 10);

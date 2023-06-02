@@ -5,10 +5,10 @@
 #include "sensor_msgs/LaserScan.h"
 #include <tf/transform_broadcaster.h>
 
-#define WHEEL_RADIUS 0.033
+#define WHEEL_RADIUS 0.045
 #define WHEEL_BASE 0.33
 #define PI 3.141592
-#define TORPM 0.229
+#define TORPM 0.111
 #define DT 1.0 / 100.0
 ros::Publisher odom_pub;
 tf2::Quaternion Quaternion_;
