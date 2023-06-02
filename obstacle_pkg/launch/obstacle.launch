@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<launch>
+    <arg name="obstacle_dist" default="0.4"/>
+    <arg name="obstacle_angle" default="30"/>
+    <node pkg="obstacle_pkg" type="obstacle" name="dwa_planner" output ="screen">
+        <param name="OBSTACLE_DIST" value="$(arg obstacle_dist)"/>
+    </node>
+</launch>
