@@ -54,9 +54,9 @@ int main(int argc, char **argv)
   // param check
   std::string s;
   if (ros::param::get("~namespace", s))
-    ROS_INFO("Odom node got param: %s", s.c_str());
+    ROS_INFO("Obstacle node got param: %s", s.c_str());
   else
-    ROS_ERROR("Failed to get param 'namespace'");
+    ROS_ERROR("Obstacle node Failed to get param 'namespace'");
 
   laser_sub = nh.subscribe<sensor_msgs::LaserScan>(s + "/scan", 1, scanCallback);
   cmd_sub = nh.subscribe<geometry_msgs::Twist>(s + "/cmd_vel", 1, velCallback);
