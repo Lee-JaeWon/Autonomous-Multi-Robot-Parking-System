@@ -8,7 +8,7 @@
 #define WHEEL_RADIUS 0.045
 #define WHEEL_BASE 0.33
 #define PI 3.141592
-#define TORPM 0.111
+#define TORPM 0.229
 #define DT 1.0 / 100.0
 ros::Publisher odom_pub;
 tf2::Quaternion Quaternion_;
@@ -38,8 +38,14 @@ void msgCallback(const dynamixel_workbench_msgs::DynamixelStateList::ConstPtr &m
     dynamixel_state[1].present_velocity = msg->dynamixel_state[1].present_velocity;
     dynamixel_state[1].present_current = msg->dynamixel_state[1].present_current;
 
-    left_velocity = dynamixel_state[0].present_velocity * TORPM * (PI / 30.0) * WHEEL_RADIUS;
-    right_velocity = dynamixel_state[1].present_velocity * TORPM * (PI / 30.0) * WHEEL_RADIUS;
+    left_velocity = dynamixel_state[0].present_velocity * TORPM * (PI / 30.0) * WHEEL_RADIUS ; //left 
+    right_velocity = dynamixel_state[1].present_velocity * TORPM * (PI / 30.0) * WHEEL_RADIUS; // right 
+
+    // ROS_INFO_STREAM( "input - L (1024) : " << dynamixel_state[0].present_velocity << "\n");
+    // ROS_INFO_STREAM( "input - R (1024) : " << dynamixel_state[1].present_velocity << "\n");
+
+    // ROS_INFO_STREAM( "input - L (vel) : " << left_velocity << "\n");
+    // ROS_INFO_STREAM("input - R (vel) : " << right_velocity << "\n");
 }
 
 int main(int argc, char **argv)
