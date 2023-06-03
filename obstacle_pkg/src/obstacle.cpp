@@ -18,14 +18,16 @@ bool calObstacle(sensor_msgs::LaserScan laser_msg)
 {
   double lidar_resol;
   int lidar_size = laser_msg.ranges.size();
-  lidar_resol = laser_msg.angle_increment * 180 / M_PI; // 각해상도 deg
+  lidar_resol = laser_msg.angle_increment * 180.0 / M_PI;
   double current_angle = 0.0;
+ // ROS_INFO("LIDAR SIZE = %d", lidar_size);
   for (int i = 0; i < lidar_size; i++)
   {
     current_angle += lidar_resol;
-    if (current_angle < obstacle_angle / 2.0 || 360.0 - obstacle_angle / 2.0 < current_angle)
+    if ((current_angle < 195) && (current_angle > 165))
       if (laser_msg.ranges[i] < obstacle_dist)
       {
+        ROS_INFO("ASD : %d", i);
         return true;
       }
   }
@@ -49,8 +51,15 @@ int main(int argc, char **argv)
   n.getParam("OBSTACLE_DIST", obstacle_dist);
   n.getParam("OBSTACLE_ANGLE", obstacle_angle);
 
-  laser_sub = nh.subscribe<sensor_msgs::LaserScan>("/scan", 1, scanCallback);
-  cmd_sub = nh.subscribe<geometry_msgs::Twist>("/cmd_vel", 1, velCallback);
+  // param check
+  std::string s;
+  if (ros::param::get("~namespace", s))
+    ROS_INFO("Odom node got param: %s", s.c_str());
+  else
+    ROS_ERROR("Failed to get param 'namespace'");
+
+  laser_sub = nh.subscribe<sensor_msgs::LaserScan>(s + "/scan", 1, scanCallback);
+  cmd_sub = nh.subscribe<geometry_msgs::Twist>(s + "/cmd_vel", 1, velCallback);
   cmd_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel_final", 1);
 
   while (ros::ok())
@@ -68,9 +77,9 @@ int main(int argc, char **argv)
     }
     else
     {
-      ROS_INFO("obstacle is false");
-      ROS_INFO("linear.x = %f", velocity_data.linear.x);
-      ROS_INFO("angular.z = %f", velocity_data.angular.z);
+      // ROS_INFO("obstacle is false");
+      // ROS_INFO("linear.x = %f", velocity_data.linear.x);
+      // ROS_INFO("angular.z = %f", velocity_data.angular.z);
       cmd_pub.publish(velocity_data);
     }
     cmd_pub.publish(velocity_data);
