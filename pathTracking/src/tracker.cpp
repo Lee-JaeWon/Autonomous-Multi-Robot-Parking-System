@@ -103,7 +103,7 @@ int main(int argc, char **argv)
     ROS_ERROR("Traker Failed to get param '%s'", s.c_str());
 
   std::string baselink_ns = s + "base_link";
-  std::string map_ns = "robot_1/map";
+  std::string map_ns = "map";
 
   // Stanley tracker;
   Stanley *stanley = new Stanley;
@@ -189,7 +189,7 @@ int main(int argc, char **argv)
       // for visualization about reference pose
       geometry_msgs::PointStamped pnt;
       geometry_msgs::Pose pose_;
-      pnt.header.frame_id = "robot_1/map";
+      pnt.header.frame_id = "map";
 
       // for visualization about left trajectory
       nav_msgs::Path leftTraj;
@@ -261,8 +261,8 @@ int main(int argc, char **argv)
       // pub robot velocity
       if (velstop_flag)
       {
-        pub_vel.publish(cmd_vel);
-        // pub_vel_pt.publish(cmd_vel);
+        // pub_vel.publish(cmd_vel);
+        pub_vel_pt.publish(cmd_vel);
       }
       else
       {
@@ -273,8 +273,8 @@ int main(int argc, char **argv)
     {
       cmd_vel.linear.x = 0.0;
       cmd_vel.angular.z = 0.0;
-      pub_vel.publish(cmd_vel);
-      // pub_vel_pt.publish(cmd_vel);
+      // pub_vel.publish(cmd_vel);
+      pub_vel_pt.publish(cmd_vel);
     }
 
     ros::spinOnce();
