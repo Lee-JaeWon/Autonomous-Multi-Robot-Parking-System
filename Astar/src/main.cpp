@@ -7,6 +7,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Quaternion.h>
 #include <opencv2/opencv.hpp>
+#include <tf/transform_listener.h>
 // #include <opencv.hpp>
 #include "Astar.h"
 #include "OccMapTransform.h"
@@ -34,6 +35,8 @@ OccupancyGridParam OccGridParam;
 Point startPoint, targetPoint;
 geometry_msgs::PoseStamped path_point;
 
+
+
 // Parameter
 double InflateRadius;
 bool map_flag;
@@ -46,7 +49,9 @@ int origin_x, origin_y;
 double resol;
 int mx, my;
 double present_x, present_y;
-
+double robot_x ;
+double robot_y ;
+std::string s;
 //-------------------------------- Callback function ---------------------------------//
 void MapCallback(const nav_msgs::OccupancyGrid &msg)
 {
@@ -106,7 +111,7 @@ void StartPointCallback(const geometry_msgs::PoseWithCovarianceStamped &msg)
 
 void TargetPointtCallback(const geometry_msgs::PoseStamped &msg)
 {
-     traked_flag = true;
+    traked_flag = true;
     Point2d src_point = Point2d(msg.pose.position.x, msg.pose.position.y);
     OccGridParam.Map2ImageTransform(src_point, targetPoint);
 
@@ -120,22 +125,35 @@ void TargetPointtCallback(const geometry_msgs::PoseStamped &msg)
     //    ROS_INFO("targetPoint: %f %f %d %d", msg.pose.position.x, msg.pose.position.y,
     //             targetPoint.x, targetPoint.y);
 }
-void odomCallback(const geometry_msgs::PoseStamped &msg)
+void odomCallback(const nav_msgs::Odometry &msg)
 {
-     if (traked_flag)
-     {
-    mx = int((msg.pose.position.x - origin_x) / (resol)); // world to map
-    my = int((msg.pose.position.y - origin_y) / (resol)); // world to map
-    Point2d src_point = Point2d(msg.pose.position.x, msg.pose.position.y);
-    OccGridParam.Map2ImageTransform(src_point, startPoint);
 
-    // Set flag
-    startpoint_flag = true;
-    if (map_flag && startpoint_flag && targetpoint_flag)
+    // try{
+    //   listener.lookupTransform("/map","/robot_1/base_link",  
+    //                            ros::Time(0), transform);
+    // }
+    // catch (tf::TransformException ex){
+    //   ROS_ERROR("%s",ex.what());
+    //   ros::Duration(1.0).sleep();
+    // }
+
+    if (traked_flag)
     {
-        start_flag = true;
+        // mx = int((msg.pose.pose.position.x - origin_x) / (resol)); // world to map
+        // my = int((msg.pose.pose.position.y - origin_y) / (resol)); // world to map
+
+        Point2d src_point = Point2d(robot_x, robot_y);
+        // Point2d src_point = Point2d(transform.getOrigin().x(), transform.getOrigin().y());
+
+        OccGridParam.Map2ImageTransform(src_point, startPoint);
+
+        // Set flag
+        startpoint_flag = true;
+        if (map_flag && startpoint_flag && targetpoint_flag)
+        {
+            // start_flag = true;
+        }
     }
-     }
 }
 
 //-------------------------------- Main function ---------------------------------//
@@ -145,10 +163,13 @@ int main(int argc, char *argv[])
     ros::init(argc, argv, "astar");
     ros::NodeHandle nh;
     ros::NodeHandle nh_priv("~");
+    tf::TransformListener listener;
+    tf::StampedTransform transform;
+    
     ROS_INFO("Start astar node!\n");
 
     // param check
-    std::string s;
+
     if (ros::param::get("~namespace", s))
         ROS_INFO("Astar node got param: %s", s.c_str());
     else
@@ -167,12 +188,12 @@ int main(int argc, char *argv[])
     nh_priv.param<int>("rate", rate, 10);
 
     // Subscribe topics
-    std::string map_ns = "robot_1/map"; // fixed frame
+    std::string map_ns = "map"; // fixed frame
     std::string goal_ns = s + "/move_base_simple/goal";
-    std::string track_ns = s + "/tracked_pose";
+    std::string track_ns = s + "/odom";
     std::string initpose_ns = s + "/initialpose";
 
-    map_sub = nh.subscribe((map_ns), 10, MapCallback);
+    map_sub = nh.subscribe(s + "/map", 10, MapCallback);
     // startPoint_sub = nh.subscribe(initpose_ns, 10, StartPointCallback);
     targetPoint_sub = nh.subscribe(goal_ns, 10, TargetPointtCallback);
     odom_sub = nh.subscribe(track_ns, 10, odomCallback);
@@ -186,9 +207,25 @@ int main(int argc, char *argv[])
     // Loop and wait for callback
     ros::Rate loop_rate(rate);
     while (ros::ok())
+
     {
+
+        try{
+        listener.lookupTransform("map", s +"/base_link",  
+                                ros::Time(0), transform);
+        }
+        catch (tf::TransformException ex){
+        ROS_ERROR("%s",ex.what());
+
+        ros::Duration(1.0).sleep();
+        }
+        robot_x = transform.getOrigin().x();
+        robot_y = transform.getOrigin().y();
+
         if (start_flag)
-        {
+        {    
+            ROS_INFO("START");
+
             double start_time = ros::Time::now().toSec();
             // Start planning path
             vector<Point> PathList;
@@ -230,7 +267,7 @@ int main(int argc, char *argv[])
             path_point.pose.orientation.y = 0;
             path_point.pose.orientation.z = 0;
 
-          //  local_goal_pub.publish(path_point);
+            //  local_goal_pub.publish(path_point);
 
             // Set flag
             start_flag = false;
@@ -241,7 +278,6 @@ int main(int argc, char *argv[])
             mask_pub.publish(OccGridMask);
         }
 
-        
         ros::spinOnce();
         loop_rate.sleep();
     }
