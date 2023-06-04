@@ -24,7 +24,7 @@ bool calObstacle(sensor_msgs::LaserScan laser_msg)
   for (int i = 0; i < lidar_size; i++)
   {
     current_angle += lidar_resol;
-    if ((current_angle < 195) && (current_angle > 165))
+    if ((current_angle < 205) && (current_angle > 155))
       if (laser_msg.ranges[i] < obstacle_dist)
       {
         ROS_INFO("ASD : %d", i);
@@ -59,8 +59,8 @@ int main(int argc, char **argv)
     ROS_ERROR("Obstacle node Failed to get param 'namespace'");
 
   laser_sub = nh.subscribe<sensor_msgs::LaserScan>(s + "/scan", 1, scanCallback);
-  cmd_sub = nh.subscribe<geometry_msgs::Twist>(s + "/cmd_vel", 1, velCallback);
-  cmd_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel_final", 1);
+  cmd_sub = nh.subscribe<geometry_msgs::Twist>(s + "/cmd_vel_pt", 1, velCallback);
+  cmd_pub = nh.advertise<geometry_msgs::Twist>(s + "/cmd_vel", 1);
 
   while (ros::ok())
   {
