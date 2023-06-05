@@ -1,8 +1,9 @@
-#include "ros/ros.h"
-#include "nav_msgs/Odometry.h"
+#include <ros/ros.h>
+#include <nav_msgs/Odometry.h>
 #include <tf2/LinearMath/Quaternion.h>
-#include "dynamixel_workbench_msgs/DynamixelStateList.h"
-#include "sensor_msgs/LaserScan.h"
+#include <dynamixel_workbench_msgs/DynamixelStateList.h>
+#include <sensor_msgs/LaserScan.h>
+#include <sensor_msgs/Imu.h>
 #include <tf/transform_broadcaster.h>
 
 #define WHEEL_RADIUS 0.045
@@ -12,6 +13,7 @@
 #define DT 1.0 / 100.0
 ros::Publisher odom_pub;
 tf2::Quaternion Quaternion_;
+sensor_msgs::Imu imu_data;
 
 double x = 0.0;              // robot's x position in meters
 double y = 0.0;              // robot's y position in meters
@@ -21,9 +23,9 @@ double right_velocity = 0.0; // right wheel velocity in m/s
 double velocity = 0.0;
 double omega = 0.0;
 
-void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr &msg)
+void imuCallback(const sensor_msgs::Imu::ConstPtr &msg)
 {
-    // ROS_INFO("Number of scan ranges: %lu", msg->ranges.size());
+    imu_data = *msg;
 }
 
 void msgCallback(const dynamixel_workbench_msgs::DynamixelStateList::ConstPtr &msg)
@@ -38,14 +40,8 @@ void msgCallback(const dynamixel_workbench_msgs::DynamixelStateList::ConstPtr &m
     dynamixel_state[1].present_velocity = msg->dynamixel_state[1].present_velocity;
     dynamixel_state[1].present_current = msg->dynamixel_state[1].present_current;
 
-    left_velocity = dynamixel_state[0].present_velocity * TORPM * (PI / 30.0) * WHEEL_RADIUS ; //left 
-    right_velocity = dynamixel_state[1].present_velocity * TORPM * (PI / 30.0) * WHEEL_RADIUS; // right 
-
-    // ROS_INFO_STREAM( "input - L (1024) : " << dynamixel_state[0].present_velocity << "\n");
-    // ROS_INFO_STREAM( "input - R (1024) : " << dynamixel_state[1].present_velocity << "\n");
-
-    // ROS_INFO_STREAM( "input - L (vel) : " << left_velocity << "\n");
-    // ROS_INFO_STREAM("input - R (vel) : " << right_velocity << "\n");
+    left_velocity = dynamixel_state[0].present_velocity * TORPM * (PI / 30.0) * WHEEL_RADIUS;
+    right_velocity = dynamixel_state[1].present_velocity * TORPM * (PI / 30.0) * WHEEL_RADIUS;
 }
 
 int main(int argc, char **argv)
@@ -74,21 +70,22 @@ int main(int argc, char **argv)
     //
     odom_pub = nh.advertise<nav_msgs::Odometry>(odom_path, 100);
     ros::Subscriber ros_dynamixel_sub = nh.subscribe(path, 100, msgCallback);
+    ros::Subscriber imu_sub = nh.subscribe("/" + s +"/imu", 100, imuCallback);
     ros::Rate loop_rate(100);
     tf::TransformBroadcaster odom_broadcaster;
 
     while (ros::ok())
     {
         velocity = (left_velocity + right_velocity) / 2.0;
-        omega = (-left_velocity + right_velocity) / WHEEL_BASE;
+        omega = imu_data.angular_velocity.z;
 
         x += velocity * DT * cos(theta + (omega * DT / 2.0));
         y += velocity * DT * sin(theta + (omega * DT / 2.0));
 
         theta += omega * DT;
 
-        Quaternion_.setRPY(0, 0, theta);
-        Quaternion_ = Quaternion_.normalize();
+         Quaternion_.setRPY(0, 0, theta);
+         Quaternion_ = Quaternion_.normalize();
 
         // About TF Transform
         ///////////////////////////////////////////////////////////////////////////////////
