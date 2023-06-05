@@ -10,19 +10,20 @@
 #include <geometry_msgs/Twist.h>
 
 #define PI 3.14
+#define STANLEY_K 1.0
 
 class Stanley
 {
 public:
 
-  //vector<double> trajectory[1000000];
-  //void run();
+  std::vector<double> cyaw ;
 
 private:
   //Parameters
+
   double k = 1.0;
   double k2 = 1.0;
-  double v = 1.0;
+  double v = 0.22;
   int hz = 33;
 
   //Time
@@ -39,6 +40,9 @@ private:
   double desire_y;
   double desire_heading;
   double distP2R;
+  double error_front_axle;
+  //
+
 
   int sign; //where is the robot (left or right side by path)
 
@@ -48,6 +52,9 @@ private:
 
 public:
 
+  void Set_error_front_axle(double error_front_axle){
+    this->error_front_axle = error_front_axle;
+  }
   void Set_robot_pos(double x, double y, double theta, double time)
   {
     this->robot_pos_x = x;
@@ -67,7 +74,7 @@ public:
   {
     this->trajectory=trajectory_;
     this->trajectory_length = (int)this->trajectory.poses.size();
-    std::cout<<this->trajectory_length<<"\n";
+    if(!this->cyaw.empty()) this->cyaw.clear();
   }
 
 
@@ -87,65 +94,52 @@ public:
   void Calc_desired_point()
   {
     //calc desire pose, theta, dist
-    double x, y, theta;
+    double cur_px, cur_py, theta;
     double min_dist = std::numeric_limits<double>::infinity();
-    for(int i=0;i<this->trajectory_length;i++)
-    {
-      x = this->trajectory.poses[i].pose.position.x;
-      y = this->trajectory.poses[i].pose.position.y;
-      double dist_ = sqrt((x-this->robot_pos_x)*(x-this->robot_pos_x) + (y-this->robot_pos_y)*(y-this->robot_pos_y));
+    int idx = 0;
+    for(int i=0; i < this->trajectory_length ; i++){
 
-      if(min_dist > dist_)
-      {
-        this->desire_x = x;
-        this->desire_y = y;
-        double a11,a12,a21,a22;
-
-        if(i==this->trajectory_length-1) {
-          //theta = atan2(y-this->trajectory.poses[i-1].pose.position.y, x-this->trajectory.poses[i-1].pose.position.x);
-          a11 = x-this->trajectory.poses[i-1].pose.position.x;
-          a12 = y-this->trajectory.poses[i-1].pose.position.y;
-        }
-        else {
-          //theta = atan2(this->trajectory.poses[i+1].pose.position.y-y, this->trajectory.poses[i+1].pose.position.x-x);
-          a11 = this->trajectory.poses[i+1].pose.position.x-x;
-          a12 = this->trajectory.poses[i+1].pose.position.y-y;
-        }
-
-        a21 = this->robot_pos_x-x;
-        a22 = this->robot_pos_y-y;
-        double Xprod = a11*a22-a12*a21;
-
-        theta = atan2(a12,a11);
-
-        if(Xprod >0){
-            sign =-1;
-            //std::cout <<"Aside"<<"\n"; //LEFT
-        }
-        else if(Xprod <0){
-            sign=1;
-            //std::cout <<"Bside"<<"\n"; //RIGHT
-        }
-        else{
-            sign =0;
-        }
-
-
-        min_dist = dist_;
-        this->desireNum = i;
-        this->desire_heading = theta;
+      cur_px = this->trajectory.poses[i].pose.position.x;
+      cur_py = this->trajectory.poses[i].pose.position.y;
+      
+      if ( i != this->trajectory_length -1 ){
+      
+      double dx = this->trajectory.poses[i+1].pose.position.x -this->trajectory.poses[i].pose.position.x;
+      double dy = this->trajectory.poses[i+1].pose.position.y -this->trajectory.poses[i].pose.position.y;
+      this->cyaw.push_back(atan2(dy,dx));
+      
       }
-    }
-    this->distP2R = min_dist;
+      else this->cyaw.push_back(0.0);
 
+      double dist_ = sqrt(( cur_px -this->robot_pos_x)*(cur_px-this->robot_pos_x) + (cur_py-this->robot_pos_y)*(cur_py-this->robot_pos_y));
+      if(min_dist > dist_){
+        min_dist  = dist_;
+        this->desireNum = idx;
+      }
+      idx++;
+    }
+    double dx = this->robot_pos_x - this->trajectory.poses[this->desireNum].pose.position.x;
+    double dy = this->robot_pos_y - this->trajectory.poses[this->desireNum].pose.position.y;
+
+    double temp_error_front_axle = dx * -cos(this->robot_heading + M_PI_2) + dy * -sin(this->robot_heading + M_PI_2);
+    this->Set_error_front_axle(temp_error_front_axle);
+
+    this->distP2R = min_dist;
     //Delete an already passed trajectory
-    for(int i=0;i<this->desireNum;i++)
-    {
+    for(int i=0;i<this->desireNum;i++){
       this->trajectory.poses.erase(this->trajectory.poses.begin());
       trajectory_length--;
     }
 
-    //std::cout<<"min_dist : "<<min_dist<<"\n";
+
+  }
+
+  // End of Calc_desired_point
+
+  double normalize_angle(double angle){
+      while (angle > M_PI) angle -= 2.0 * M_PI;
+      while (angle < -M_PI) angle += 2.0 * M_PI;
+      return angle;
   }
 
   bool End_trajectory()
@@ -161,66 +155,30 @@ public:
   {
     this->Calc_desired_point();
 
-//    if(this->desire_heading>0)
-//    {
-//      if(this->robot_heading<0)
-//      {
-//        this->robot_heading+=2*PI;
-//      }
-//    }
-//    else {
-//      if(this->robot_heading>0)
-//      {
-//        this->robot_heading-=2*PI;
-//      }
-//    }
-
-    if(this->desire_heading>=0)
-    {
-      if(this->robot_heading <= (this->desire_heading - PI))
-      {
-        this->robot_heading+=2*PI;
-      }
-    }
-    else if(this->desire_heading<0){
-      if(this->robot_heading >= (this->desire_heading + PI))
-      {
-        this->robot_heading-=2*PI;
-      }
-    }
-
-    double heading_error = this->desire_heading-this->robot_heading;
-
+    double theta_e = this->normalize_angle(this->cyaw[this->desireNum] - this->robot_heading);
+    double linear_vel = 0.15;
+    double theta_d = atan2(STANLEY_K * this->error_front_axle, linear_vel);
 //    if(heading_error>2*PI) heading_error-=2*PI;
 //    else if(heading_error<-2*PI) heading_error+=2*PI;
 
-    double steering_angle = this->k2 * (heading_error + sign * atan2(this->k * (this->distP2R), this->v));
-    double angular_vel = steering_angle;//*this->hz;
+    // double steering_angle = this->k2 * (heading_error + sign * atan2(this->k * (this->distP2R), this->v));
 
-//    std::cout <<"theta(path angle) : "<<this->desire_heading<<"\n";
-//    std::cout <<"robot head angle  : "<<this->robot_heading<<"\n";
-//    std::cout <<"heading_error  : "<<heading_error<<"\n";
-//    std::cout <<"angular_vel  : "<<angular_vel<<"\n";
+    double angular_vel = theta_e * 1.5 + theta_d;//*this->hz;
+    std::cout << "Path_angle : " << this->cyaw[this->desireNum] * (180.0 / M_PI)<< " Robot_yaw : " << this->robot_heading * (180.0 / M_PI)<< std::endl;
+    std::cout << "theta_e : " << theta_e <<" theta_d : "<< theta_d << std::endl;
 
     //Saturation
-    if(angular_vel>=0.6)
+    if(angular_vel>=0.65)
     {
-      angular_vel = 0.6;
+      angular_vel = 0.65;
     }
-    else if(angular_vel<=-0.6)
+    else if(angular_vel<=-0.65)
     {
-      angular_vel = -0.6;
+      angular_vel = -0.65;
     }
-    if(this->v >= 0.1)
-    {
-      this->v = 0.1;
-    }
-    else if(this->v < -0.1)
-    {
-      this->v = -0.1;
-    }
+    desired_robot_vel.linear.x = this->v - abs(angular_vel) * 0.25;
+    if(theta_e > M_PI_2) desired_robot_vel.linear.x = 0;
 
-    desired_robot_vel.linear.x = this->v;
     desired_robot_vel.angular.z = angular_vel;
 
     return desired_robot_vel;

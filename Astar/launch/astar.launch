@@ -1,22 +1,20 @@
 <!-- -*- mode: XML -*- -->
 <launch>
 
-    <!-- ################ map server ################ -->
-    <!-- <node pkg="map_server" name="map_server" type="map_server" args="$(find astar)/maps/gmapping-005.yaml"/> -->
+    <!-- ################ map server for Path_planning  ################ -->
+    <arg name="map_file" default="$(find turtlebot3_navigation)/maps/test_map.yaml"/>
+    <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)">
+    <remap from="map" to="path_map"/>
 
     <!-- ################ start astar node ################ -->
     <arg name="namespace_one" default="robot_1"/>
     <node pkg="astar" type="astar" name="astar" output="screen">
         <param name="Euclidean" value="true"/>
         <param name="OccupyThresh" value="100"/>
-        <param name="InflateRadius" value="10.0"/>
+        <param name="InflateRadius" value="0.126"/>
         <param name="rate" value="10"/>
         <param name="namespace" value="$(arg namespace_one)"/>
     </node>
-
-    <!-- ################ start rviz ################ -->
-    <!-- <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find multi_parking_sys)/rviz/multi_carto.rviz" /> -->
-    <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d $(find astar)/rviz/astar.rviz"/> -->
 
 </launch>
 s
