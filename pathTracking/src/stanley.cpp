@@ -89,6 +89,7 @@ public:
     //calc desire pose, theta, dist
     double x, y, theta;
     double min_dist = std::numeric_limits<double>::infinity();
+    int idx = 0;
     for(int i=0;i<this->trajectory_length;i++)
     {
       x = this->trajectory.poses[i].pose.position.x;
@@ -97,44 +98,13 @@ public:
 
       if(min_dist > dist_)
       {
+        min_dist = dist_;
+        
+
+      }
+
         this->desire_x = x;
         this->desire_y = y;
-        double a11,a12,a21,a22;
-
-        if(i==this->trajectory_length-1) {
-          //theta = atan2(y-this->trajectory.poses[i-1].pose.position.y, x-this->trajectory.poses[i-1].pose.position.x);
-          a11 = x-this->trajectory.poses[i-1].pose.position.x;
-          a12 = y-this->trajectory.poses[i-1].pose.position.y;
-        }
-        else {
-          //theta = atan2(this->trajectory.poses[i+1].pose.position.y-y, this->trajectory.poses[i+1].pose.position.x-x);
-          a11 = this->trajectory.poses[i+1].pose.position.x-x;
-          a12 = this->trajectory.poses[i+1].pose.position.y-y;
-        }
-
-        a21 = this->robot_pos_x-x;
-        a22 = this->robot_pos_y-y;
-        double Xprod = a11*a22-a12*a21;
-
-        theta = atan2(a12,a11);
-
-        if(Xprod >0){
-            sign =-1;
-            //std::cout <<"Aside"<<"\n"; //LEFT
-        }
-        else if(Xprod <0){
-            sign=1;
-            //std::cout <<"Bside"<<"\n"; //RIGHT
-        }
-        else{
-            sign =0;
-        }
-
-
-        min_dist = dist_;
-        this->desireNum = i;
-        this->desire_heading = theta;
-      }
     }
     this->distP2R = min_dist;
 
