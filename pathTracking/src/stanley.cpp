@@ -173,13 +173,21 @@ public:
 //    std::cout <<"angular_vel  : "<<angular_vel<<"\n";
 
     //Saturation
-    if(angular_vel>=0.65)
+    if(angular_vel>=0.6)
     {
-      angular_vel = 0.65;
+      angular_vel = 0.6;
     }
-    else if(angular_vel<=-0.65)
+    else if(angular_vel<=-0.6)
     {
-      angular_vel = -0.65;
+      angular_vel = -0.6;
+    }
+    if(this->v >= 0.1)
+    {
+      this->v = 0.1;
+    }
+    else if(this->v < -0.1)
+    {
+      this->v = -0.1;
     }
 
     desired_robot_vel.linear.x = this->v;

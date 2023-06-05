@@ -7,9 +7,9 @@ options = {
     trajectory_builder = TRAJECTORY_BUILDER,
 
     map_frame = "robot_1/map",
-    tracking_frame = "robot_2/base_link",
-    published_frame = "robot_2/base_link",
-    odom_frame = "robot_2/odom",
+    tracking_frame = "robot_3/base_link",
+    published_frame = "robot_3/base_link",
+    odom_frame = "robot_3/odom",
     provide_odom_frame = true,
 
     -- edit

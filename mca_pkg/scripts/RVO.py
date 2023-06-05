@@ -11,6 +11,7 @@ import rospy
 from nav_msgs.msg import OccupancyGrid
 from geometry_msgs.msg import PoseStamped, PointStamped, Twist
 import numpy as np
+from std_msgs.msg import Bool
 
 from matplotlib import pyplot as plt
 import matplotlib.colors as colors
@@ -20,6 +21,7 @@ import matplotlib.patches as patches
 from math import pi, sin, cos, sqrt, atan2, asin, acos, degrees
 
 from tf.transformations import euler_from_quaternion
+import tf
 
 class get_global_map():
     def __init__(self):
@@ -30,21 +32,24 @@ class get_global_map():
 
         # ----------------------------------------
         # Data Topic
-        self.num_robots = 2
+        self.num_robots = 3
         self.map_topic = "/robot_1/map"
         self.robot_1_pose_ns = "/robot_1"
         self.robot_2_pose_ns = "/robot_2"
         self.robot_3_pose_ns = "/robot_3"
         self.PI = pi
 
+        self.listener_one = tf.TransformListener()
+        self.listener_two = tf.TransformListener()
+        self.listener_thr = tf.TransformListener()
+
+
         # ----------------------------------------
         # ------Subcriber
         # map
         rospy.Subscriber(self.map_topic, OccupancyGrid, self.mapCallback)
         # Pose
-        rospy.Subscriber(self.robot_1_pose_ns + "/tracked_pose", PoseStamped, self.poseCallback, callback_args=0)
-        rospy.Subscriber(self.robot_2_pose_ns + "/tracked_pose", PoseStamped, self.poseCallback, callback_args=1)
-        rospy.Subscriber(self.robot_3_pose_ns + "/tracked_pose", PoseStamped, self.poseCallback, callback_args=2)
+        
         # Way point
         rospy.Subscriber(self.robot_1_pose_ns + "/dp", PointStamped, self.waypointCallback, callback_args=0)
         rospy.Subscriber(self.robot_2_pose_ns + "/dp", PointStamped, self.waypointCallback, callback_args=1)
@@ -61,6 +66,9 @@ class get_global_map():
         rospy.Subscriber(self.robot_1_pose_ns + "/local_goal", PoseStamped, self.localgoalCallback, callback_args=0)
         rospy.Subscriber(self.robot_2_pose_ns + "/local_goal", PoseStamped, self.localgoalCallback, callback_args=1)
         rospy.Subscriber(self.robot_3_pose_ns + "/local_goal", PoseStamped, self.localgoalCallback, callback_args=2)
+        # Emergencey flag
+        rospy.Subscriber("/emer_flag", Bool, self.emerCallback)
+        self.emer_flag = True
 
         # ----------------------------------------
         # ------Publisher
@@ -82,7 +90,7 @@ class get_global_map():
         self.V_res = [[0.0, 0.0] for _ in range(self.num_robots)]
         self.goal = [[1.0, 1.0] for _ in range(self.num_robots)]
         self.R_goal = [[100.0, 100.0] for _ in range(self.num_robots)] # For real
-        self.vmax = [0.05 for _ in range(self.num_robots)]
+        self.vmax = [0.1, 0.6]
         self._yaw = 2 # For indexing
         self.V_pt = [[0.0, 0.0] for _ in range(self.num_robots)]
         self.temp_V = [[0.0, 0.0] for _ in range(self.num_robots)]
@@ -93,10 +101,12 @@ class get_global_map():
         self.robot_2_twist = Twist()
         self.robot_3_twist = Twist()
 
+        self.trans = [[0.0, 0.0, 0.0] for _ in range(self.num_robots)]
+        self.rot = [[0.0, 0.0, 0.0, 0.0] for _ in range(self.num_robots)]
 
         # ----------------------------------------
         self.ws_model = dict()
-        self.ws_model['robot_radius'] = 3.5
+        self.ws_model['robot_radius'] = 40.0
         self.robot_patch = [None]*self.num_robots
         self.goal_patch = [None]*self.num_robots
 
@@ -104,18 +114,8 @@ class get_global_map():
     def mapCallback(self, data):
         self.mapData = data
 
-    # Pose Callback for each robot
-    def poseCallback(self, data, robot_ns):
-        for i in range(self.num_robots):
-            if robot_ns == i:
-                # Position -> x,y
-                self.X[i][0] = data.pose.position.x
-                self.X[i][1] = data.pose.position.y
-                # Pose quaternion
-                self.PQ[i][0] = data.pose.orientation.x
-                self.PQ[i][1] = data.pose.orientation.y
-                self.PQ[i][2] = data.pose.orientation.z
-                self.PQ[i][3] = data.pose.orientation.w
+    def emerCallback(self, data):
+        self.emer_flag = data.data
 
     # DP Callback for each robot
     def waypointCallback(self, data, robot_ns):
@@ -135,6 +135,7 @@ class get_global_map():
             if robot_ns == i:
                 self.V_pt[i][0] = data.linear.x
                 self.V_pt[i][1] = data.angular.z
+                # self.vmax[i] = data.linear.x
 
     def localgoalCallback(self, data, robot_ns):
         for i in range(self.num_robots):
@@ -149,10 +150,27 @@ class get_global_map():
         cmap = self.get_cmap(5)
 
         while not rospy.is_shutdown():
+            
 
             map_plt.clear()
 
+            try:
+               (self.trans[0], self.rot[0]) = self.listener_one.lookupTransform('/map', '/robot_1/base_link', rospy.Time(0))
+            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+                pass
+
+            try:
+               (self.trans[1], self.rot[1]) = self.listener_two.lookupTransform('/map', '/robot_2/base_link', rospy.Time(0))
+            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+                pass
+
+            try:
+               (self.trans[2], self.rot[2]) = self.listener_thr.lookupTransform('/map', '/robot_3/base_link', rospy.Time(0))
+            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+                pass
+
             if self.mapData is not None:
+                
 
                 self.map_data = self.mapData.data
                 self.map_width = self.mapData.info.width
@@ -162,8 +180,8 @@ class get_global_map():
                 self.map_starty = self.mapData.info.origin.position.y
 
                 for i in range(self.num_robots):
-                    self.RX[i][0] = (self.X[i][0] - self.map_startx)/self.map_resolution
-                    self.RX[i][1] = (self.X[i][1] - self.map_starty)/self.map_resolution
+                    self.RX[i][0] = (self.trans[i][0] - self.map_startx)/self.map_resolution
+                    self.RX[i][1] = (self.trans[i][1] - self.map_starty)/self.map_resolution
                     self.RWP[i][0] = (self.WP[i][0] - self.map_startx)/self.map_resolution
                     self.RWP[i][1] = (self.WP[i][1] - self.map_starty)/self.map_resolution
 
@@ -174,10 +192,10 @@ class get_global_map():
                     self.R_LGP[i][1] = (self.LGP[i][1] - self.map_starty)/self.map_resolution
 
                     quaternion = (
-                        self.PQ[i][0],
-                        self.PQ[i][1],
-                        self.PQ[i][2],
-                        self.PQ[i][3]
+                        self.rot[i][0],
+                        self.rot[i][1],
+                        self.rot[i][2],
+                        self.rot[i][3]
                     )
                     self.euler[i] = euler_from_quaternion(quaternion)
 
@@ -195,41 +213,36 @@ class get_global_map():
                                                          zorder=2)
                     map_plt.add_patch(self.robot_patch[i])
                     # map_plt.arrow(self.RX[i][0], self.RX[i][1],
-                    #               30*self.P[i][0],
-                    #               30*self.P[i][1],
+                    #               100*self.P[i][0],
+                    #               100*self.P[i][1],
                     #               head_width=2.0, head_length=1.5, fc=cmap(i), ec=cmap(i))
                     
-                    self.goal_patch[i] = patches.Rectangle((self.R_LGP[i][0], self.R_LGP[i][1]),
-                                                               width=4.0, height=4.0, color=cmap(i)
+                    self.goal_patch[i] = patches.Rectangle((self.RWP[i][0], self.RWP[i][1]),
+                                                               width=30.0, height=30.0, color=cmap(i)
                                                             )
                     map_plt.add_patch(self.goal_patch[i])
                 img = np.zeros((self.map_height, self.map_width, 3), np.uint8)
 
-                self.V_des = self.compute_V_des(
-                        X=self.RX, way=self.R_LGP, goal=self.R_goal) # 이후 V_desired를 Path tracker의 desired로 바꿀 가능성 (얘도 Way point를 순간 추종하는데)
+                self.V_des = self.compute_V_des(X=self.RX, way=self.RWP, goal=self.R_goal) # 이후 V_desired를 Path tracker의 desired로 바꿀 가능성 (얘도 Way point를 순간 추종하는데)
                 # (Path tracker와 기능이 동일하기에 우리가 구현한 속도로 가져와도 될듯)
 
                 for i in range(self.num_robots):
                     self.temp_V[i][0] = self.P[i][0] * self.V_pt[i][0]
                     self.temp_V[i][1] = self.P[i][1] * self.V_pt[i][0]
-                    # self.V_des[i][0] = self.P[i][0] * self.V_pt[i][0]
-                    # self.V_des[i][1] = self.P[i][1] * self.V_pt[i][0]
-
-                # self.V_des = self.V_pt # Desired Velocity
                 
                 self.V_res = self.RVO_update(
-                    X=self.X, V_des=self.V_des, V_current=self.temp_V, ws_model=self.ws_model, mat_obj=map_plt)
+                    X=self.RX, V_des=self.V_des, V_current=self.temp_V, ws_model=self.ws_model, mat_obj=map_plt)
                 
                 for i in range(self.num_robots):
-                    # map_plt.arrow(self.RX[i][0], self.RX[i][1],
-                    #               250*self.temp_V[i][0],
-                    #               250*self.temp_V[i][1],
-                    #               head_width=2.0, head_length=1.5, fc=cmap(i), ec=cmap(i))
-                    
                     map_plt.arrow(self.RX[i][0], self.RX[i][1],
-                                  250*self.V_res[i][0],
-                                  250*self.V_res[i][1],
+                                  2250*self.V_res[i][0],
+                                  2250*self.V_res[i][1],
                                   head_width=2.0, head_length=1.5, fc=cmap(i), ec=cmap(i))
+                    
+                    # map_plt.arrow(self.RX[i][0], self.RX[i][1],
+                    #               1550*self.V_des[i][0],
+                    #               1550*self.V_des[i][1],
+                    #               head_width=2.0, head_length=1.5, fc=cmap(i), ec=cmap(i))
 
                 for i in range(0, self.map_height):
                     for j in range(0, self.map_width):
@@ -242,18 +255,62 @@ class get_global_map():
                         else:
                             img[i, j] = 50
 
-                self.robot_1_twist.linear.x = self.V_res[0][0] * 3
-                self.robot_1_twist.angular.z = self.V_res[0][1] * 10
 
-                self.robot_2_twist.linear.x = self.V_res[1][0] * 3
-                self.robot_2_twist.angular.z = self.V_res[1][1] * 10
+                if self.emer_flag is True:
+                    self.robot_1_twist.linear.x = sqrt(self.V_res[0][0]**2 + self.V_res[0][1]**2)
+                    self.robot_1_twist.angular.z = self.V_pt[0][1] * 1.5
 
-                # self.robot_3_twist.linear.x = self.V_res[2][0] * 4
-                # self.robot_3_twist.angular.z = self.V_res[2][1] * 10
+                    self.robot_2_twist.linear.x = sqrt(self.V_res[1][0]**2 + self.V_res[1][1]**2)
+                    self.robot_2_twist.angular.z = self.V_pt[1][1] * 1.5
 
-                self.pub_one.publish(self.robot_1_twist)
+                    self.robot_3_twist.linear.x = sqrt(self.V_res[2][0]**2 + self.V_res[2][1]**2)
+                    self.robot_3_twist.angular.z = self.V_pt[2][1] * 1.5
+
+                    if self.robot_1_twist.linear.x >= 0.1:
+                        self.robot_1_twist.linear.x = 0.1
+                    if self.robot_2_twist.linear.x >= 0.1:
+                        self.robot_2_twist.linear.x = 0.1
+                    if self.robot_3_twist.linear.x >= 0.1:
+                        self.robot_3_twist.linear.x = 0.1
+
+                    if self.robot_1_twist.linear.x <= -0.1:
+                        self.robot_1_twist.linear.x = -0.1
+                    if self.robot_2_twist.linear.x <= -0.1:
+                        self.robot_2_twist.linear.x = -0.1
+                    if self.robot_3_twist.linear.x <= -0.1:
+                        self.robot_3_twist.linear.x = -0.1
+
+                    if self.robot_1_twist.angular.z >= 0.6:
+                        self.robot_1_twist.angular.z = 0.6
+                    if self.robot_2_twist.angular.z >= 0.6:
+                        self.robot_2_twist.angular.z = 0.6
+                    if self.robot_3_twist.angular.z >= 0.6:
+                        self.robot_3_twist.angular.z = 0.6
+
+                    if self.robot_1_twist.angular.z <= -0.6:
+                        self.robot_1_twist.angular.z = -0.6
+                    if self.robot_2_twist.angular.z <= -0.6:
+                        self.robot_2_twist.angular.z = -0.6
+                    if self.robot_3_twist.angular.z <= -0.6:
+                        self.robot_3_twist.angular.z = -0.6
+
+                elif self.emer_flag is False:
+                    self.robot_1_twist.linear.x = 0
+                    self.robot_2_twist.linear.x = 0
+                    self.robot_3_twist.linear.x = 0
+                    self.robot_1_twist.angular.z = 0
+                    self.robot_2_twist.angular.z = 0
+                    self.robot_3_twist.angular.z = 0
+
+                # print("one", self.robot_1_twist.linear.x, self.robot_1_twist.angular.z)
+                print("two", self.robot_2_twist.linear.x, self.robot_2_twist.angular.z)
+                print("thr", self.robot_3_twist.linear.x, self.robot_3_twist.angular.z)
+
+                # self.pub_one.publish(self.robot_1_twist)
                 self.pub_two.publish(self.robot_2_twist)
-                # self.pub_thr.publish(self.robot_3_twist)
+                self.pub_thr.publish(self.robot_3_twist)
+
+                # print(self.V_res)
 
                 map_plt.imshow(img, cmap='gray', origin='lower')
                 plt.draw()
@@ -277,8 +334,9 @@ class get_global_map():
 
             norm = self.distance(dif_x, [0, 0])
 
-            norm_dif_x = [dif_x[k]*self.vmax[k] /
-                          norm for k in range(2)]  # Scaling
+            norm_dif_x = [(dif_x[k]/norm) * self.vmax[k]  for k in range(2)]  # Scaling
+
+            # print(i, norm_dif_x)
 
             V_des.append(norm_dif_x[:])
 

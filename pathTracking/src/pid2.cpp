@@ -53,6 +53,7 @@ private:
 
     int trajectory_length;
     int index = 0;
+    int _dp_index = 0;
 
     bool arrive_goal = false;
     nav_msgs::Path trajectory;
@@ -96,10 +97,16 @@ public:
         else
             return false;
     }
+
+    geometry_msgs::Pose Get_Dp()
+    {
+        return this->trajectory.poses[this->_dp_index].pose;
+    }
+
     geometry_msgs::Twist Get_vel()
     {
         this->cnt = cnt + 1;
-        // this->dist_min = 10000000000.0;
+        this->dist_min = 10000000000.0;
         index = 0;
         for (int i = 0; i < this->trajectory_length; i++)
         {
@@ -115,10 +122,11 @@ public:
         }
 
         // ROS_INFO("index = %d",index);
-        index += 30;
+        // index += 30;
 
         this->desire_x = this->trajectory.poses[index].pose.position.x;
         this->desire_y = this->trajectory.poses[index].pose.position.y;
+        _dp_index = index;
         this->calsteer_x = this->robot_pos_x - this->desire_x;
         this->calsteer_y = this->robot_pos_y - this->desire_y;
         if (this->trajectory.poses[index + 1].pose.position.x - this->trajectory.poses[index].pose.position.x >= 0)
@@ -151,14 +159,14 @@ public:
                 this->sign = -1;
         }
 
-        //ROS_INFO("index = %d", this->index);
+        // ROS_INFO("index = %d", this->index);
         double temp1;
         double temp2;
         if (index == this->trajectory_length - 1)
         {
-            
+
             // ROS_INFO("index = %d",index);
-            ROS_INFO("trajectory_length = %d",this->trajectory_length-1);
+            ROS_INFO("trajectory_length = %d", this->trajectory_length - 1);
             arrive_goal = true;
         }
         else
@@ -197,10 +205,10 @@ public:
         this->desired_robot_vel.linear.x = this->v;
         this->desired_robot_vel.angular.z = this->steering_head + sign * this->sterring_ctr;
 
-         if (this->desired_robot_vel.angular.z > 0.65)
-             this->desired_robot_vel.angular.z = 0.65;
-         if (this->desired_robot_vel.angular.z < -0.65)
-             this->desired_robot_vel.angular.z = -0.65;
+        if (this->desired_robot_vel.angular.z > 0.65)
+            this->desired_robot_vel.angular.z = 0.65;
+        if (this->desired_robot_vel.angular.z < -0.65)
+            this->desired_robot_vel.angular.z = -0.65;
         if (arrive_goal)
         {
             this->desired_robot_vel.linear.x = 0;
