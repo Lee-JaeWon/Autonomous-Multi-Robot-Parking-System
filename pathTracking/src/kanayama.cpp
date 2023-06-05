@@ -272,7 +272,7 @@ public:
 
     // std::cout <<"last_index      : "<<last_index<<"\n";
     // std::cout <<"index           : "<<index<<"\n";
-    // std::cout <<"target_index    : "<<target_index<<"\n";
+    std::cout <<"target_index    : "<<target_index<<"\n";
     // std::cout <<"closet_index    : "<<closetIndex<<"\n";
     // std::cout <<"indexdjust      : "<<this->indexdjust<<"\n";
 

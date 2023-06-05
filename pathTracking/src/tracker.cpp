@@ -261,8 +261,8 @@ int main(int argc, char **argv)
       // pub robot velocity
       if (velstop_flag)
       {
-        // pub_vel.publish(cmd_vel);
-        pub_vel_pt.publish(cmd_vel);
+        pub_vel.publish(cmd_vel);
+        // pub_vel_pt.publish(cmd_vel);
       }
       else
       {
@@ -273,8 +273,8 @@ int main(int argc, char **argv)
     {
       cmd_vel.linear.x = 0.0;
       cmd_vel.angular.z = 0.0;
-      // pub_vel.publish(cmd_vel);
-      pub_vel_pt.publish(cmd_vel);
+      pub_vel.publish(cmd_vel);
+      // pub_vel_pt.publish(cmd_vel);
     }
 
     ros::spinOnce();

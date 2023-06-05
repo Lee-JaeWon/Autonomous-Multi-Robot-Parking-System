@@ -23,7 +23,7 @@ private:
 
   double k = 1.0;
   double k2 = 1.0;
-  double v = 0.22;
+  double v = 0.07;
   int hz = 33;
 
   //Time
@@ -163,20 +163,20 @@ public:
 
     // double steering_angle = this->k2 * (heading_error + sign * atan2(this->k * (this->distP2R), this->v));
 
-    double angular_vel = theta_e * 1.5 + theta_d;//*this->hz;
+    double angular_vel = theta_e * 1.5 + theta_d *1.25;//*this->hz;
     std::cout << "Path_angle : " << this->cyaw[this->desireNum] * (180.0 / M_PI)<< " Robot_yaw : " << this->robot_heading * (180.0 / M_PI)<< std::endl;
     std::cout << "theta_e : " << theta_e <<" theta_d : "<< theta_d << std::endl;
 
     //Saturation
-    if(angular_vel>=0.65)
+    if(angular_vel>=0.6)
     {
-      angular_vel = 0.65;
+      angular_vel = 0.6;
     }
-    else if(angular_vel<=-0.65)
+    else if(angular_vel<=-0.6)
     {
-      angular_vel = -0.65;
+      angular_vel = -0.6;
     }
-    desired_robot_vel.linear.x = this->v - abs(angular_vel) * 0.25;
+    desired_robot_vel.linear.x = this->v - abs(angular_vel) * 0.3;
     if(theta_e > M_PI_2) desired_robot_vel.linear.x = 0;
 
     desired_robot_vel.angular.z = angular_vel;
