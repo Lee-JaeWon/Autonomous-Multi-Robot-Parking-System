@@ -106,7 +106,7 @@ class get_global_map():
 
         # ----------------------------------------
         self.ws_model = dict()
-        self.ws_model['robot_radius'] = 60.0
+        self.ws_model['robot_radius'] = 40.0
         self.robot_patch = [None]*self.num_robots
         self.goal_patch = [None]*self.num_robots
 
@@ -116,19 +116,6 @@ class get_global_map():
 
     def emerCallback(self, data):
         self.emer_flag = data.data
-
-    # Pose Callback for each robot
-    # def poseCallback(self, data, robot_ns):
-    #     for i in range(self.num_robots):
-    #         if robot_ns == i:
-    #             # Position -> x,y
-    #             self.X[i][0] = data.pose.position.x
-    #             self.X[i][1] = data.pose.position.y
-    #             # Pose quaternion
-    #             self.PQ[i][0] = data.pose.orientation.x
-    #             self.PQ[i][1] = data.pose.orientation.y
-    #             self.PQ[i][2] = data.pose.orientation.z
-    #             self.PQ[i][3] = data.pose.orientation.w
 
     # DP Callback for each robot
     def waypointCallback(self, data, robot_ns):
@@ -148,7 +135,7 @@ class get_global_map():
             if robot_ns == i:
                 self.V_pt[i][0] = data.linear.x
                 self.V_pt[i][1] = data.angular.z
-                self.vmax[i] = data.linear.x
+                # self.vmax[i] = data.linear.x
 
     def localgoalCallback(self, data, robot_ns):
         for i in range(self.num_robots):
@@ -271,13 +258,13 @@ class get_global_map():
 
                 if self.emer_flag is True:
                     self.robot_1_twist.linear.x = sqrt(self.V_res[0][0]**2 + self.V_res[0][1]**2)
-                    self.robot_1_twist.angular.z = self.V_pt[0][1] * 3.0
+                    self.robot_1_twist.angular.z = self.V_pt[0][1] * 1.5
 
                     self.robot_2_twist.linear.x = sqrt(self.V_res[1][0]**2 + self.V_res[1][1]**2)
-                    self.robot_2_twist.angular.z = self.V_pt[1][1] * 3.0
+                    self.robot_2_twist.angular.z = self.V_pt[1][1] * 1.5
 
                     self.robot_3_twist.linear.x = sqrt(self.V_res[2][0]**2 + self.V_res[2][1]**2)
-                    self.robot_3_twist.angular.z = self.V_pt[2][1] * 3.0
+                    self.robot_3_twist.angular.z = self.V_pt[2][1] * 1.5
 
                     if self.robot_1_twist.linear.x >= 0.1:
                         self.robot_1_twist.linear.x = 0.1
@@ -285,12 +272,28 @@ class get_global_map():
                         self.robot_2_twist.linear.x = 0.1
                     if self.robot_3_twist.linear.x >= 0.1:
                         self.robot_3_twist.linear.x = 0.1
+
+                    if self.robot_1_twist.linear.x <= -0.1:
+                        self.robot_1_twist.linear.x = -0.1
+                    if self.robot_2_twist.linear.x <= -0.1:
+                        self.robot_2_twist.linear.x = -0.1
+                    if self.robot_3_twist.linear.x <= -0.1:
+                        self.robot_3_twist.linear.x = -0.1
+
                     if self.robot_1_twist.angular.z >= 0.6:
                         self.robot_1_twist.angular.z = 0.6
                     if self.robot_2_twist.angular.z >= 0.6:
                         self.robot_2_twist.angular.z = 0.6
                     if self.robot_3_twist.angular.z >= 0.6:
                         self.robot_3_twist.angular.z = 0.6
+
+                    if self.robot_1_twist.angular.z <= -0.6:
+                        self.robot_1_twist.angular.z = -0.6
+                    if self.robot_2_twist.angular.z <= -0.6:
+                        self.robot_2_twist.angular.z = -0.6
+                    if self.robot_3_twist.angular.z <= -0.6:
+                        self.robot_3_twist.angular.z = -0.6
+
                 elif self.emer_flag is False:
                     self.robot_1_twist.linear.x = 0
                     self.robot_2_twist.linear.x = 0
@@ -299,8 +302,11 @@ class get_global_map():
                     self.robot_2_twist.angular.z = 0
                     self.robot_3_twist.angular.z = 0
 
+                # print("one", self.robot_1_twist.linear.x, self.robot_1_twist.angular.z)
+                print("two", self.robot_2_twist.linear.x, self.robot_2_twist.angular.z)
+                print("thr", self.robot_3_twist.linear.x, self.robot_3_twist.angular.z)
 
-                self.pub_one.publish(self.robot_1_twist)
+                # self.pub_one.publish(self.robot_1_twist)
                 self.pub_two.publish(self.robot_2_twist)
                 self.pub_thr.publish(self.robot_3_twist)
 
