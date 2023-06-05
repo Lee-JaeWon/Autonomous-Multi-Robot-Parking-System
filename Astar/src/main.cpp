@@ -37,6 +37,7 @@ OccupancyGridParam OccGridParam;
 Point startPoint, targetPoint;
 geometry_msgs::PoseStamped path_point;
 
+std::string s;
 
 
 // Parameter
@@ -103,7 +104,7 @@ void TargetPointtCallback(const geometry_msgs::PoseStamped &msg)
 void odomCallback(const nav_msgs::Odometry &msg)
 {
     
-    ROS_INFO("Odom Received!");
+    // ROS_INFO("Odom Received!");
     // Point2d src_point = Point2d(robot.x, robot.y);
     Point2d src_point = Point2d(msg.pose.pose.position.x, msg.pose.pose.position.y);
     OccGridParam.Map2ImageTransform(src_point, startPoint);
@@ -160,7 +161,7 @@ int main(int argc, char *argv[])
     odom_sub = nh.subscribe(odom_ns, 10, odomCallback);
 
     // Advertise topics
-    std::string path_ns = s + "/global_path";
+    std::string path_ns = s + "/path";
     path_pub = nh.advertise<nav_msgs::Path>(path_ns, 10);
     // Loop and wait for callback
 
