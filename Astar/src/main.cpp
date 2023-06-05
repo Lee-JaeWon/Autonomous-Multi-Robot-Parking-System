@@ -5,16 +5,14 @@
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Point.h>
 #include <geometry_msgs/Quaternion.h>
 #include <opencv2/opencv.hpp>
-<<<<<<< HEAD
-#include <tf2_ros/transform_listener.h>
-=======
-#include <tf/transform_listener.h>
->>>>>>> af0e7d86847e6bec22eb3f1cee44483a15ec3165
-// #include <opencv.hpp>
 #include "Astar.h"
 #include "OccMapTransform.h"
+#include <geometry_msgs/TransformStamped.h>
+#include <tf/transform_listener.h>
+
 
 using namespace cv;
 using namespace std;
@@ -53,12 +51,6 @@ int origin_x, origin_y;
 double resol;
 int mx, my;
 double present_x, present_y;
-<<<<<<< HEAD
-=======
-double robot_x ;
-double robot_y ;
-std::string s;
->>>>>>> af0e7d86847e6bec22eb3f1cee44483a15ec3165
 //-------------------------------- Callback function ---------------------------------//
 void MapCallback(const nav_msgs::OccupancyGrid &msg)
 {
@@ -96,30 +88,17 @@ void MapCallback(const nav_msgs::OccupancyGrid &msg)
 
 void StartPointCallback(const geometry_msgs::PoseWithCovarianceStamped &msg)
 {
-
-    //    ROS_INFO("startPoint: %f %f %d %d", msg.pose.pose.position.x, msg.pose.pose.position.y,
-    //             startPoint.x, startPoint.y);
 }
 
 void TargetPointtCallback(const geometry_msgs::PoseStamped &msg)
 {
-<<<<<<< HEAD
-=======
-    traked_flag = true;
->>>>>>> af0e7d86847e6bec22eb3f1cee44483a15ec3165
     Point2d src_point = Point2d(msg.pose.position.x, msg.pose.position.y);
     OccGridParam.Map2ImageTransform(src_point, targetPoint);
     // Set flag
     targetpoint_flag = true;
-    if (map_flag && startpoint_flag && targetpoint_flag)
-    {
-        start_flag = true;
-    }
+    if (map_flag && startpoint_flag && targetpoint_flag) start_flag = true;
 
-    //    ROS_INFO("targetPoint: %f %f %d %d", msg.pose.position.x, msg.pose.position.y,
-    //             targetPoint.x, targetPoint.y);
 }
-<<<<<<< HEAD
 
 void odomCallback(const nav_msgs::Odometry &msg)
 {
@@ -132,37 +111,6 @@ void odomCallback(const nav_msgs::Odometry &msg)
     startpoint_flag = true;
     if (map_flag && startpoint_flag && targetpoint_flag) start_flag = true;
 
-=======
-void odomCallback(const nav_msgs::Odometry &msg)
-{
-
-    // try{
-    //   listener.lookupTransform("/map","/robot_1/base_link",  
-    //                            ros::Time(0), transform);
-    // }
-    // catch (tf::TransformException ex){
-    //   ROS_ERROR("%s",ex.what());
-    //   ros::Duration(1.0).sleep();
-    // }
-
-    if (traked_flag)
-    {
-        // mx = int((msg.pose.pose.position.x - origin_x) / (resol)); // world to map
-        // my = int((msg.pose.pose.position.y - origin_y) / (resol)); // world to map
-
-        Point2d src_point = Point2d(robot_x, robot_y);
-        // Point2d src_point = Point2d(transform.getOrigin().x(), transform.getOrigin().y());
-
-        OccGridParam.Map2ImageTransform(src_point, startPoint);
-
-        // Set flag
-        startpoint_flag = true;
-        if (map_flag && startpoint_flag && targetpoint_flag)
-        {
-            // start_flag = true;
-        }
-    }
->>>>>>> af0e7d86847e6bec22eb3f1cee44483a15ec3165
 }
 
 //-------------------------------- Main function ---------------------------------//
@@ -172,16 +120,10 @@ int main(int argc, char *argv[])
     ros::init(argc, argv, "astar");
     ros::NodeHandle nh;
     ros::NodeHandle nh_priv("~");
-<<<<<<< HEAD
 
     tf::TransformListener listener;
     tf::StampedTransform transform;
 
-=======
-    tf::TransformListener listener;
-    tf::StampedTransform transform;
-    
->>>>>>> af0e7d86847e6bec22eb3f1cee44483a15ec3165
     ROS_INFO("Start astar node!\n");
 
     // param check
@@ -203,7 +145,6 @@ int main(int argc, char *argv[])
     nh_priv.param<double>("InflateRadius", InflateRadius, -1);
     nh_priv.param<int>("rate", rate, 10);
 
-<<<<<<< HEAD
     // namespace
     std::string path_map_ns = "/path_map"; // fixed frame for path_planning
     std::string map_ns = "/map"; // fixed frame
@@ -214,26 +155,12 @@ int main(int argc, char *argv[])
 
     // Subscribe topics
     map_sub = nh.subscribe(path_map_ns, 10, MapCallback);
-=======
-    // Subscribe topics
-    std::string map_ns = "map"; // fixed frame
-    std::string goal_ns = s + "/move_base_simple/goal";
-    std::string track_ns = s + "/odom";
-    std::string initpose_ns = s + "/initialpose";
-
-    map_sub = nh.subscribe(s + "/map", 10, MapCallback);
->>>>>>> af0e7d86847e6bec22eb3f1cee44483a15ec3165
     // startPoint_sub = nh.subscribe(initpose_ns, 10, StartPointCallback);
     targetPoint_sub = nh.subscribe(goal_ns, 10, TargetPointtCallback);
     odom_sub = nh.subscribe(odom_ns, 10, odomCallback);
 
     // Advertise topics
-<<<<<<< HEAD
     std::string path_ns = s + "/global_path";
-=======
-    std::string path_ns = s + "/path";
-    mask_pub = nh.advertise<nav_msgs::OccupancyGrid>("mask", 1); // potential problem
->>>>>>> af0e7d86847e6bec22eb3f1cee44483a15ec3165
     path_pub = nh.advertise<nav_msgs::Path>(path_ns, 10);
     // Loop and wait for callback
 
@@ -241,27 +168,7 @@ int main(int argc, char *argv[])
     while (ros::ok())
 
     {
-<<<<<<< HEAD
         if (start_flag) {
-=======
-
-        try{
-        listener.lookupTransform("map", s +"/base_link",  
-                                ros::Time(0), transform);
-        }
-        catch (tf::TransformException ex){
-        ROS_ERROR("%s",ex.what());
-
-        ros::Duration(1.0).sleep();
-        }
-        robot_x = transform.getOrigin().x();
-        robot_y = transform.getOrigin().y();
-
-        if (start_flag)
-        {    
-            ROS_INFO("START");
-
->>>>>>> af0e7d86847e6bec22eb3f1cee44483a15ec3165
             double start_time = ros::Time::now().toSec();
             // Start planning path
             vector<Point> PathList;
@@ -301,31 +208,12 @@ int main(int argc, char *argv[])
 
                 ROS_INFO("Find a valid path successfully! Use %f s", end_time - start_time);
             }
-            else
-            {
-                ROS_ERROR("Can not find a valid path");
-            }
-            int i = 0;
-            if ((path_point.pose.position.x - present_x) + (path_point.pose.position.y - present_y) > 0.3)
-                i++;
-            ROS_INFO("%d\n", i);
-            path_point = path.poses[20];
-            path_point.pose.orientation.w = 1;
-            path_point.pose.orientation.x = 0;
-            path_point.pose.orientation.y = 0;
-            path_point.pose.orientation.z = 0;
-
-            //  local_goal_pub.publish(path_point);
-
+            else ROS_ERROR("Can not find a valid path");
             // Set flag
             start_flag = false;
             targetpoint_flag = false;
         }
 
-        if (map_flag)
-        {
-            mask_pub.publish(OccGridMask);
-        }
 
         ros::spinOnce();
         loop_rate.sleep();
