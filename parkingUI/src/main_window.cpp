@@ -40,6 +40,10 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 {
   ui.setupUi(this);
   qnode.init();
+
+  QIcon appIcon("/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/parkingUI/images/parking.png");
+  this->setWindowIcon(appIcon);
+
   this->parkingNum=qnode.parkingNum;
   this->EmptyList=qnode.EmptyList;
 

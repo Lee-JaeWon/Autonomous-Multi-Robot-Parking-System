@@ -69,6 +69,8 @@ bool QNode::init() {
   n.getParam("InputSpot",InputSpot);
   n.getParam("OutputSpot",OutputSpot);
   n.getParam("robot_num",robot_num);
+  n.getParam("map_path",map_path);
+  n.getParam("file_path",file_path);
 
   nh.getParam("map/resolution",map_resolution);
 
@@ -126,10 +128,7 @@ void QNode::run() {
 
 void QNode::ReadParkingData(ParkingInfo* ParkingData, int parkingNum)
 {
-  std::string filePath = "../catkin_ws/src/parkingUI/config/ParkingLotInfo.txt";
-
-  //std::cout<<filePath<<"\n";
-  std::ifstream readfile(filePath);
+  std::ifstream readfile(file_path);
   if(readfile.fail())
   {
     std::cerr << "Error!" << std::endl;
@@ -174,9 +173,7 @@ void QNode::ReadParkingData(ParkingInfo* ParkingData, int parkingNum)
 
 void QNode::WriteParkingData()
 {
-  std::string filePath = "../catkin_ws/src/parkingUI/config/ParkingLotInfo.txt";
-
-  std::ofstream writefile(filePath,std::ios::trunc);
+  std::ofstream writefile(file_path,std::ios::trunc);
   if(writefile.is_open())
   {
     std::string s;

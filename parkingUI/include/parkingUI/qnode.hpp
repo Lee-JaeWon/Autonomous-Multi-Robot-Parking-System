@@ -88,6 +88,7 @@ public:
   // Map data
   double map_resolution=0.05;
   std::string map_path = "/home/hyedo/map2.png";
+  std::string file_path = "../catkin_ws/src/parkingUI/config/ParkingLotInfo.txt";
 
   // <Parking-Lot Coordinates >
   std::vector<double>* PL;
