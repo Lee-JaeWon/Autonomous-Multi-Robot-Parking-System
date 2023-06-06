@@ -4,6 +4,7 @@ void doneCb(const actionlib::SimpleClientGoalState& state,const parking_msgs::pa
 {
   if(result->sequence)
   {
+    ROS_INFO("4");
     std::cout<<"result is True"<<"\n";
     int i = result->i;
     int j = result->j;

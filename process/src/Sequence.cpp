@@ -90,22 +90,23 @@ public :
     rP.action.push_back(act0);
     rP.action.push_back(act1);
 
-    //Parkinglot에 로봇 다시 채우기
     action_number=0;
-    parking_msgs::action act2;
-    act2.number = action_number++;
-    act2.condition = "NotStart";
-    act2.action = "Move";
-    act2.parkingLot = 1000;
-    act2.x = OutputSpot.at(0);
-    act2.y = OutputSpot.at(1);
-    act2.orientation = 0.0;
 
-    parking_msgs::robotProcess rP2;
-    rP2.job="Mover";
-    rP2.robotNumber=(num%robot_num);
-    num++;
-    rP2.action.push_back(act2);
+//    //Parkinglot에 로봇 다시 채우기
+//    parking_msgs::action act2;
+//    act2.number = action_number++;
+//    act2.condition = "NotStart";
+//    act2.action = "Move";
+//    act2.parkingLot = 1000;
+//    act2.x = OutputSpot.at(0);
+//    act2.y = OutputSpot.at(1);
+//    act2.orientation = 0.0;
+
+//    parking_msgs::robotProcess rP2;
+//    rP2.job="Mover";
+//    rP2.robotNumber=(num%robot_num);
+//    num++;
+//    rP2.action.push_back(act2);
 
     //각 로봇 process 채워넣기
     parking_msgs::miniSequence mSeq;
@@ -113,7 +114,7 @@ public :
     mSeq.order="ParkIn";
     mSeq.SequenceNumber=mini_seq_number++;
     mSeq.process.push_back(rP);
-    mSeq.process.push_back(rP2);
+ //   mSeq.process.push_back(rP2);
 
     Seq.miniSequence.push_back(mSeq);
   }
