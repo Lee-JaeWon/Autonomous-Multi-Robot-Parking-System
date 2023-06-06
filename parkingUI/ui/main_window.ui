@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1550</width>
+    <width>1680</width>
     <height>1127</height>
    </rect>
   </property>
@@ -94,10 +94,107 @@
         <string>출차하기</string>
        </property>
       </widget>
+      <widget class="QListWidget" name="listWidget">
+       <property name="geometry">
+        <rect>
+         <x>1050</x>
+         <y>10</y>
+         <width>601</width>
+         <height>371</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>1070</x>
+         <y>20</y>
+         <width>171</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Sequence</string>
+       </property>
+      </widget>
+      <widget class="QTableWidget" name="tableWidget">
+       <property name="geometry">
+        <rect>
+         <x>1050</x>
+         <y>390</y>
+         <width>601</width>
+         <height>401</height>
+        </rect>
+       </property>
+       <column>
+        <property name="text">
+         <string>Sequence</string>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>New Column</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>New Column</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>New Column</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>New Column</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>New Column</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>New Column</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>New Column</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>New Column</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>New Column</string>
+        </property>
+       </column>
+      </widget>
       <zorder>graphicsView</zorder>
       <zorder>label</zorder>
       <zorder>pushButton_ParkIn</zorder>
       <zorder>pushButton_ParkOut</zorder>
+      <zorder>listWidget</zorder>
+      <zorder>label_2</zorder>
+      <zorder>tableWidget</zorder>
      </widget>
     </item>
    </layout>

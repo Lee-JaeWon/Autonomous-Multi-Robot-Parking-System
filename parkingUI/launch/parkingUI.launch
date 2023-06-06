@@ -1,18 +1,41 @@
 <?xml version="1.0"?>
 <launch>
   <!-- Arguments -->
-<!--  <arg name="move_forward_only" default="false"/>-->
+  <arg name="robot_num_" default="3"/>
 
   <rosparam file="$(find parkingUI)/config/ParkingLotInfo.yaml" ns = "parkingUI"/>
   <rosparam file="$(find parkingUI)/config/ParkingLotInfo.yaml" ns = "processmaker"/>
+  <rosparam file="$(find parkingUI)/map/map2.yaml" ns = "map" />
 
   <!-- parkingUI -->
   <node pkg="parkingUI" type="parkingUI" name="parkingUI" output="screen">
-    <param name="robot_num" type="int" value="3"/>
+    <param name = "robot_num" type="int" value="$(arg robot_num_)" />
+    <param name = "map_path" type="string" value= "/home/hyedo/map2.png" />
   </node>
 
   <!-- processmaker -->
-  <node pkg="process" type="processmaker" name="processmaker" output="screen"/>
+  <node pkg="process" type="processmaker" name="processmaker" output="screen">
+    <param name = "robot_num" type="int" value="$(arg robot_num_)"/>
+  </node>
+
+  <!--usb_cam-->
+  <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap"/>
+  </node>
+  <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+    <remap from="image" to="/usb_cam/image_raw"/>
+    <param name="autosize" value="true" />
+  </node>
+
+  <!-- carNum detector -->
+  <node pkg="test_pkg" type="car_plate_ros.py" name="car_plate_ros" output="screen">
+
+  </node>
 
 </launch>
 

@@ -1,0 +1,15 @@
+#goal
+geometry_msgs/PoseStamped goal
+int32 robotNum
+int32 i
+int32 j
+int32 k
+---
+#result
+bool sequence
+int32 i
+int32 j
+int32 k
+---
+#feedback
+int32[] percent

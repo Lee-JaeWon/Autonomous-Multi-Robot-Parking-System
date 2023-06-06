@@ -1,0 +1,27 @@
+local_costmap:
+  global_frame: odom
+  robot_base_frame: base_footprint
+
+  update_frequency: 10.0
+  publish_frequency: 10.0
+  transform_tolerance: 0.5  
+
+  static_map: false  
+  rolling_window: true
+  width: 3
+  height: 3
+  resolution: 0.05
+
+  plugins:
+          # - {name: simplelayer, type: "simple_layer_namespace::SimpleLayer"}
+          # - {name: gridlayer, type: "simple_layer_namespace::GridLayer"}
+      - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+      - {name: inflation, type: "costmap_2d::InflationLayer"}
+  obstacle_layer:
+      observation_sources: laser
+      laser: {data_type: LaserScan, sensor_frame: base_scan, topic: /scan, marking: true, clearing: true, min_obstacle_height: -0.05}
+ 
+ 
+  inflation:
+        inflation_radius: 0.75
+        cost_scaling_factor: 4 # larger number = lower cost elevation   

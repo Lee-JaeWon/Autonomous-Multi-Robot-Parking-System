@@ -11,6 +11,11 @@
 
 #include <std_msgs/Bool.h>
 
+// For Action
+#include "actionlib/server/simple_action_server.h"
+#include <parking_msgs/Planner2TrackerAction.h>
+
+
 //Messages
 nav_msgs::Odometry  state;
 nav_msgs::Path global_path;
@@ -80,4 +85,72 @@ bool velstop_flag = true;
 
 void pathCallback(const nav_msgs::Path::ConstPtr& path_);
 void tf_Listener();
+
+
+// Action Server Class - Planner2Tracker
+class Planner2TrackerAction {
+
+protected:
+  // 노드 핸들
+  ros::NodeHandle nh_;
+  // 액션 서버
+  actionlib::SimpleActionServer<parking_msgs::Planner2TrackerAction> as_;
+  // 액션 이름
+  std::string action_name_;
+  // 액션 피드백 및 결과
+  parking_msgs::Planner2TrackerFeedback feedback_;
+  parking_msgs::Planner2TrackerResult result_;
+public:
+  // 액션 서버 초기화
+  //bool start=false;
+  bool isSuccess = false;
+  bool action_called = false;
+
+  //goal 변수
+  parking_msgs::Planner2TrackerGoal goal_;
+
+  Planner2TrackerAction(std::string name) :
+  // 핸들, 액션 이름, 콜백, auto_start
+  // actionlib document에 따르면 auto_start가 true일때 ros::spin을 사용하지 않아도 된다고 합니다.
+  // boost::bind는 메소드를 callback으로 넘겨주며,
+  // 전달되는 첫 번째 값을 callback 함수의 2번째 파라미터로 넘겨줍니다. (첫 번째는 자기자신)
+  as_(nh_, name, boost::bind(&Planner2TrackerAction::executeCB, this, _1), false),
+  action_name_(name) {
+    as_.start();
+  }
+
+  ~Planner2TrackerAction() {
+  }
+
+  // goal을 받아 지정된 액션을 수행
+  void executeCB(const parking_msgs::Planner2TrackerGoalConstPtr &goal) {
+    ROS_INFO("plan to tracker action called");
+    this->action_called = true;
+    this->goal_ = *goal;
+
+    //글로벌 변수로 전달
+    local_path = goal_.path;
+    trajectiory_subscribed = true;
+
+    while(!isSuccess) //action not done = still running
+    {
+      feedback_.percent = 0;
+      as_.publishFeedback(feedback_);
+    }
+
+    if(isSuccess) //action done
+    {
+      isSuccess = false;
+      result_.result=true;
+      as_.setSucceeded(result_);
+    }
+  }
+
+  const nav_msgs::Path getTarget()
+  {
+
+    return this->goal_.path;
+  }
+};
+
 

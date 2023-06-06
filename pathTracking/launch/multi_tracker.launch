@@ -1,0 +1,185 @@
+<?xml version="1.0"?>
+<launch>
+
+<arg name="robot_num_" default="3"/>
+<arg name="namespace_one" default="robot_1"/>
+<arg name="namespace_two" default="robot_2"/>
+<arg name="namespace_three" default="robot_3"/>
+
+<node pkg="tf" type="static_transform_publisher" name="map_to_robot1odom" args="0.0 0 0.0 0 0 0 map robot_1/odom 200" />
+<node pkg="tf" type="static_transform_publisher" name="map_to_robot2odom" args="0.0 0 0.0 0 0 0 map robot_2/odom 200" />
+<node pkg="tf" type="static_transform_publisher" name="map_to_robot3odom" args="0.0 0 0.0 0 0 0 map robot_3/odom 200" />
+
+
+<!--<arg name="tracker_mode" default="Stanley"/>-->
+<!--<arg name="tracker_mode" default="Kanayama"/>-->
+<arg name="tracker_mode" default="Stanley_PID"/>
+
+<!-- Stanley Tracker -->
+
+<group if="$(eval tracker_mode == 'Kanayama')">
+    <!-- For robot_1 -->
+        <node pkg="pathTracking" type="tracker" name="robot1_tracker" output="screen">
+        <param name="tracker" type="string" value="Kanayama"/>
+        <param name="k_x" type="double" value="6"/>
+        <param name="k_y" type="double" value="15"/>
+        <param name="timeStep" type="double" value="0.07"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_one)"/>
+        <param name="tracker" type="string" value="Kanayama"/>
+    </node>
+
+    <!-- For robot_2 -->
+    <node pkg="pathTracking" type="tracker" name="robot2_tracker" output="screen">
+        <param name="tracker" type="string" value="Kanayama"/>
+        <param name="k_x" type="double" value="0.5"/>
+        <param name="k_y" type="double" value="15"/>
+        <param name="timeStep" type="double" value="0.1"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_two)"/>
+        <param name="tracker" type="string" value="Kanayama"/>
+    </node>
+
+    <!-- For robot_3 -->
+    <node pkg="pathTracking" type="tracker" name="robot3_tracker" output="screen">
+        <param name="tracker" type="string" value="Kanayama"/>
+        <param name="k_x" type="double" value="0.5"/>
+        <param name="k_y" type="double" value="15"/>
+        <param name="timeStep" type="double" value="0.1"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_three)"/>
+        <param name="tracker" type="string" value="Kanayama"/>
+    </node>
+</group>
+
+<group if="$(eval tracker_mode == 'Stanley')">
+    <!-- For robot_1 -->
+    <node pkg="pathTracking" type="tracker" name="robot1_tracker" output="screen">
+        <param name="k" type="double" value="4.0"/>
+        <param name="k2" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.2"/>
+        <param name="namespace" value="$(arg namespace_one)"/>
+        <param name="tracker" type="string" value="Stanley"/>
+    </node>
+
+    <!-- For robot_2 -->
+    <node pkg="pathTracking" type="tracker" name="robot2_tracker" output="screen">
+        <param name="k" type="double" value="4.0"/>
+        <param name="k2" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.1"/>
+        <param name="namespace" value="$(arg namespace_two)"/>
+        <param name="tracker" type="string" value="Stanley"/>
+    </node>
+
+    <!-- For robot_3 -->
+    <node pkg="pathTracking" type="tracker" name="robot3_tracker" output="screen">
+        <param name="k" type="double" value="4.0"/>
+        <param name="k2" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.1"/>
+        <param name="namespace" value="$(arg namespace_three)"/>
+        <param name="tracker" type="string" value="Stanley"/>
+    </node>
+</group>
+
+
+<group if="$(eval tracker_mode == 'Stanley_PID')">
+    <!-- For robot_1 -->
+    <node pkg="pathTracking" type="tracker" name="robot1_tracker" >
+        <param name="ph" type="double" value="3.2"/>
+        <param name="ih" type="double" value="0.0"/>
+        <param name="dh" type="double" value="1.3"/>
+        <param name="pc" type="double" value="3.5"/>
+        <param name="ic" type="double" value="0.0"/>
+        <param name="dc" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.1"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_one)"/>
+        <param name="tracker" type="string" value="PID"/>
+    </node>
+
+    <!-- For robot_2 -->
+    <node pkg="pathTracking" type="tracker" name="robot2_tracker" >
+        <param name="ph" type="double" value="3.2"/>
+        <param name="ih" type="double" value="0.0"/>
+        <param name="dh" type="double" value="1.3"/>
+        <param name="pc" type="double" value="3.5"/>
+        <param name="ic" type="double" value="0.0"/>
+        <param name="dc" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.1"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_two)"/>
+        <param name="tracker" type="string" value="PID"/>
+    </node>
+
+    <!-- For robot_3 -->
+    <node pkg="pathTracking" type="tracker" name="robot3_tracker" >
+        <param name="ph" type="double" value="3.2"/>
+        <param name="ih" type="double" value="0.0"/>
+        <param name="dh" type="double" value="1.3"/>
+        <param name="pc" type="double" value="3.5"/>
+        <param name="ic" type="double" value="0.0"/>
+        <param name="dc" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.1"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_three)"/>
+        <param name="tracker" type="string" value="PID"/>
+    </node>
+</group>
+
+
+<!-- Arguments -->
+<arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+<arg name="map_file" default="$(find pathTracking)/map/map.yaml"/>
+<arg name="open_rviz" default="true"/>
+
+<!-- Turtlebot3 -->
+<!--<include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
+  <arg name="model" value="$(arg model)" />
+</include>-->
+
+<!-- Map server -->
+<node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+
+<!-- rviz -->
+<group if="$(arg open_rviz)">
+  <node pkg="rviz" type="rviz" name="rviz" required="true"
+        args="-d $(find pathTracking)/rviz/tracker.rviz"/>
+</group>
+
+<!-- astar node -->
+<!-- For robot_1 -->
+<node pkg="astar" type="astar" name="robot_1_astar" output="screen">
+    <param name="Euclidean" value="true"/>
+    <param name="OccupyThresh" value="-1"/>
+    <param name="InflateRadius" value="0"/>
+    <param name="rate" value="10"/>
+    <param name="robot_num" value="$(arg robot_num_)"/>
+    <param name="namespace" value="$(arg namespace_one)"/>
+</node>
+
+<!-- astar node -->
+<!-- For robot_2 -->
+<node pkg="astar" type="astar" name="robot_2_astar" output="screen">
+    <param name="Euclidean" value="true"/>
+    <param name="OccupyThresh" value="-1"/>
+    <param name="InflateRadius" value="0"/>
+    <param name="robot_num" value="$(arg robot_num_)"/>
+    <param name="namespace" value="$(arg namespace_two)"/>
+</node>
+
+<!-- astar node -->
+<!-- For robot_3 -->
+<node pkg="astar" type="astar" name="robot_3_astar" output="screen">
+    <param name="Euclidean" value="true"/>
+    <param name="OccupyThresh" value="-1"/>
+    <param name="InflateRadius" value="0"/>
+    <param name="robot_num" value="$(arg robot_num_)"/>
+    <param name="namespace" value="$(arg namespace_three)"/>
+</node>
+
+
+
+
+</launch>
+
+

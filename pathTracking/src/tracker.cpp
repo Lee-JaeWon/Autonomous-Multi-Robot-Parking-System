@@ -12,9 +12,9 @@ std::string s;
 
 void localpathCallback(const nav_msgs::Path::ConstPtr &path_)
 {
-  local_path = *path_;
-  trajectiory_subscribed = true;
-  // pub.publish(path_);
+//  local_path = *path_;
+//  trajectiory_subscribed = true;
+//  // pub.publish(path_);
 }
 
 // void globalpathCallback(const nav_msgs::Path::ConstPtr &path_)
@@ -45,7 +45,7 @@ void tf_Listener(std::string map_ns, std::string baselink_ns)
   }
   catch (tf2::TransformException &ex)
   {
-    ROS_WARN("%s", ex.what());
+    //ROS_WARN("%s", ex.what());
     tf_listened = false;
     //    ros::Duration(1.0).sleep();
     //    continue;
@@ -101,6 +101,11 @@ int main(int argc, char **argv)
   }
   else
     ROS_ERROR("Traker Failed to get param '%s'", s.c_str());
+
+  // Action Server Class 할당 - Planner2Tracker
+  std::string action_plan_to_track_ns = s + "/action_plan_to_track";
+  Planner2TrackerAction action_plan_to_track(action_plan_to_track_ns);
+
 
   std::string baselink_ns = s + "base_link";
   std::string map_ns = "map";
@@ -210,6 +215,7 @@ int main(int argc, char **argv)
           ROS_INFO("Tracking Done!!start_tracking %d", start_tracking);
           meanErr = distErr / errCnt;
           ROS_INFO("mean error : %f", meanErr);
+          action_plan_to_track.isSuccess=true;
         }
       }
       else if (tracker_name == "Kanayama")
@@ -228,6 +234,7 @@ int main(int argc, char **argv)
           ROS_INFO("Tracking Done!!");
           meanErr = distErr / errCnt;
           ROS_INFO("mean error : %f", meanErr);
+          action_plan_to_track.isSuccess=true;
         }
       }
       else if (tracker_name == "PID")
@@ -235,11 +242,12 @@ int main(int argc, char **argv)
         pid->Set_robot_pos(robot_X, robot_Y, robot_Yaw);
         cmd_vel = pid->Get_vel();
         pose_ = pid->Get_Dp();
-        // if (pid->End_trajectory())
-        // {
-        //   ROS_INFO("Tracking Done!!");
-        //   start_tracking = false;
-        // }
+         if (pid->End_Tracking())
+         {
+           ROS_INFO("Tracking Done!!");
+           start_tracking = false;
+           action_plan_to_track.isSuccess=true;
+         }
       }
 
       // pub to rviz
