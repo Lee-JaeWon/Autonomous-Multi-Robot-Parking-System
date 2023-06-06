@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+
+<arg name="first_tb3" default="robot1" />
+<arg name="second_tb3" default="robot2" />
+<arg name="third_tb3" default="robot3" />
+
+<group ns = "$(arg third_tb3)">
+  <!-- Path Maker -->
+  <param name="namespace" type="string" value="/robot3" />
+  <node pkg="test_pkg" type="test_map.py" name="map_node"/>
+</group>
+
+</launch>
+
+

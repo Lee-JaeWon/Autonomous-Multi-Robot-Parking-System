@@ -90,12 +90,17 @@ public:
     }
     bool End_trajectory()
     {
-        if (this->trajectory_length < 3)
+        if (this->trajectory_length < 2)
         {
             return true;
         }
         else
             return false;
+    }
+
+    bool End_Tracking()
+    {
+      return arrive_goal;
     }
 
     geometry_msgs::Pose Get_Dp()

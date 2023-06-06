@@ -115,7 +115,7 @@ FIND_LIBRARY(mylib_LIBRARIES process src/Sequence.cpp)
 target_link_libraries(processmaker
   ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
-  #${mylib_LIBRARIES}
+  ${mylib_LIBRARIES}
 )
 install(TARGETS process RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 

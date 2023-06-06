@@ -162,7 +162,9 @@ public:
       //      std::cout <<"index        : "<<i<<"\n";
       //      std::cout <<"now_th       : "<<now_th<<"\n";
       //      std::cout <<"pre_th       : "<<pre_th<<"\n";
+      q_r[i].linear.x = 0.15;
     }
+
 
     q_r[this->trajectory_length - 1].linear.x = 0.0;
     q_r[this->trajectory_length - 1].angular.z = 0.0;
@@ -272,7 +274,7 @@ public:
 
     // std::cout <<"last_index      : "<<last_index<<"\n";
     // std::cout <<"index           : "<<index<<"\n";
-    std::cout <<"target_index    : "<<target_index<<"\n";
+    // std::cout <<"target_index    : "<<target_index<<"\n";
     // std::cout <<"closet_index    : "<<closetIndex<<"\n";
     // std::cout <<"indexdjust      : "<<this->indexdjust<<"\n";
 
@@ -358,13 +360,13 @@ public:
       angular_vel = -0.6;
     }
 
-    if (linear_vel >= 0.1)
+    if (linear_vel >= 0.2)
     {
-      linear_vel = 0.1;
+      linear_vel = 0.2;
     }
-    else if (linear_vel <= -0.1)
+    else if (linear_vel <= -0.2)
     {
-      linear_vel = -0.1;
+      linear_vel = -0.2;
     }
 
     desired_robot_vel.linear.x = linear_vel;

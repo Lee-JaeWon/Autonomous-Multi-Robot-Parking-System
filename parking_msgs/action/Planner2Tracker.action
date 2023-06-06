@@ -1,0 +1,9 @@
+# goal
+nav_msgs/Path path
+int32 robotNum
+---
+# result
+bool result
+---
+# feedback
+int32 percent

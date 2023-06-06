@@ -55,23 +55,31 @@ bool QNode::init() {
 
   // Prameters //
   n.getParam("parkingNum",parkingNum);
-  n.getParam("PL0", PL[0]);
-  n.getParam("PL1", PL[1]);
-  n.getParam("PL2", PL[2]);
-  n.getParam("PL3", PL[3]);
+  n.getParam("PL_SIZE", PL_SIZE);
+
+  PL = new std::vector<double>[parkingNum];
+  std::string key = "PL";
+  for(int i=0; i<parkingNum; i++)
+  {
+    std::string paramName = key + std::to_string(i);
+    n.getParam(paramName, PL[i]);
+  }
+
   n.getParam("MainSpot",MainSpot);
+  n.getParam("InputSpot",InputSpot);
+  n.getParam("OutputSpot",OutputSpot);
   n.getParam("robot_num",robot_num);
 
   nh.getParam("map/resolution",map_resolution);
 
-  std::string baseName = "/robot";
+  std::string baseName = "/robot_";
   robot_namespace = new std::string[robot_num];
   robotPose_subsciber = new ros::Subscriber[robot_num];
   for(int i=0;i<robot_num;i++)
   {
     robot_namespace[i] = baseName + std::to_string(i+1);
-    std::string message = robot_namespace[i] + "/odom";
-    robotPose_subsciber[i] = nh.subscribe(message,1,&QNode::RobotPoseCallback,this);
+    std::string topicName = robot_namespace[i] + "/odom";
+    robotPose_subsciber[i] = nh.subscribe(topicName,1,&QNode::RobotPoseCallback,this);
   }
 
   // Publisher //
@@ -81,6 +89,7 @@ bool QNode::init() {
   // Subscriber //
   //robotPose_subsciber = nh.subscribe("odom",1,&QNode::RobotPoseCallback,this);
   parkingDone_subscriber = nh.subscribe("parking_done",1,&QNode::ParkingDoneCallback,this);
+  Sequence_subscriber = nh.subscribe("Sequence",1,&QNode::SequenceCallback, this);
 
   //Client
   client = nh.serviceClient<parking_msgs::order>("service");
@@ -91,6 +100,7 @@ bool QNode::init() {
   //ParkingData = (ParkingInfo*)malloc(sizeof(ParkingInfo) * 4);
   ParkingData = new ParkingInfo[parkingNum];
   ReadParkingData(ParkingData, parkingNum);
+
 	start();
 	return true;
 }
@@ -103,6 +113,7 @@ void QNode::print(std::list<int> const &list)
 }
 
 void QNode::run() {
+
   ros::Rate loop_rate(10);
 	while ( ros::ok() ) {
 
@@ -153,7 +164,6 @@ void QNode::ReadParkingData(ParkingInfo* ParkingData, int parkingNum)
         ParkingData[i].SetDataInit(parkingLot,status);
 
         //Push on the list of currently empty parkingLot
-        //EmptyList->push_back(parkingLot);
         EmptyList.push_back(parkingLot);
 
       }
@@ -195,6 +205,7 @@ void QNode::WriteParkingData()
   }
   writefile.close();
 
+  ReadParkingData(ParkingData, parkingNum);
 }
 
 void QNode::RobotPoseCallback(const nav_msgs::Odometry::ConstPtr &odom)
@@ -202,11 +213,15 @@ void QNode::RobotPoseCallback(const nav_msgs::Odometry::ConstPtr &odom)
   Q_EMIT RobotPose_SIGNAL(odom);
 }
 
-void QNode::ParkingDoneCallback(const std_msgs::Bool::ConstPtr &data)
+void QNode::ParkingDoneCallback(const parking_msgs::parkingDone::ConstPtr &data)
 {
   Q_EMIT ParkingDone_SIGNAL(data);
 }
 
+void QNode::SequenceCallback(const parking_msgs::Sequence::ConstPtr &seq)
+{
+  Q_EMIT Sequence_SIGNAL(seq);
+}
 
 void QNode::ParkingGoalPublsiher(std::vector<double> goal)
 {
@@ -218,5 +233,7 @@ void QNode::ParkingGoalPublsiher(std::vector<double> goal)
 
   parking_goal_publisher.publish(point);
 }
+
+
 
 }  // namespace parkingUI

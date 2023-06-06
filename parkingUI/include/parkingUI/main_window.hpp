@@ -24,6 +24,8 @@
 #include <list>
 #include "ui_main_window.h"
 #include "qnode.hpp"
+#include <QPainter>
+#include <QPaintEvent>
 
 #define RED     QColor(255,0,0)
 #define GREEN   QColor(0,255,0)
@@ -56,6 +58,16 @@ public:
       this->index = i;
     }
 
+    void paintEvent(QPaintEvent *event) override
+    {
+            QLabel::paintEvent(event);
+
+            // 테두리 그리기
+            QPainter painter(this);
+            painter.setPen(QPen(Qt::black, 1));
+            painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
+    }
+
     ParkingInfo Pdata;
 
 signals:
@@ -67,6 +79,7 @@ protected:
         emit clicked(&Pdata);
         QLabel::mousePressEvent(event);
     }
+
 };
 
 class InfoWindow : public QMainWindow
@@ -347,12 +360,11 @@ public:
   std::list<int> EmptyList;
   int parkingNum; //nums of parking lot
   ClickableLabel* PL;
+  QLabel* InputLot;
+  QLabel* OutputLot;
   InfoWindow *infoWindow = nullptr;
   NewDialog * newDialog = nullptr;
 
-
-  void SetGraphicGreen(QGraphicsView* v);
-  void SetGraphicRed(QGraphicsView* v);
   void SetLabelGreen(QLabel* l);
   void SetLabelRed(QLabel* l);
   void SetLabelGray(QLabel* l);
@@ -360,6 +372,7 @@ public:
   std::vector<double> TransXY(std::vector<double> point);
 
   void ParkingLotInit();
+  void InOutLotInit();
 
   void UpdateTargetPose(int num, float x, float y); //, QPixmap* pixmap);
 
@@ -369,7 +382,8 @@ public Q_SLOTS:
   void on_pushButton_ParkOut_clicked();
 
   void RobotPose_SLOT(nav_msgs::Odometry::ConstPtr odom);
-  void ParkingDone_SLOT(std_msgs::Bool::ConstPtr data);
+  void ParkingDone_SLOT(parking_msgs::parkingDone::ConstPtr data);
+  void Sequence_SLOT(parking_msgs::Sequence::ConstPtr seq);
 
   // Second Window에서 오는 시그널을 받는 SLOT
   void ParkingIn_SLOT(ParkingInfo* info);

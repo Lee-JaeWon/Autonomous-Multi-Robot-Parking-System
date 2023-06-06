@@ -31,6 +31,8 @@
 #include "src/ParkingInfo.cpp"
 #include <parking_msgs/order.h>
 #include <parking_msgs/carNum.h>
+#include <parking_msgs/Sequence.h>
+#include <parking_msgs/parkingDone.h>
 
 
 /*****************************************************************************
@@ -54,7 +56,8 @@ public:
 Q_SIGNALS:
   void rosShutdown();
   void RobotPose_SIGNAL(nav_msgs::Odometry::ConstPtr odom);
-  void ParkingDone_SIGNAL(std_msgs::Bool::ConstPtr data);
+  void ParkingDone_SIGNAL(parking_msgs::parkingDone::ConstPtr data);
+  void Sequence_SIGNAL(parking_msgs::Sequence::ConstPtr seq);
 
 private:
 	int init_argc;
@@ -68,6 +71,7 @@ private:
   //Subscriber
   ros::Subscriber* robotPose_subsciber;
   ros::Subscriber parkingDone_subscriber;
+  ros::Subscriber Sequence_subscriber;
 
 public:
   //Client
@@ -83,11 +87,15 @@ public:
 
   // Map data
   double map_resolution=0.05;
+  std::string map_path = "/home/hyedo/map2.png";
 
   // <Parking-Lot Coordinates >
-  std::vector<double> PL[4];
+  std::vector<double>* PL;
+  std::vector<double> PL_SIZE;
   int parkingNum;
   std::vector<double> MainSpot;
+  std::vector<double> InputSpot;
+  std::vector<double> OutputSpot;
 
   //ParkingLot Data
   ParkingInfo* ParkingData=NULL;
@@ -97,7 +105,8 @@ public:
 
   //Callback Function
   void RobotPoseCallback(const nav_msgs::Odometry::ConstPtr &odom);
-  void ParkingDoneCallback(const std_msgs::Bool::ConstPtr &data);
+  void ParkingDoneCallback(const parking_msgs::parkingDone::ConstPtr &data);
+  void SequenceCallback(const parking_msgs::Sequence::ConstPtr &seq);
 
   //Publish Function
   void ParkingGoalPublsiher(std::vector<double> goal);

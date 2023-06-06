@@ -40,7 +40,6 @@ catkin_package()
 
 #add_library(parkingUI
 #  src/ParkingInfo.cpp
-#  src/ParkingLot.cpp
 #)
 
 ##############################################################################
@@ -84,7 +83,6 @@ add_dependencies(parkingUI parkingUI)
 
 
 FIND_LIBRARY(mylib1_LIBRARIES parkingUI src/ParkingInfo.cpp)
-FIND_LIBRARY(mylib2_LIBRARIES parkingUI src/ParkingLot.cpp)
 
 target_link_libraries(parkingUI ${QT_LIBRARIES} ${catkin_LIBRARIES} ${mylib_LIBRARIES})
 install(TARGETS parkingUI RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

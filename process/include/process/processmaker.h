@@ -11,22 +11,37 @@
 #include "../../../parkingUI/src/ParkingInfo.cpp"
 #include <vector>
 #include <iostream>
+#include "actionlib/client/simple_action_client.h"
+#include "actionlib/client/action_client.h"
+#include "actionlib/client/terminal_state.h"
+#include <parking_msgs/parkingOrderAction.h>
+#include <parking_msgs/parkingDone.h>
+
 
 //Publishers
 ros::Publisher pub;
-ros::Publisher pub1;
 ros::Publisher pub_Sequence;
+ros::Publisher* pubMove; //가야하는 point 찍어주는 퍼블리셔
+ros::Publisher pub_parking_done;
 
 //Subscribers
 ros::Subscriber sub;
 
+//Service Server
 ros::ServiceServer server;
+
+//Action Client
+
 
 //variables
 ParkingInfo* ParkingData=NULL;
-std::vector<double> PL[4];
+std::vector<double>* PL;
 int parkingNum;
 std::vector<double> MainSpot;
+std::vector<double> InputSpot;
+std::vector<double> OutputSpot;
+int robot_num=3;
+std::string* robot_namespace;
 
 parking_msgs::Sequence seq;
 
