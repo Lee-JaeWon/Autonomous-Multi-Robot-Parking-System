@@ -1,0 +1,25 @@
+
+<!-- 
+Node for transform between map and base_link
+It shows the location of the robots on the map.
+
+Dir : /home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/pose_to_odom/src/posetoodom.cpp 
+-->
+
+<launch>
+    <!-- namespace -->
+    <arg name="namespace_one" default="robot_1"/>
+    <arg name="namespace_two" default="robot_2"/>
+    <arg name="namespace_thr" default="robot_3"/>
+
+    <node name="$(arg namespace_one)_pose_to_odom_node" pkg="pose_to_odom" type="pose_to_odom_node">
+        <param name="namespace" value="$(arg namespace_one)"/>
+    </node>
+    <node name="$(arg namespace_two)_pose_to_odom_node" pkg="pose_to_odom" type="pose_to_odom_node">
+        <param name="namespace" value="$(arg namespace_two)"/>
+    </node>
+    <node name="$(arg namespace_thr)_pose_to_odom_node" pkg="pose_to_odom" type="pose_to_odom_node">
+        <param name="namespace" value="$(arg namespace_thr)"/>
+    </node>
+
+</launch>

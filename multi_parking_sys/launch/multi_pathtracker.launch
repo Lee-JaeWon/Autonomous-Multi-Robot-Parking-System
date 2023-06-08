@@ -1,0 +1,98 @@
+<launch>
+
+    <arg name="namespace_one" default="robot_1"/>
+    <arg name="namespace_two" default="robot_2"/>
+    <arg name="namespace_thr" default="robot_3"/>
+
+    <!-- Kanayama Tracker -->
+    <node pkg="pathTracking" type="tracker" name="$(arg namespace_one)_tracker" output="screen">
+        <param name="tracker" type="string" value="Kanayama"/>
+        <param name="k_x" type="double" value="0.4"/>
+        <param name="k_y" type="double" value="11"/>
+        <param name="timeStep" type="double" value="0.04"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_one)"/>
+    </node>
+
+    <node pkg="pathTracking" type="tracker" name="$(arg namespace_two)_tracker" output="screen">
+        <param name="tracker" type="string" value="Kanayama"/>
+        <param name="k_x" type="double" value="0.4"/>
+        <param name="k_y" type="double" value="11"/>
+        <param name="timeStep" type="double" value="0.04"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_two)"/>
+    </node>
+
+    <node pkg="pathTracking" type="tracker" name="$(arg namespace_thr)_tracker" output="screen">
+        <param name="tracker" type="string" value="Kanayama"/>
+        <param name="k_x" type="double" value="0.4"/>
+        <param name="k_y" type="double" value="11"/>
+        <param name="timeStep" type="double" value="0.04"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_thr)"/>
+    </node>
+
+    <!-- 
+    <node pkg="pathTracking" type="tracker" name="$(arg namespace_one)_tracker" output="screen">
+        <param name="k" type="double" value="4.0"/>
+        <param name="k2" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.2"/>
+        <param name="namespace" value="$(arg namespace_one)"/>
+        <param name="tracker" type="string" value="Stanley"/>
+    </node>
+
+    <node pkg="pathTracking" type="tracker" name="$(arg namespace_two)_tracker" output="screen">
+        <param name="k" type="double" value="4.0"/>
+        <param name="k2" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.2"/>
+        <param name="namespace" value="$(arg namespace_two)"/>
+        <param name="tracker" type="string" value="Stanley"/>
+    </node>
+
+    <node pkg="pathTracking" type="tracker" name="$(arg namespace_thr)_tracker" output="screen">
+        <param name="k" type="double" value="4.0"/>
+        <param name="k2" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.2"/>
+        <param name="namespace" value="$(arg namespace_thr)"/>
+        <param name="tracker" type="string" value="Stanley"/>
+    </node> -->
+
+     <!-- <node pkg="pathTracking" type="tracker" name="$(arg namespace_one)_tracker" output="screen">
+        <param name="tracker" type="string" value="PID"/>
+        <param name="ph" type="double" value="3.2"/>
+        <param name="ih" type="double" value="0.0"/>
+        <param name="dh" type="double" value="1.3"/>
+        <param name="pc" type="double" value="3.5"/>
+        <param name="ic" type="double" value="0.0"/>
+        <param name="dc" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.1"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_one)"/>
+    </node>
+
+         <node pkg="pathTracking" type="tracker" name="$(arg namespace_two)_tracker" output="screen">
+        <param name="tracker" type="string" value="PID"/>
+        <param name="ph" type="double" value="3.2"/>
+        <param name="ih" type="double" value="0.0"/>
+        <param name="dh" type="double" value="1.3"/>
+        <param name="pc" type="double" value="3.5"/>
+        <param name="ic" type="double" value="0.0"/>
+        <param name="dc" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.1"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_two)"/>
+    </node>
+
+         <node pkg="pathTracking" type="tracker" name="$(arg namespace_thr)_tracker" output="screen">
+        <param name="tracker" type="string" value="PID"/>
+        <param name="ph" type="double" value="3.2"/>
+        <param name="ih" type="double" value="0.0"/>
+        <param name="dh" type="double" value="1.3"/>
+        <param name="pc" type="double" value="3.5"/>
+        <param name="ic" type="double" value="0.0"/>
+        <param name="dc" type="double" value="1.5"/>
+        <param name="v" type="double" value="0.1"/>
+        <param name="hz" type="int" value="33"/>
+        <param name="namespace" value="$(arg namespace_thr)"/>
+    </node> -->
+</launch>

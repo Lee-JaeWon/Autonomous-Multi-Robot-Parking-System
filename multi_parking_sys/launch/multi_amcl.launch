@@ -1,0 +1,80 @@
+<launch> 
+    <!-- namespace -->
+    <arg name="namespace_one" default="robot_1"/>
+    <arg name="namespace_two" default="robot_2"/>
+    <arg name="namespace_thr" default="robot_3"/>
+
+    <!-- pose init value -->
+    <arg name="robot_1_init_x" default="-1.0"/>
+    <arg name="robot_1_init_y" default="1.5"/>
+    <arg name="robot_1_init_a" default="0.0"/>
+
+    <arg name="robot_2_init_x" default="0.0"/>
+    <arg name="robot_2_init_y" default="1.0"/>
+    <arg name="robot_2_init_a" default="0.0"/>
+
+    <arg name="robot_3_init_x" default="0.0"/>
+    <arg name="robot_3_init_y" default="2.0"/>
+    <arg name="robot_3_init_a" default="0.0"/>
+
+    <arg name="map_file"/>
+    <param name="map_file" value="$(arg map_file)"/>
+
+    <!-- For robot_1 -->
+    <group ns = "$(arg namespace_one)">
+        <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+        <node pkg="amcl" type="amcl" name="amcl">
+            <rosparam file="$(find mul_amcl)/param/amcl_params.yaml" command="load" />
+            <param name="initial_pose_x" value="$(arg robot_1_init_x)"/>
+            <param name="initial_pose_y" value="$(arg robot_1_init_y)"/>
+            <param name="initial_pose_a" value="$(arg robot_1_init_a)"/>
+
+            <param name="odom_frame_id" value="$(arg namespace_one)/odom"/>
+            <param name="base_frame_id" value="$(arg namespace_one)/base_link"/>
+            <param name="use_map_topic" value="true"/>
+            <!-- <param name="first_map_only" value="true"/> -->
+
+            <remap from="initialpose" to="/$(arg namespace_one)/initialpose"/>
+            <remap from="scan" to="/$(arg namespace_one)/scan"/>
+        </node>
+    </group>
+
+    <!-- For robot_2 -->
+    <group ns = "$(arg namespace_two)">
+        <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+        <node pkg="amcl" type="amcl" name="amcl">
+            <rosparam file="$(find mul_amcl)/param/amcl_params.yaml" command="load" />
+            <param name="initial_pose_x" value="$(arg robot_1_init_x)"/>
+            <param name="initial_pose_y" value="$(arg robot_1_init_y)"/>
+            <param name="initial_pose_a" value="$(arg robot_1_init_a)"/>
+
+            <param name="odom_frame_id" value="$(arg namespace_two)/odom"/>
+            <param name="base_frame_id" value="$(arg namespace_two)/base_link"/>
+            <param name="use_map_topic" value="true"/>
+            <!-- <param name="first_map_only" value="true"/> -->
+
+            <remap from="initialpose" to="/$(arg namespace_two)/initialpose"/>
+            <remap from="scan" to="/$(arg namespace_two)/scan"/>
+        </node>
+    </group>
+
+    <!-- For robot_3 -->
+    <group ns = "$(arg namespace_thr)">
+        <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+        <node pkg="amcl" type="amcl" name="amcl">
+            <rosparam file="$(find mul_amcl)/param/amcl_params.yaml" command="load" />
+            <param name="initial_pose_x" value="$(arg robot_1_init_x)"/>
+            <param name="initial_pose_y" value="$(arg robot_1_init_y)"/>
+            <param name="initial_pose_a" value="$(arg robot_1_init_a)"/>
+
+            <param name="odom_frame_id" value="$(arg namespace_thr)/odom"/>
+            <param name="base_frame_id" value="$(arg namespace_thr)/base_link"/>
+            <param name="use_map_topic" value="true"/>
+            <!-- <param name="first_map_only" value="true"/> -->
+
+            <remap from="initialpose" to="/$(arg namespace_thr)/initialpose"/>
+            <remap from="scan" to="/$(arg namespace_thr)/scan"/>
+        </node>
+    </group>
+
+</launch>

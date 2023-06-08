@@ -1,0 +1,13 @@
+<launch>
+    <arg name="map_file_amcl"/>
+    <arg name="map_file_path"/>
+
+    <param name="map_file_amcl" value="$(arg map_file_amcl)"/>
+    <param name="map_file_path" value="$(arg map_file_path)"/>
+
+    <node pkg="map_server" name="map_server_amcl" type="map_server" args="$(arg map_file_amcl)"/>
+    
+    <node pkg="map_server" name="map_server_path" type="map_server" args="$(arg map_file_path)" >
+        <remap from="map" to="path_map"/>
+    </node>
+</launch>

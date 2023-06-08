@@ -1,0 +1,18 @@
+<launch>
+    <!-- namespace -->
+    <arg name="namespace_one" default="robot_1"/>
+    <arg name="namespace_two" default="robot_2"/>
+    <arg name="namespace_thr" default="robot_3"/>
+
+    <node pkg="multi_parking_sys" type="odom_node" name="$(arg namespace_one)_odom_node" output="screen">
+        <param name="namespace" value="$(arg namespace_one)"/>
+    </node>
+
+    <node pkg="multi_parking_sys" type="odom_node" name="$(arg namespace_two)_odom_node" output="screen">
+        <param name="namespace" value="$(arg namespace_two)"/>
+    </node>
+
+    <node pkg="multi_parking_sys" type="odom_node" name="$(arg namespace_thr)_odom_node" output="screen">
+        <param name="namespace" value="$(arg namespace_thr)"/>
+    </node>
+</launch>

@@ -1,0 +1,34 @@
+<launch>
+    <!-- namespace -->
+    <arg name="namespace_one" default="robot_1"/>
+    <arg name="namespace_two" default="robot_2"/>
+    <arg name="namespace_thr" default="robot_3"/>
+    
+    <!-- For robot_1 -->
+    <arg name="robot_num_" default="3"/>
+    <node pkg="astar" type="astar" name="$(arg namespace_one)_astar" output="screen">
+        <param name="Euclidean" value="true"/>
+        <param name="OccupyThresh" value="-1"/>
+        <param name="InflateRadius" value="0.125"/>
+        <param name="robot_num" value="$(arg robot_num_)"/>
+        <param name="namespace" value="$(arg namespace_one)"/>
+    </node>
+
+    <!-- For robot_2 -->
+    <node pkg="astar" type="astar" name="$(arg namespace_two)_astar" output="screen">
+        <param name="Euclidean" value="true"/>
+        <param name="OccupyThresh" value="-1"/>
+        <param name="InflateRadius" value="0.125"/>
+        <param name="robot_num" value="$(arg robot_num_)"/>
+        <param name="namespace" value="$(arg namespace_two)"/>
+    </node>
+
+    <!-- For robot_3 -->
+    <node pkg="astar" type="astar" name="$(arg namespace_thr)_astar" output="screen">
+        <param name="Euclidean" value="true"/>
+        <param name="OccupyThresh" value="-1"/>
+        <param name="InflateRadius" value="0.125"/>
+        <param name="robot_num" value="$(arg robot_num_)"/>
+        <param name="namespace" value="$(arg namespace_thr)"/>
+    </node>
+</launch>
