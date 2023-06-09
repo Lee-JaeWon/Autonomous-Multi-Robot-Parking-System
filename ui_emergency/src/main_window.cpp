@@ -46,6 +46,11 @@ namespace ui_emergency
     qnode.btnExit();
   }
 
+  void ui_emergency::MainWindow::on_btnInitPose_clicked()
+  {
+    qnode.btnInitPose();
+  }
+
   MainWindow::~MainWindow() {}
 
 } // namespace ros_qt_format

@@ -42,6 +42,7 @@ namespace ui_emergency
 		// void on_actionAbout_triggered();
 		void on_pushButton_clicked();
 		void on_btnexit_clicked();
+		void on_btnInitPose_clicked();
 
 	private:
 		Ui::MainWindowDesign ui;

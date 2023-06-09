@@ -17,6 +17,7 @@
 #include <sstream>
 #include <QApplication> // Include QApplication header
 #include <std_msgs/Bool.h>
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include "../include/ui_emergency/qnode.hpp"
 
 /*****************************************************************************
@@ -70,18 +71,43 @@ namespace ui_emergency
     ros::NodeHandle n("~");
 
     int num_of_robots = 0;
-    if (n.getParam("num_of_robots", num_of_robots))
-    {
-      ROS_INFO("UI_emer node got param: %d", num_of_robots);
-    }
+    n.getParam("num_of_robots", num_of_robots);
+    n.getParam("robot_1_init_x",robot_1_x);
+    n.getParam("robot_1_init_y",robot_1_y);
+    n.getParam("robot_1_init_a",robot_1_a);
+    n.getParam("robot_2_init_x",robot_2_x);
+    n.getParam("robot_2_init_y",robot_2_y);
+    n.getParam("robot_2_init_a",robot_2_a);
+    n.getParam("robot_3_init_x",robot_3_x);
+    n.getParam("robot_3_init_y",robot_3_y);
+    n.getParam("robot_3_init_a",robot_3_a);
+
+    ros::NodeHandle nh;
+    initpose_one = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/robot_1/initialpose", 1000);
+    initpose_two = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/robot_2/initialpose", 1000);
+    initpose_thr = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/robot_3/initialpose", 1000);
+
+    geometry_msgs::PoseWithCovarianceStamped msg_one;
+    geometry_msgs::PoseWithCovarianceStamped msg_two;
+    geometry_msgs::PoseWithCovarianceStamped msg_thr;
+    msg_one.pose.pose.position.x = robot_1_x;
+    msg_one.pose.pose.position.y = robot_1_y;
+    msg_one.pose.pose.orientation.w = 1.0;
+
+    msg_two.pose.pose.position.x = robot_2_x;
+    msg_two.pose.pose.position.y = robot_2_y;
+    msg_two.pose.pose.orientation.w = 1.0;
+
+    msg_thr.pose.pose.position.x = robot_3_x;
+    msg_thr.pose.pose.position.y = robot_3_y;
+    msg_thr.pose.pose.orientation.w = 1.0;
+
+    chatter_emer = nh.advertise<std_msgs::Bool>("/emer_flag", 1000);
 
     while (ros::ok())
     {
       ros::spinOnce();   // callback 호출
       loop_rate.sleep(); // 루프 주기
-
-      ros::NodeHandle nh;
-      chatter_emer = nh.advertise<std_msgs::Bool>("/emer_flag", 1000);
 
       if (emer_btn_flag)
       {
@@ -94,6 +120,14 @@ namespace ui_emergency
         std_msgs::Bool msg1;
         msg1.data = true;
         chatter_emer.publish(msg1);
+      }
+
+      if (poseinit_flag)
+      {
+        initpose_one.publish(msg_one);
+        initpose_two.publish(msg_two);
+        initpose_thr.publish(msg_thr);
+        poseinit_flag = false;
       }
 
       if (!ros::master::check())
@@ -118,6 +152,12 @@ namespace ui_emergency
 
     ros::shutdown();
     QApplication::quit();
+  }
+
+  void QNode::btnInitPose()
+  {
+    ROS_INFO("Robot Pose Initialize");
+    poseinit_flag = true;
   }
 
 } // namespace ui_emergency

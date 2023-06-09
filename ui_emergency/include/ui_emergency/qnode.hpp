@@ -30,8 +30,19 @@ namespace ui_emergency
     void run();
     void btnClicked();
     void btnExit();
+    void btnInitPose();
     int count = 0;
     bool emer_btn_flag = false;
+    bool poseinit_flag = false;
+    double robot_1_x;
+    double robot_1_y;
+    double robot_1_a;
+    double robot_2_x;
+    double robot_2_y;
+    double robot_2_a;
+    double robot_3_x;
+    double robot_3_y;
+    double robot_3_a;
 
   Q_SIGNALS:
     void rosShutdown();
@@ -42,7 +53,9 @@ namespace ui_emergency
 
     ros::Publisher chatter_publisher;
     ros::Publisher chatter_emer;
-
+    ros::Publisher initpose_one;
+    ros::Publisher initpose_two;
+    ros::Publisher initpose_thr;
   };
 
 } // namespace ui_emergency
