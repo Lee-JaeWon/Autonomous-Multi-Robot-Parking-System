@@ -98,8 +98,9 @@ protected:
   // 액션 이름
   std::string action_name_;
   // 액션 피드백 및 결과
-  parking_msgs::Planner2TrackerFeedback feedback_;
+//
   parking_msgs::Planner2TrackerResult result_;
+  parking_msgs::Planner2TrackerFeedback feedback_;
 public:
   // 액션 서버 초기화
   //bool start=false;
@@ -132,10 +133,17 @@ public:
     local_path = goal_.path;
     trajectiory_subscribed = true;
 
+
     while(!isSuccess) //action not done = still running
     {
-      feedback_.percent = 0;
-      as_.publishFeedback(feedback_);
+      if((int)ros::Time::now().toSec() % 5 == 0)
+      {
+        int l = goal->path.poses.size();
+        ROS_INFO("Path x : %f,  y : %f", goal->path.poses[l].pose.position.x, goal->path.poses[l].pose.position.y);
+        feedback_.percent = 0;
+        as_.publishFeedback(feedback_);
+      }
+
     }
 
     if(isSuccess) //action done

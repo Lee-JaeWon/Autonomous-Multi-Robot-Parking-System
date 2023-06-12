@@ -234,6 +234,7 @@ int main(int argc, char **argv)
           ROS_INFO("Tracking Done!!");
           meanErr = distErr / errCnt;
           ROS_INFO("mean error : %f", meanErr);
+          ROS_INFO("1");
           action_plan_to_track.isSuccess=true;
         }
       }
@@ -247,6 +248,7 @@ int main(int argc, char **argv)
            ROS_INFO("Tracking Done!!");
            start_tracking = false;
            action_plan_to_track.isSuccess=true;
+
          }
       }
 

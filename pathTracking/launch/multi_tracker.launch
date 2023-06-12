@@ -12,8 +12,8 @@
 
 
 <!--<arg name="tracker_mode" default="Stanley"/>-->
-<!--<arg name="tracker_mode" default="Kanayama"/>-->
-<arg name="tracker_mode" default="Stanley_PID"/>
+<arg name="tracker_mode" default="Kanayama"/>
+<!--<arg name="tracker_mode" default="Stanley_PID"/>-->
 
 <!-- Stanley Tracker -->
 
@@ -21,9 +21,9 @@
     <!-- For robot_1 -->
         <node pkg="pathTracking" type="tracker" name="robot1_tracker" output="screen">
         <param name="tracker" type="string" value="Kanayama"/>
-        <param name="k_x" type="double" value="6"/>
-        <param name="k_y" type="double" value="15"/>
-        <param name="timeStep" type="double" value="0.07"/>
+        <param name="k_x" type="double" value="5"/>
+        <param name="k_y" type="double" value="10"/>
+        <param name="timeStep" type="double" value="0.08"/>
         <param name="hz" type="int" value="33"/>
         <param name="namespace" value="$(arg namespace_one)"/>
         <param name="tracker" type="string" value="Kanayama"/>
@@ -32,9 +32,9 @@
     <!-- For robot_2 -->
     <node pkg="pathTracking" type="tracker" name="robot2_tracker" output="screen">
         <param name="tracker" type="string" value="Kanayama"/>
-        <param name="k_x" type="double" value="0.5"/>
-        <param name="k_y" type="double" value="15"/>
-        <param name="timeStep" type="double" value="0.1"/>
+        <param name="k_x" type="double" value="5"/>
+        <param name="k_y" type="double" value="10"/>
+        <param name="timeStep" type="double" value="0.08"/>
         <param name="hz" type="int" value="33"/>
         <param name="namespace" value="$(arg namespace_two)"/>
         <param name="tracker" type="string" value="Kanayama"/>
@@ -43,9 +43,9 @@
     <!-- For robot_3 -->
     <node pkg="pathTracking" type="tracker" name="robot3_tracker" output="screen">
         <param name="tracker" type="string" value="Kanayama"/>
-        <param name="k_x" type="double" value="0.5"/>
-        <param name="k_y" type="double" value="15"/>
-        <param name="timeStep" type="double" value="0.1"/>
+        <param name="k_x" type="double" value="5"/>
+        <param name="k_y" type="double" value="10"/>
+        <param name="timeStep" type="double" value="0.08"/>
         <param name="hz" type="int" value="33"/>
         <param name="namespace" value="$(arg namespace_three)"/>
         <param name="tracker" type="string" value="Kanayama"/>
@@ -129,7 +129,7 @@
 
 <!-- Arguments -->
 <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
-<arg name="map_file" default="$(find pathTracking)/map/map.yaml"/>
+<arg name="map_file" default="$(find map)/maps/map.yaml"/>
 <arg name="open_rviz" default="true"/>
 
 <!-- Turtlebot3 -->
@@ -151,7 +151,7 @@
 <node pkg="astar" type="astar" name="robot_1_astar" output="screen">
     <param name="Euclidean" value="true"/>
     <param name="OccupyThresh" value="-1"/>
-    <param name="InflateRadius" value="0"/>
+    <param name="InflateRadius" value="0.126"/>
     <param name="rate" value="10"/>
     <param name="robot_num" value="$(arg robot_num_)"/>
     <param name="namespace" value="$(arg namespace_one)"/>
@@ -162,7 +162,7 @@
 <node pkg="astar" type="astar" name="robot_2_astar" output="screen">
     <param name="Euclidean" value="true"/>
     <param name="OccupyThresh" value="-1"/>
-    <param name="InflateRadius" value="0"/>
+    <param name="InflateRadius" value="0.126"/>
     <param name="robot_num" value="$(arg robot_num_)"/>
     <param name="namespace" value="$(arg namespace_two)"/>
 </node>
@@ -172,7 +172,7 @@
 <node pkg="astar" type="astar" name="robot_3_astar" output="screen">
     <param name="Euclidean" value="true"/>
     <param name="OccupyThresh" value="-1"/>
-    <param name="InflateRadius" value="0"/>
+    <param name="InflateRadius" value="0.126"/>
     <param name="robot_num" value="$(arg robot_num_)"/>
     <param name="namespace" value="$(arg namespace_three)"/>
 </node>

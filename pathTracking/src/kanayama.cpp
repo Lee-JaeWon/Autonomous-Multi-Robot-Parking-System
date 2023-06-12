@@ -335,15 +335,14 @@ public:
     double linear_vel = q_r[index].linear.x * cos(error_theta) + k_x * error_x;
     double angular_vel = q_r[index].angular.z + q_r[index].linear.x * (k_y * error_y + k_theta * sin(error_theta));
 
-    std::cout << "---------------------------"
-              << "\n";
+//    std::cout << "---------------------------"  << "\n";
     //    std::cout <<"error_x      : "<<error_x<<"\n";
     //    std::cout <<"error_y      : "<<error_y<<"\n";
     //    std::cout <<"error_theta  : "<<error_theta<<"\n";
     //    std::cout <<"cos(Etheta)  : "<<cos(error_theta)<<"\n";
     //    std::cout <<"sin(Etheta)  : "<<sin(error_theta)<<"\n";
-    std::cout << "linear_vel   : " << linear_vel << "\n";
-    std::cout << "angular_vel  : " << angular_vel << "\n";
+//    std::cout << "linear_vel   : " << linear_vel << "\n";
+//    std::cout << "angular_vel  : " << angular_vel << "\n";
     //    std::cout <<"q_r[index].angular.z      : "<<q_r[index].angular.z<<"\n";
     //    std::cout <<"q_r[index].linear.x       : "<<q_r[index].linear.x<<"\n";
     //    std::cout <<"k_y * error_y             : "<<k_y * error_y<<"\n";
@@ -351,13 +350,13 @@ public:
     //    std::cout <<"k_x * error_x             : "<<k_x * error_x<<"\n";
 
     // Saturation
-    if (angular_vel >= 0.6)
+    if (angular_vel >= 1.2)
     {
-      angular_vel = 0.6;
+      angular_vel = 1.2;
     }
-    else if (angular_vel <= -0.6)
+    else if (angular_vel <= -1.2)
     {
-      angular_vel = -0.6;
+      angular_vel = -1.2;
     }
 
     if (linear_vel >= 0.2)
