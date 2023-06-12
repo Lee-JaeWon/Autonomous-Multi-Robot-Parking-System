@@ -23,7 +23,7 @@
     </include>
 
     <!-- Odometry -->
-    <include file="$(find multi_parking_sys)/launch/multi_odometry.launch" />
+    <!-- <include file="$(find multi_parking_sys)/launch/multi_odometry.launch" /> -->
 
     <!-- obstacle -->
     <arg name="open_multi_obstacle" default="false"/>
@@ -45,8 +45,27 @@
     </include>
 
     <!-- Emergency UI -->
+    <!-- pose init value -->
+    <arg name="robot_1_init_x" default="-1.0"/>
+    <arg name="robot_1_init_y" default=" 1.5"/>
+    <arg name="robot_1_init_a" default=" 0.0"/>
+    <arg name="robot_2_init_x" default=" 1.0"/>
+    <arg name="robot_2_init_y" default=" 0.0"/>
+    <arg name="robot_2_init_a" default="-3.141592"/>
+    <arg name="robot_3_init_x" default=" 1.0"/>
+    <arg name="robot_3_init_y" default="-1.0"/>
+    <arg name="robot_3_init_a" default="-3.141592"/>
     <node pkg="ui_emergency" type="ui_emergency" name="ui_emergency" output="screen">
         <param name="num_of_robots" type="int" value="3"/>
+        <param name="robot_1_init_x" value="$(arg robot_1_init_x)"/>
+        <param name="robot_1_init_y" value="$(arg robot_1_init_y)"/>
+        <param name="robot_1_init_a" value="$(arg robot_1_init_a)"/>
+        <param name="robot_2_init_x" value="$(arg robot_2_init_x)"/>
+        <param name="robot_2_init_y" value="$(arg robot_2_init_y)"/>
+        <param name="robot_2_init_a" value="$(arg robot_2_init_a)"/>
+        <param name="robot_3_init_x" value="$(arg robot_3_init_x)"/>
+        <param name="robot_3_init_y" value="$(arg robot_3_init_y)"/>
+        <param name="robot_3_init_a" value="$(arg robot_3_init_a)"/>
     </node>
 
     <!-- rviz -->

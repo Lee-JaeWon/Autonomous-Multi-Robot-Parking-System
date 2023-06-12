@@ -15,20 +15,20 @@
     </node>
 
     <!-- For robot_2 -->
-    <node pkg="astar" type="astar" name="$(arg namespace_two)_astar" output="screen">
+    <!-- <node pkg="astar" type="astar" name="$(arg namespace_two)_astar" output="screen">
         <param name="Euclidean" value="true"/>
         <param name="OccupyThresh" value="-1"/>
         <param name="InflateRadius" value="0.125"/>
         <param name="robot_num" value="$(arg robot_num_)"/>
         <param name="namespace" value="$(arg namespace_two)"/>
-    </node>
+    </node> -->
 
     <!-- For robot_3 -->
-    <node pkg="astar" type="astar" name="$(arg namespace_thr)_astar" output="screen">
+    <!-- <node pkg="astar" type="astar" name="$(arg namespace_thr)_astar" output="screen">
         <param name="Euclidean" value="true"/>
         <param name="OccupyThresh" value="-1"/>
         <param name="InflateRadius" value="0.125"/>
         <param name="robot_num" value="$(arg robot_num_)"/>
         <param name="namespace" value="$(arg namespace_thr)"/>
-    </node>
+    </node> -->
 </launch>

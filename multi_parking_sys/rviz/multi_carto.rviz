@@ -4,8 +4,6 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Global Options1
-        - /Status1
         - /Marker1/Namespaces1
         - /Marker3/Namespaces1
         - /Marker7/Namespaces1
@@ -28,7 +26,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: LaserScan
+    SyncSource: ""
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -60,7 +58,7 @@ Visualization Manager:
       Draw Behind: false
       Enabled: true
       Name: Map
-      Topic: /map
+      Topic: /robot_1/map
       Unreliable: false
       Use Timestamp: false
       Value: true
@@ -69,8 +67,6 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        map:
-          Value: true
         robot_1/base_link:
           Value: true
         robot_1/imu:
@@ -85,11 +81,15 @@ Visualization Manager:
           Value: true
         robot_2/laser:
           Value: true
+        robot_2/odom:
+          Value: true
         robot_3/base_link:
           Value: true
         robot_3/imu:
           Value: true
         robot_3/laser:
+          Value: true
+        robot_3/odom:
           Value: true
       Marker Alpha: 1
       Marker Scale: 1.2999999523162842
@@ -98,13 +98,7 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          robot_1/odom:
-            robot_1/base_link:
-              robot_1/imu:
-                {}
-              robot_1/laser:
-                {}
+        {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -357,8 +351,8 @@ Visualization Manager:
       Axes Length: 0.30000001192092896
       Axes Radius: 0.009999999776482582
       Class: rviz/PoseArray
-      Color: 255; 25; 0
-      Enabled: true
+      Color: 25; 255; 0
+      Enabled: false
       Head Length: 0.07000000029802322
       Head Radius: 0.029999999329447746
       Name: PoseArray
@@ -366,8 +360,52 @@ Visualization Manager:
       Shaft Length: 0.23000000417232513
       Shaft Radius: 0.009999999776482582
       Shape: Arrow (Flat)
-      Topic: /particlecloud
+      Topic: /robot_1/particlecloud
       Unreliable: false
+      Value: false
+    - Alpha: 1
+      Arrow Length: 0.30000001192092896
+      Axes Length: 0.30000001192092896
+      Axes Radius: 0.009999999776482582
+      Class: rviz/PoseArray
+      Color: 255; 25; 0
+      Enabled: false
+      Head Length: 0.07000000029802322
+      Head Radius: 0.029999999329447746
+      Name: PoseArray
+      Queue Size: 10
+      Shaft Length: 0.23000000417232513
+      Shaft Radius: 0.009999999776482582
+      Shape: Arrow (Flat)
+      Topic: /robot_2/particlecloud
+      Unreliable: false
+      Value: false
+    - Alpha: 1
+      Arrow Length: 0.30000001192092896
+      Axes Length: 0.30000001192092896
+      Axes Radius: 0.009999999776482582
+      Class: rviz/PoseArray
+      Color: 114; 159; 207
+      Enabled: false
+      Head Length: 0.07000000029802322
+      Head Radius: 0.029999999329447746
+      Name: PoseArray
+      Queue Size: 10
+      Shaft Length: 0.23000000417232513
+      Shaft Radius: 0.009999999776482582
+      Shape: Arrow (Flat)
+      Topic: /robot_3/particlecloud
+      Unreliable: false
+      Value: false
+    - Alpha: 0.699999988079071
+      Class: rviz/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic: /path_map
+      Unreliable: false
+      Use Timestamp: false
       Value: true
   Enabled: true
   Global Options:
@@ -420,10 +458,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 63.613399505615234
+      Scale: 158.5122528076172
       Target Frame: <Fixed Frame>
-      X: -0.40007710456848145
-      Y: -1.7159852981567383
+      X: 0.410636305809021
+      Y: -0.2708548605442047
     Saved: ~
 Window Geometry:
   Displays:
