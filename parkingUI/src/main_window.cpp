@@ -180,6 +180,19 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
     scene->addWidget(OutputLot);
 
+    LiftingLot = new QLabel;
+    LiftingLot->setPixmap(pixmap);
+    LiftingLot->setText("Lifting Lot");
+
+    point = TransXY(qnode.LiftingSpot);
+    LiftingLot->setGeometry(point.at(0),point.at(1),PARKING_WIDTH,PARKING_HEIGHT);
+
+    LiftingLot->setAlignment(AlignCenter);
+
+    SetLabelGray(LiftingLot);
+
+    scene->addWidget(LiftingLot);
+
   }
 
   // Callback robot's pose and plot
@@ -199,6 +212,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     int frameNum = odom->header.frame_id[6]-'0';
     UpdateTargetPose(frameNum,x,y);
   }
+
 
   // Callback is current parking mission done
   void MainWindow::ParkingDone_SLOT(parking_msgs::parkingDone::ConstPtr data)
