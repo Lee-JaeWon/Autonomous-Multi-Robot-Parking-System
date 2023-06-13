@@ -40,10 +40,6 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 {
   ui.setupUi(this);
   qnode.init();
-
-  QIcon appIcon("/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/parkingUI/images/parking.png");
-  this->setWindowIcon(appIcon);
-
   this->parkingNum=qnode.parkingNum;
   this->EmptyList=qnode.EmptyList;
 
@@ -137,11 +133,10 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
       std::vector<double> point = TransXY(qnode.PL[i]);
       PL[i].setGeometry(point.at(0),point.at(1),PARKING_WIDTH,PARKING_HEIGHT);
 
-      PL[i].setAlignment(AlignCenter);
+      PL[i].setAlignment(Qt::AlignHCenter | Qt::AlignTop);
 
       if(PL[i].Pdata.GetParkingStatus() == "empty") SetLabelGreen(&PL[i]);
       else SetLabelRed(&PL[i]);
-      //else SetLabelGray(&PL[i]);
       scene->addWidget(&PL[i]);
 
       connect(&PL[i], &ClickableLabel::clicked, this, &MainWindow::onParkingLabelClicked);
@@ -157,42 +152,20 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     QPixmap pixmap;
     InputLot->setPixmap(pixmap);
     InputLot->setText("Input Lot");
-
     std::vector<double> point = TransXY(qnode.InputSpot);
     InputLot->setGeometry(point.at(0),point.at(1),PARKING_WIDTH,PARKING_HEIGHT);
-
-    InputLot->setAlignment(AlignCenter);
-
+    InputLot->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     SetLabelGray(InputLot);
-
     scene->addWidget(InputLot);
 
     OutputLot = new QLabel;
     OutputLot->setPixmap(pixmap);
     OutputLot->setText("Output Lot");
-
     point = TransXY(qnode.OutputSpot);
     OutputLot->setGeometry(point.at(0),point.at(1),PARKING_WIDTH,PARKING_HEIGHT);
-
-    OutputLot->setAlignment(AlignCenter);
-
+    OutputLot->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     SetLabelGray(OutputLot);
-
     scene->addWidget(OutputLot);
-
-    LiftingLot = new QLabel;
-    LiftingLot->setPixmap(pixmap);
-    LiftingLot->setText("Lifting Lot");
-
-    point = TransXY(qnode.LiftingSpot);
-    LiftingLot->setGeometry(point.at(0),point.at(1),PARKING_WIDTH,PARKING_HEIGHT);
-
-    LiftingLot->setAlignment(AlignCenter);
-
-    SetLabelGray(LiftingLot);
-
-    scene->addWidget(LiftingLot);
-
   }
 
   // Callback robot's pose and plot
@@ -212,7 +185,6 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     int frameNum = odom->header.frame_id[6]-'0';
     UpdateTargetPose(frameNum,x,y);
   }
-
 
   // Callback is current parking mission done
   void MainWindow::ParkingDone_SLOT(parking_msgs::parkingDone::ConstPtr data)
@@ -285,7 +257,10 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
         QTableWidgetItem* itemM = new QTableWidgetItem(strM);
         ui.tableWidget->setItem(ui.tableWidget->rowCount()-1,2,itemM);
 
-
+        if(seq->miniSequence[i].process[j].condition=="Done")
+        {
+          ParkingIn_Ready();
+        }
 
         for(int k=0; k<seq->miniSequence[i].process[j].action.size(); k++)
         {
@@ -359,6 +334,9 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
           newDialog->SetInfo(info);
           newDialog->ParkingIn_ing();
 
+          SetLabelGray(&PL[index]);
+          ParkingIn_NotReady();
+
           //비어있는 주차공간list에서 현재 추자명령이 들어간 원소 삭제
           EmptyList.remove(index);
         }
@@ -408,7 +386,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     }
 
     // QGraphicsEllipseItem 생성 및 추가
-    int radius = 6;  // 반지름 설정
+    int radius = 12;  // 반지름 설정
     QGraphicsEllipseItem* ellipseItem = new QGraphicsEllipseItem(x - radius, y - radius, radius * 2, radius * 2);
     QColor color;
     switch(num%5)
@@ -447,6 +425,20 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     textItem->setPos(x-20,y+10);
     textItem->setData(0,value);
     scene->addItem(textItem);
+  }
+
+  void MainWindow::ParkingIn_Ready()
+  {
+    canPark = true;
+    ui.pushButton_ParkIn->setEnabled(true);
+    ui.pushButton_ParkIn->setText("주차하기");
+  }
+
+  void MainWindow::ParkingIn_NotReady()
+  {
+    canPark = false;
+    ui.pushButton_ParkIn->setEnabled(false);
+    ui.pushButton_ParkIn->setText("로봇 채우는중..");
   }
 
   void MainWindow::openNewWindow(ParkingInfo* info)

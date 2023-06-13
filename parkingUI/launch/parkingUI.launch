@@ -5,13 +5,12 @@
 
   <rosparam file="$(find parkingUI)/config/ParkingLotInfo.yaml" ns = "parkingUI"/>
   <rosparam file="$(find parkingUI)/config/ParkingLotInfo.yaml" ns = "processmaker"/>
-  <rosparam file="$(find map)/maps/map.yaml" ns = "map" />
+  <rosparam file="$(find parkingUI)/map/map2.yaml" ns = "map" />
 
   <!-- parkingUI -->
   <node pkg="parkingUI" type="parkingUI" name="parkingUI" output="screen">
     <param name = "robot_num" type="int" value="$(arg robot_num_)" />
-    <param name = "map_path" type="string" value= "$(find map)/maps/map.png" />
-    <param name = "file_path" type="string" value= "$(find parkingUI)/config/ParkingLotInfo.txt" />
+    <param name = "map_path" type="string" value= "/home/hyedo/map2.png" />
   </node>
 
   <!-- processmaker -->

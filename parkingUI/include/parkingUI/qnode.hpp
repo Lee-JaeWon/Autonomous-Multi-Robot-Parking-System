@@ -27,7 +27,6 @@
 #include <QStringListModel>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/PointStamped.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <std_msgs/Bool.h>
 #include "src/ParkingInfo.cpp"
 #include <parking_msgs/order.h>
@@ -35,91 +34,88 @@
 #include <parking_msgs/Sequence.h>
 #include <parking_msgs/parkingDone.h>
 
+
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
 
-namespace parkingUI
-{
+namespace parkingUI {
 
-  /*****************************************************************************
-  ** Class
-  *****************************************************************************/
+/*****************************************************************************
+** Class
+*****************************************************************************/
 
-  class QNode : public QThread
-  {
+class QNode : public QThread {
     Q_OBJECT
-  public:
-    QNode(int argc, char **argv);
-    virtual ~QNode();
-    bool init();
-    void run();
+public:
+	QNode(int argc, char** argv );
+	virtual ~QNode();
+  bool init();
+	void run();
 
-  Q_SIGNALS:
-    void rosShutdown();
-    void RobotPose_SIGNAL(nav_msgs::Odometry::ConstPtr odom);
-    void ParkingDone_SIGNAL(parking_msgs::parkingDone::ConstPtr data);
-    void Sequence_SIGNAL(parking_msgs::Sequence::ConstPtr seq);
+Q_SIGNALS:
+  void rosShutdown();
+  void RobotPose_SIGNAL(nav_msgs::Odometry::ConstPtr odom);
+  void ParkingDone_SIGNAL(parking_msgs::parkingDone::ConstPtr data);
+  void Sequence_SIGNAL(parking_msgs::Sequence::ConstPtr seq);
 
-  private:
-    int init_argc;
-    char **init_argv;
+private:
+	int init_argc;
+	char** init_argv;
 
-    // Publisher
-    ros::Publisher chatter_publisher;
-    ros::Publisher parking_goal_publisher;
+  //Publisher
+  ros::Publisher chatter_publisher;
+  ros::Publisher parking_goal_publisher;
 
-    // Subscriber
-    ros::Subscriber *robotPose_subsciber;
-    ros::Subscriber *amclPose_subsciber;
-    ros::Subscriber parkingDone_subscriber;
-    ros::Subscriber Sequence_subscriber;
 
-  public:
-    // Client
-    ros::ServiceClient client;
-    ros::ServiceClient clientCarNum;
+  //Subscriber
+  ros::Subscriber* robotPose_subsciber;
+  ros::Subscriber parkingDone_subscriber;
+  ros::Subscriber Sequence_subscriber;
 
-    // Parameters
-  public:
-    // Robot data
-    int robot_num = 3;
-    std::string *robot_namespace;
+public:
+  //Client
+  ros::ServiceClient client;
+  ros::ServiceClient clientCarNum;
 
-    // Map data
-    double map_resolution = 0.05;
-    std::string map_path = "/home/hyedo/map2.png";
-    std::string file_path = "../catkin_ws/src/parkingUI/config/ParkingLotInfo.txt";
 
-    // <Parking-Lot Coordinates >
-    std::vector<double> *PL;
-    std::vector<double> PL_SIZE;
-    int parkingNum;
-    std::vector<double> MainSpot;
-    std::vector<double> InputSpot;
-    std::vector<double> OutputSpot;
+  // Parameters
+public:
+  // Robot data
+  int robot_num=3;
+  std::string* robot_namespace;
 
-    std::vector<double> LiftingSpot;
-    std::vector<double> LiftingSpot_two;
-    std::vector<double> LiftingSpot_thr;
+  // Map data
+  double map_resolution=0.05;
+  std::string map_path = "/home/hyedo/map2.png";
 
-    // ParkingLot Data
-    ParkingInfo *ParkingData = NULL;
-    std::list<int> EmptyList;
-    void ReadParkingData(ParkingInfo *ParkingData, int parkingNum);
-    void WriteParkingData();
+  // <Parking-Lot Coordinates >
+  std::vector<double>* PL;
+  std::vector<double> PL_SIZE;
+  int parkingNum;
+  std::vector<double> MainSpot;
+  std::vector<double> InputSpot;
+  std::vector<double> OutputSpot;
 
-    // Callback Function
-    void RobotPoseCallback(const nav_msgs::Odometry::ConstPtr &odom);
-    void ParkingDoneCallback(const parking_msgs::parkingDone::ConstPtr &data);
-    void SequenceCallback(const parking_msgs::Sequence::ConstPtr &seq);
+  //ParkingLot Data
+  ParkingInfo* ParkingData=NULL;
+  std::list<int> EmptyList;
+  void ReadParkingData(ParkingInfo* ParkingData, int parkingNum);
+  void WriteParkingData();
 
-    // Publish Function
-    void ParkingGoalPublsiher(std::vector<double> goal);
+  //Callback Function
+  void RobotPoseCallback(const nav_msgs::Odometry::ConstPtr &odom);
+  void ParkingDoneCallback(const parking_msgs::parkingDone::ConstPtr &data);
+  void SequenceCallback(const parking_msgs::Sequence::ConstPtr &seq);
 
-    void print(std::list<int> const &list);
-  };
+  //Publish Function
+  void ParkingGoalPublsiher(std::vector<double> goal);
 
-} // namespace parkingUI
+  void print(std::list<int> const &list);
+
+
+};
+
+}  // namespace parkingUI
 
 #endif /* parkingUI_QNODE_HPP_ */
