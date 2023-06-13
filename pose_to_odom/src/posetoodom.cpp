@@ -2,23 +2,11 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <iostream>
+#include <tf/transform_listener.h>
 
 std::string s1 = "";
 ros::Publisher pub;
 nav_msgs::Odometry odom;
-
-void poseStampedCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
-{
-    if(s1 != ""){
-        odom.header.seq = msg->header.seq;
-        odom.header.stamp = msg->header.stamp;
-        odom.header.frame_id = s1;
-
-        odom.pose.pose.position = msg->pose.position;
-        odom.pose.pose.orientation = msg->pose.orientation;
-    }
-    
-}
 
 int main(int argc, char **argv)
 {
@@ -33,16 +21,41 @@ int main(int argc, char **argv)
     else
         ROS_ERROR("pose_to_odom node Failed to get param '%s'", s1.c_str());
 
-    std::string pub_ns_one = "/" + s1 + "/pto";
-    pub = nh.advertise<nav_msgs::Odometry>(pub_ns_one, 1000);
+    std::string pub_ns_one = "/" + s1 + "/odom_pto";
+    pub = nh.advertise<nav_msgs::Odometry>(pub_ns_one, 33);
 
     // Subscribe to the pose topic
-    ros::Subscriber sub = nh.subscribe<geometry_msgs::PoseStamped>(s1 + "/tracked_pose", 10, poseStampedCallback);
+    // ros::Subscriber sub = nh.subscribe<geometry_msgs::PoseStamped>(s1 + "/tracked_pose", 10, poseStampedCallback);
 
-    int hz = 1000;
+    std::string base_ns = s1 + "/base_link";
+    double robot_x = 0.0;
+    double robot_y = 0.0;
+
+    int hz = 33;
     ros::Rate rate(hz);
+    tf::TransformListener listener;
+    tf::StampedTransform transform;
+
     while (ros::ok())
     {
+        try
+        {
+            listener.lookupTransform("map", base_ns,
+                                     ros::Time(0), transform);
+            robot_x = transform.getOrigin().x();
+            robot_y = transform.getOrigin().y();
+        }
+        catch (tf::TransformException ex)
+        {
+            ROS_WARN("%s", ex.what());
+            ros::Duration(1.0).sleep();
+        }
+
+        odom.header.frame_id = s1+"/odom_pto";
+        odom.pose.pose.position.x = robot_x;
+        odom.pose.pose.position.y = robot_y;
+
+
         pub.publish(odom);
 
         ros::spinOnce();

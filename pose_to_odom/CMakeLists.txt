@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   trajectory_msgs
   nav_msgs
+  tf
 )
 
 
@@ -135,7 +136,7 @@ include_directories(include  ${catkin_INCLUDE_DIRS})
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/pose_to_odom_node.cpp)
 
-add_executable(pose_to_odom src/posetoodom.cpp)
+add_executable(pose_to_odom_node src/posetoodom.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -152,7 +153,7 @@ add_executable(pose_to_odom src/posetoodom.cpp)
 #   ${catkin_LIBRARIES}
 # )
 
-target_link_libraries(pose_to_odom ${catkin_LIBRARIES})
+target_link_libraries(pose_to_odom_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##
