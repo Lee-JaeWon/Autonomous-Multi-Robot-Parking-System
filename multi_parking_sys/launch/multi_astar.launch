@@ -9,7 +9,7 @@
     <node pkg="astar" type="astar" name="$(arg namespace_one)_astar" output="screen">
         <param name="Euclidean" value="true"/>
         <param name="OccupyThresh" value="-1"/>
-        <param name="InflateRadius" value="0.125"/>
+        <param name="InflateRadius" value="0.126"/>
         <param name="robot_num" value="$(arg robot_num_)"/>
         <param name="namespace" value="$(arg namespace_one)"/>
     </node>

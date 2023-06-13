@@ -5,7 +5,7 @@
     <arg name="namespace_thr" default="robot_3"/>
 
     <!-- Kanayama Tracker -->
-    <node pkg="pathTracking" type="tracker" name="$(arg namespace_one)_tracker" output="screen">
+    <node pkg="pathTracking" type="tracker" name="$(arg namespace_one)_tracker">
         <param name="tracker" type="string" value="Kanayama"/>
         <param name="k_x" type="double" value="0.4"/>
         <param name="k_y" type="double" value="11"/>
@@ -14,7 +14,7 @@
         <param name="namespace" value="$(arg namespace_one)"/>
     </node>
 
-    <node pkg="pathTracking" type="tracker" name="$(arg namespace_two)_tracker" output="screen">
+    <node pkg="pathTracking" type="tracker" name="$(arg namespace_two)_tracker">
         <param name="tracker" type="string" value="Kanayama"/>
         <param name="k_x" type="double" value="0.4"/>
         <param name="k_y" type="double" value="11"/>
@@ -23,7 +23,7 @@
         <param name="namespace" value="$(arg namespace_two)"/>
     </node>
 
-    <node pkg="pathTracking" type="tracker" name="$(arg namespace_thr)_tracker" output="screen">
+    <node pkg="pathTracking" type="tracker" name="$(arg namespace_thr)_tracker">
         <param name="tracker" type="string" value="Kanayama"/>
         <param name="k_x" type="double" value="0.4"/>
         <param name="k_y" type="double" value="11"/>

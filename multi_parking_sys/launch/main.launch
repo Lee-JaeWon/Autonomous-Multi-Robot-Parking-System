@@ -23,7 +23,7 @@
     </include>
 
     <!-- Odometry -->
-    <!-- <include file="$(find multi_parking_sys)/launch/multi_odometry.launch" /> -->
+    <include file="$(find multi_parking_sys)/launch/multi_odometry.launch" />
 
     <!-- obstacle -->
     <arg name="open_multi_obstacle" default="false"/>
@@ -53,7 +53,7 @@
     <arg name="robot_2_init_y" default=" 0.0"/>
     <arg name="robot_2_init_a" default="-3.141592"/>
     <arg name="robot_3_init_x" default=" 1.0"/>
-    <arg name="robot_3_init_y" default="-1.0"/>
+    <arg name="robot_3_init_y" default="-1.3"/>
     <arg name="robot_3_init_a" default="-3.141592"/>
     <node pkg="ui_emergency" type="ui_emergency" name="ui_emergency" output="screen">
         <param name="num_of_robots" type="int" value="3"/>
