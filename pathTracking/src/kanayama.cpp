@@ -350,22 +350,22 @@ public:
     //    std::cout <<"k_x * error_x             : "<<k_x * error_x<<"\n";
 
     // Saturation
-    if (angular_vel >= 1.2)
+    if (angular_vel >= 0.6)
     {
-      angular_vel = 1.2;
+      angular_vel = 0.6;
     }
-    else if (angular_vel <= -1.2)
+    else if (angular_vel <= -0.6)
     {
-      angular_vel = -1.2;
+      angular_vel = -0.6;
     }
 
-    if (linear_vel >= 0.2)
+    if (linear_vel >= 0.10)
     {
-      linear_vel = 0.2;
+      linear_vel = 0.10;
     }
-    else if (linear_vel <= -0.2)
+    else if (linear_vel <= -0.10)
     {
-      linear_vel = -0.2;
+      linear_vel = -0.10;
     }
 
     desired_robot_vel.linear.x = linear_vel;
