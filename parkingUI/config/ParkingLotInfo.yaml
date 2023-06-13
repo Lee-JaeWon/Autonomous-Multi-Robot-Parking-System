@@ -16,7 +16,3 @@ MainSpot: [-1.0, 1.5]
 
 OutputSpot: [0.2, 1.5]
 InputSpot: [-1.0, 1.5]
-
-LiftingSpot: [-0.82,  0.7]
-LiftingSpot_two: [-0.82,  0.05]
-LiftingSpot_thr: [-0.82, -0.60]

@@ -42,10 +42,6 @@ std::vector<double> InputSpot;
 std::vector<double> OutputSpot;
 int robot_num=3;
 std::string* robot_namespace;
-//
-std::vector<double> LiftingSpot;
-std::vector<double> LiftingSpot_two;
-std::vector<double> LiftingSpot_thr;
 
 parking_msgs::Sequence seq;
 

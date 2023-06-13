@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1680</width>
+    <width>1782</width>
     <height>1127</height>
    </rect>
   </property>
@@ -94,16 +94,6 @@
         <string>출차하기</string>
        </property>
       </widget>
-      <widget class="QListWidget" name="listWidget">
-       <property name="geometry">
-        <rect>
-         <x>1050</x>
-         <y>10</y>
-         <width>601</width>
-         <height>371</height>
-        </rect>
-       </property>
-      </widget>
       <widget class="QLabel" name="label_2">
        <property name="geometry">
         <rect>
@@ -126,9 +116,9 @@
        <property name="geometry">
         <rect>
          <x>1050</x>
-         <y>390</y>
-         <width>601</width>
-         <height>401</height>
+         <y>60</y>
+         <width>701</width>
+         <height>731</height>
         </rect>
        </property>
        <column>
@@ -192,7 +182,6 @@
       <zorder>label</zorder>
       <zorder>pushButton_ParkIn</zorder>
       <zorder>pushButton_ParkOut</zorder>
-      <zorder>listWidget</zorder>
       <zorder>label_2</zorder>
       <zorder>tableWidget</zorder>
      </widget>

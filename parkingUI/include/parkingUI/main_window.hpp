@@ -27,32 +27,32 @@
 #include <QPainter>
 #include <QPaintEvent>
 
-#define RED QColor(255, 0, 0)
-#define GREEN QColor(0, 255, 0)
-#define BLUE QColor(0, 0, 255)
-#define YELLOW QColor(255, 255, 0)
-#define CYAN QColor(0, 255, 255)
+#define RED     QColor(255,0,0)
+#define GREEN   QColor(0,255,0)
+#define BLUE    QColor(0,0,255)
+#define YELLOW  QColor(255,255,0)
+#define CYAN    QColor(0,255,255)
+
 
 /*****************************************************************************
 ** Namespace
 *****************************************************************************/
 
-namespace parkingUI
+namespace parkingUI {
+
+/*****************************************************************************
+** Interface [MainWindow]
+*****************************************************************************/
+/**
+ * @brief Qt central, all operations relating to the view part here.
+ */
+
+class ClickableLabel : public QLabel
 {
-
-  /*****************************************************************************
-  ** Interface [MainWindow]
-  *****************************************************************************/
-  /**
-   * @brief Qt central, all operations relating to the view part here.
-   */
-
-  class ClickableLabel : public QLabel
-  {
     Q_OBJECT
-  public:
-    explicit ClickableLabel(QWidget *parent = nullptr) : QLabel(parent) {}
-    int index = 0;
+public:
+    explicit ClickableLabel(QWidget* parent = nullptr) : QLabel(parent) {}
+    int index=0;
     void setIndex(int i)
     {
       this->index = i;
@@ -60,129 +60,180 @@ namespace parkingUI
 
     void paintEvent(QPaintEvent *event) override
     {
-      QLabel::paintEvent(event);
+            QLabel::paintEvent(event);
 
-      // 테두리 그리기
-      QPainter painter(this);
-      painter.setPen(QPen(Qt::black, 1));
-      painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
+            // 테두리 그리기
+            QPainter painter(this);
+            painter.setPen(QPen(Qt::black, 1));
+            painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
     }
 
     ParkingInfo Pdata;
 
-  signals:
-    void clicked(ParkingInfo *Pdata);
+signals:
+    void clicked(ParkingInfo* Pdata);
 
-  protected:
-    void mousePressEvent(QMouseEvent *event) override
+protected:
+    void mousePressEvent(QMouseEvent* event) override
     {
-      emit clicked(&Pdata);
-      QLabel::mousePressEvent(event);
+        emit clicked(&Pdata);
+        QLabel::mousePressEvent(event);
     }
-  };
+};
 
-  class InfoWindow : public QMainWindow
-  {
+class InfoWindow : public QMainWindow
+{
     Q_OBJECT
 
-  public:
+public:
     InfoWindow(QWidget *parent = nullptr) : QMainWindow(parent)
     {
-      setWindowTitle("Parkinf Information");
-      // 새 창에 내용 추가
-      QLabel *label = new QLabel("This is a new window");
-      setCentralWidget(label);
+        setWindowTitle("Parkinf Information");
+        // 새 창에 내용 추가
+        QLabel *label = new QLabel("This is a new window");
+        setCentralWidget(label);
     }
-  };
+};
 
-  class NewDialog : public QDialog
-  {
+class NewDialog : public QDialog
+{
     Q_OBJECT
 
-  public:
-    ParkingInfo *parkinginfo;
-    QWidget *parent;
-    QPalette palette;
+public:
 
-    QVBoxLayout *layout_status;
-    QLabel *label0, *label1, *label2, *label3;
+  ParkingInfo* parkinginfo;
+  QWidget* parent;
+  QPalette palette;
 
-    QHBoxLayout *layout_button;
-    QPushButton *buttonIn;
-    QPushButton *buttonOut;
-    QPushButton *buttonCancel;
+  QVBoxLayout *layout_status;
+  QLabel *label0,*label1,*label2,*label3;
 
-    QString str, str_parkinglot, str_status,
-        str_status_kor, str_carNum, str_date;
+  QHBoxLayout *layout_button;
+  QPushButton* buttonIn;
+  QPushButton* buttonOut;
+  QPushButton* buttonCancel;
 
-    // 생성자
-    explicit NewDialog(ParkingInfo *info, QWidget *parent_) : QDialog(parent)
-    {
-      this->parkinginfo = info;
-      this->parent = parent_;
+  QString str, str_parkinglot, str_status,
+          str_status_kor, str_carNum, str_date;
 
-      SetDialog();
-      SetLayout();
-      SetConnect();
-    }
+  //생성자
+  explicit NewDialog(ParkingInfo* info, QWidget* parent_) : QDialog(parent)
+  {
+    this->parkinginfo = info;
+    this->parent=parent_;
 
-  private:
-  signals:
-    void ParkingIn_SIGNAL(ParkingInfo *parkinginfo);
+    SetDialog();
+    SetLayout();
+    SetConnect();
+  }
 
-  public Q_SLOTS:
+
+private:
+
+signals:
+    void ParkingIn_SIGNAL(ParkingInfo* parkinginfo);
+
+public Q_SLOTS:
     void ButtonInClicked()
     {
+      if(label1->text() == "주차상태 : 주차중..")
+      {
+
+      }
       emit ParkingIn_SIGNAL(parkinginfo);
     }
     void ButtonOutClicked()
     {
-      // emit ParkingIn_SIGNAL(parkinginfo);
+      //emit ParkingIn_SIGNAL(parkinginfo);
     }
     void ButtonCancelClicked()
     {
+      close();
     }
 
-  public:
-    void SetInfo(ParkingInfo *info) // 외부에서 ParkingInfo 받아와서 업데이트
+public :
+
+    void SetInfo(ParkingInfo *info) //외부에서 ParkingInfo 받아와서 업데이트
     {
       this->parkinginfo = info;
-      // this->time = QDateTime::currentDateTime();
+      //this->time = QDateTime::currentDateTime();
     }
 
-    void SetBackgroundColor() // 배경색설정
+    void SetBackgroundColor() //배경색설정
     {
       std::string str = this->parkinginfo->GetParkingStatus();
-      if (str == "full")
+      if(str=="full")
       {
-        palette.setColor(QPalette::Background, QColor(255, 204, 204)); // 배경색을 빨간색으로 설정
+        palette.setColor(QPalette::Background, QColor(255,204,204)); // 배경색을 빨간색으로 설정
         this->setPalette(palette);
       }
-      else if (str == "empty")
+      else if(str=="empty")
       {
-        palette.setColor(QPalette::Background, QColor(204, 255, 204)); // 배경색을 파란색으로 설정
+        palette.setColor(QPalette::Background, QColor(204,255,204)); // 배경색을 파란색으로 설정
+        this->setPalette(palette);
+      }
+      else if(str=="parking")
+      {
+        palette.setColor(QPalette::Background, QColor(220,220,220)); // 배경색을 파란색으로 설정
         this->setPalette(palette);
       }
     }
 
     void ParkingIn_ing()
     {
-      if (parkinginfo->GetParkingStatus() == "parking")
+      if(parkinginfo->GetParkingStatus()=="parking")
       {
-        str_status_kor = "주차상태 : ";
-        str_status_kor += "주차중..";
+//        str_status_kor = "주차상태 : ";
+//        str_status_kor += "주차중..";
 
-        label1->setText(str_status_kor);
+//        label1->setText(str_status_kor);
 
-        str_carNum = "차량번호 : " + QString::fromStdString(parkinginfo->GetCarNum());
-        label2->setText(str_carNum);
+//        str_carNum = "차량번호 : " + QString::fromStdString(parkinginfo->GetCarNum());
+//        label2->setText(str_carNum);
+
+//        str_date = "주차일자 : " + QString::fromStdString(parkinginfo->StartTime());
+//        label3->setText(str_date);
+
+
+        if (layout_status != nullptr)
+            {
+                QLayoutItem* item;
+                while ((item = layout_button->takeAt(0)) != nullptr)
+                {
+                    QWidget* widget = item->widget();
+                    if (widget != nullptr)
+                    {
+                        layout_button->removeWidget(widget);
+                        delete widget;
+                    }
+                    delete item;
+                }
+                while ((item = layout_status->takeAt(0)) != nullptr)
+                {
+                    QWidget* widget = item->widget();
+                    if (widget != nullptr)
+                    {
+                        layout_status->removeWidget(widget);
+                        delete widget;
+                    }
+                    delete item;
+                }
+                delete layout_status;
+            }
+
+        //buttonIn->setEnabled(false);
+
+        SetDialog();
+        SetLayout();
+        SetConnect();
+        update();
       }
     }
 
     void ParkingIn_done()
     {
       SetBackgroundColor();
-      if (parkinginfo->GetParkingStatus() == "full")
+      if(parkinginfo->GetParkingStatus()=="full")
       {
         str_status_kor = "주차상태 : ";
         str_status_kor += "주차완료";
@@ -199,17 +250,19 @@ namespace parkingUI
 
     void ParkingOut_ing()
     {
+
     }
+
 
     void SetDialog()
     {
-      // Dialog 설정
+      //Dialog 설정
       setWindowTitle(QString::number(parkinginfo->GetParkingLot()));
-      // setGeometry(1000,1000,500,500);
-      setFixedSize(600, 600);
+      //setGeometry(1000,1000,500,500);
+      setFixedSize(600,600);
       move(parent->geometry().center() - rect().center());
 
-      // 위치고정
+      //위치고정
       setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 
       SetBackgroundColor();
@@ -224,11 +277,11 @@ namespace parkingUI
 
     void SetLayOutStatus()
     {
-      // Layout 생성
+      //Layout 생성
       layout_status = new QVBoxLayout();
       layout_status->setContentsMargins(50, 50, 50, 20);
 
-      // Label 생성
+      //Label 생성
       label0 = new QLabel();
       label1 = new QLabel();
       label2 = new QLabel();
@@ -246,19 +299,22 @@ namespace parkingUI
 
       str_status = QString::fromStdString(parkinginfo->GetParkingStatus());
       str_status_kor = "주차상태 : ";
-      if (str_status == "full")
+      if(str_status=="full")
       {
         str_status_kor += "주차불가";
+
       }
-      else if (str_status == "empty")
+      else if(str_status=="empty")
       {
         str_status_kor += "주차가능";
+
       }
-      else if (str_status == "parking")
+      else if(str_status=="parking")
       {
         str_status_kor += "주차중..";
+
       }
-      else if (str_status == "outing")
+      else if(str_status=="outing")
       {
         str_status_kor += "출차중..";
       }
@@ -278,16 +334,16 @@ namespace parkingUI
 
     void SetLayOutButton()
     {
-      // Layout 생성
+      //Layout 생성
       layout_button = new QHBoxLayout();
       layout_button->setContentsMargins(50, 50, 50, 50);
 
-      // Button 생성
+      //Button 생성
       buttonIn = new QPushButton("주차하기");
       buttonOut = new QPushButton("출차하기");
-      buttonCancel = new QPushButton("취소");
+      buttonCancel = new QPushButton("닫기");
 
-      // Style of buttons
+      //Style of buttons
       QFont font_("Arial", 20);
 
       buttonIn->setFixedSize(150, 100);
@@ -302,15 +358,17 @@ namespace parkingUI
       buttonCancel->setFont(font_);
       buttonCancel->setChecked(false);
 
-      if (str_status == "empty")
+      if(str_status=="empty")
       {
 
         layout_button->addWidget(buttonIn);
+
       }
-      else if (str_status == "full")
+      else if(str_status=="full")
       {
 
         layout_button->addWidget(buttonOut);
+
       }
 
       layout_button->addSpacing(20); // 간격 설정
@@ -320,73 +378,82 @@ namespace parkingUI
 
     void SetConnect()
     {
-      connect(buttonIn, &QPushButton::clicked, this, &NewDialog::ButtonInClicked);
-      connect(buttonOut, &QPushButton::clicked, this, &NewDialog::ButtonOutClicked);
-      connect(buttonCancel, &QPushButton::clicked, this, &NewDialog::ButtonCancelClicked);
+      connect(buttonIn,&QPushButton::clicked, this,&NewDialog::ButtonInClicked);
+      connect(buttonOut,&QPushButton::clicked, this,&NewDialog::ButtonOutClicked);
+      connect(buttonCancel,&QPushButton::clicked, this,&NewDialog::ButtonCancelClicked);
     }
-  };
+};
 
-  class MainWindow : public QMainWindow
-  {
-    Q_OBJECT
 
-  public:
-    MainWindow(int argc, char **argv, QWidget *parent = 0);
-    ~MainWindow();
+class MainWindow : public QMainWindow {
+Q_OBJECT
 
-    // Variables
-    QPixmap map_ori;
-    QPixmap map;
+public:
+	MainWindow(int argc, char** argv, QWidget *parent = 0);
+	~MainWindow();
 
-    // now Target
-    std::vector<double> parkingLotTarget;
-    QGraphicsView *parkingLotTarget_view;
-    QLabel *parkingLotTarget_label;
-    ParkingInfo *parkingLotTarget_info;
+  //Variables
+  QPixmap map_ori;
+  QPixmap map;
 
-    std::list<int> EmptyList;
-    int parkingNum; // nums of parking lot
-    ClickableLabel *PL;
-    QLabel *InputLot;
-    QLabel *OutputLot;
-    QLabel *LiftingLot;
-    InfoWindow *infoWindow = nullptr;
-    NewDialog *newDialog = nullptr;
+  //now Target
+  std::vector<double> parkingLotTarget;
+  QGraphicsView* parkingLotTarget_view;
+  QLabel* parkingLotTarget_label;
+  ParkingInfo* parkingLotTarget_info;
 
-    void SetLabelGreen(QLabel *l);
-    void SetLabelRed(QLabel *l);
-    void SetLabelGray(QLabel *l);
+  std::list<int> EmptyList;
+  int parkingNum; //nums of parking lot
+  ClickableLabel* PL;
+  QLabel* InputLot;
+  QLabel* OutputLot;
+  InfoWindow *infoWindow = nullptr;
+  NewDialog * newDialog = nullptr;
 
-    std::vector<double> TransXY(std::vector<double> point);
+  void SetLabelGreen(QLabel* l);
+  void SetLabelRed(QLabel* l);
+  void SetLabelGray(QLabel* l);
 
-    void ParkingLotInit();
-    void InOutLotInit();
+  std::vector<double> TransXY(std::vector<double> point);
 
-    void UpdateTargetPose(int num, float x, float y); //, QPixmap* pixmap);
+  void ParkingLotInit();
+  void InOutLotInit();
 
-  public Q_SLOTS:
+  void UpdateTargetPose(int num, float x, float y); //, QPixmap* pixmap);
 
-    void on_pushButton_ParkIn_clicked();
-    void on_pushButton_ParkOut_clicked();
+  void ParkingIn_Ready();
+  void ParkingIn_NotReady();
 
-    void RobotPose_SLOT(nav_msgs::Odometry::ConstPtr odom);
-    void ParkingDone_SLOT(parking_msgs::parkingDone::ConstPtr data);
-    void Sequence_SLOT(parking_msgs::Sequence::ConstPtr seq);
+  bool canPark = true;
 
-    // Second Window에서 오는 시그널을 받는 SLOT
-    void ParkingIn_SLOT(ParkingInfo *info);
+public Q_SLOTS:
 
-    // For second Window(parkinglot information)
-    void openNewWindow(ParkingInfo *info);
-    void openNewWindow(int num);
-    void onParkingLabelClicked(ParkingInfo *info);
+  void on_pushButton_ParkIn_clicked();
+  void on_pushButton_ParkOut_clicked();
 
-  private:
-    // public:
-    Ui::MainWindowDesign ui;
-    QNode qnode;
-  };
+  void RobotPose_SLOT(nav_msgs::Odometry::ConstPtr odom);
+  void ParkingDone_SLOT(parking_msgs::parkingDone::ConstPtr data);
+  void Sequence_SLOT(parking_msgs::Sequence::ConstPtr seq);
 
-} // namespace parkingUI
+  // Second Window에서 오는 시그널을 받는 SLOT
+  void ParkingIn_SLOT(ParkingInfo* info);
+
+  // For second Window(parkinglot information)
+  void openNewWindow(ParkingInfo* info);
+  void openNewWindow(int num);
+  void onParkingLabelClicked(ParkingInfo* info);
+
+
+private:
+//public:
+	Ui::MainWindowDesign ui;
+	QNode qnode;
+
+
+};
+
+}  // namespace parkingUI
+
+
 
 #endif // parkingUI_MAIN_WINDOW_H
