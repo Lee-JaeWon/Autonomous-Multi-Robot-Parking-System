@@ -18,6 +18,7 @@
 #include <QApplication> // Include QApplication header
 #include <std_msgs/Bool.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <tf/tf.h>
 #include "../include/ui_emergency/qnode.hpp"
 
 /*****************************************************************************
@@ -72,35 +73,49 @@ namespace ui_emergency
 
     int num_of_robots = 0;
     n.getParam("num_of_robots", num_of_robots);
-    n.getParam("robot_1_init_x",robot_1_x);
-    n.getParam("robot_1_init_y",robot_1_y);
-    n.getParam("robot_1_init_a",robot_1_a);
-    n.getParam("robot_2_init_x",robot_2_x);
-    n.getParam("robot_2_init_y",robot_2_y);
-    n.getParam("robot_2_init_a",robot_2_a);
-    n.getParam("robot_3_init_x",robot_3_x);
-    n.getParam("robot_3_init_y",robot_3_y);
-    n.getParam("robot_3_init_a",robot_3_a);
+    n.getParam("robot_1_init_x", robot_1_x);
+    n.getParam("robot_1_init_y", robot_1_y);
+    n.getParam("robot_1_init_a", robot_1_a);
+    n.getParam("robot_2_init_x", robot_2_x);
+    n.getParam("robot_2_init_y", robot_2_y);
+    n.getParam("robot_2_init_a", robot_2_a);
+    n.getParam("robot_3_init_x", robot_3_x);
+    n.getParam("robot_3_init_y", robot_3_y);
+    n.getParam("robot_3_init_a", robot_3_a);
 
     ros::NodeHandle nh;
     initpose_one = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/robot_1/initialpose", 1000);
     initpose_two = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/robot_2/initialpose", 1000);
     initpose_thr = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/robot_3/initialpose", 1000);
 
+    tf::Quaternion quaternion_one;
+    tf::Quaternion quaternion_two;
+    tf::Quaternion quaternion_thr;
+
+    quaternion_one.setRPY(0, 0, robot_1_a);
+    quaternion_two.setRPY(0, 0, robot_2_a);
+    quaternion_thr.setRPY(0, 0, robot_3_a);
+    quaternion_one.normalize();
+    quaternion_two.normalize();
+    quaternion_thr.normalize();
+
     geometry_msgs::PoseWithCovarianceStamped msg_one;
     geometry_msgs::PoseWithCovarianceStamped msg_two;
     geometry_msgs::PoseWithCovarianceStamped msg_thr;
     msg_one.pose.pose.position.x = robot_1_x;
     msg_one.pose.pose.position.y = robot_1_y;
-    msg_one.pose.pose.orientation.w = 1.0;
+    msg_one.pose.pose.orientation.z = quaternion_one.z();
+    msg_one.pose.pose.orientation.w = quaternion_one.w();
 
     msg_two.pose.pose.position.x = robot_2_x;
     msg_two.pose.pose.position.y = robot_2_y;
-    msg_two.pose.pose.orientation.w = 1.0;
+    msg_two.pose.pose.orientation.z = quaternion_two.z();
+    msg_two.pose.pose.orientation.w = quaternion_two.w();
 
     msg_thr.pose.pose.position.x = robot_3_x;
     msg_thr.pose.pose.position.y = robot_3_y;
-    msg_thr.pose.pose.orientation.w = 1.0;
+    msg_thr.pose.pose.orientation.z = quaternion_thr.z();
+    msg_thr.pose.pose.orientation.w = quaternion_thr.w();
 
     chatter_emer = nh.advertise<std_msgs::Bool>("/emer_flag", 1000);
 
