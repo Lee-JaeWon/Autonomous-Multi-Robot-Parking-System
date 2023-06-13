@@ -40,6 +40,10 @@ int parkingNum;
 std::vector<double> MainSpot;
 std::vector<double> InputSpot;
 std::vector<double> OutputSpot;
+
+std::vector<double> LiftingSpot;
+std::vector<double> LiftingSpot_two;
+
 int robot_num=3;
 std::string* robot_namespace;
 
