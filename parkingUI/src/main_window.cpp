@@ -43,6 +43,9 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
   this->parkingNum=qnode.parkingNum;
   this->EmptyList=qnode.EmptyList;
 
+  QIcon appIcon("/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/parkingUI/images/parking.png");
+  this->setWindowIcon(appIcon);
+
   // You have to change user's name : hyedo->???
   //QString img_path = "/home/hyedo/map.pgm";
   QString img_path = QString::fromStdString(qnode.map_path);

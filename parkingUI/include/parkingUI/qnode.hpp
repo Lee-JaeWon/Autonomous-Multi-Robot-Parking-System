@@ -87,7 +87,7 @@ public:
 
   // Map data
   double map_resolution=0.05;
-  std::string map_path = "/home/hyedo/map2.png";
+  std::string map_path = "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/map/maps/maps.png";
 
   // <Parking-Lot Coordinates >
   std::vector<double>* PL;
@@ -96,7 +96,6 @@ public:
   std::vector<double> MainSpot;
   std::vector<double> InputSpot;
   std::vector<double> OutputSpot;
-
   //ParkingLot Data
   ParkingInfo* ParkingData=NULL;
   std::list<int> EmptyList;
