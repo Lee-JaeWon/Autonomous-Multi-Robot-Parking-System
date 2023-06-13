@@ -453,7 +453,9 @@ bool odomFlag3;
 
 bool mapFlag;
 bool targetFlag;
-bool is_parking_order_result_true = false;
+bool is_parking_order_result_true_one = false;
+bool is_parking_order_result_true_two = false;
+bool is_parking_order_result_true_thr = false;
 
 // Triggers
 
@@ -593,8 +595,8 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
         }
       }
       time_diff1 = R1PathTime[R1p] - R2PathTime[R2p];
-      if (abs(time_diff1) > 10.0)
-        minDist = 100000.0;
+      // if (abs(time_diff1) > 10.0)
+      //   minDist = 100000.0;
     }
     if (!pt3.empty())
     {
@@ -602,7 +604,6 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
       {
         for (int j = 0; j < pt3.size(); j++)
         {
-
           OccGridParam.Image2MapTransform(R1PathList[i], r1pointt);
           OccGridParam.Image2MapTransform(R3PathList[j], r3pointt);
           double dst = sqrt(pow(r1pointt.x - r3pointt.x, 2) + pow(r1pointt.y - r3pointt.y, 2));
@@ -620,8 +621,8 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
     // ROS_INFO("%f %f",time_diff1 , time_diff2);
     double time_diff = min_(time_diff1, time_diff2);
     ROS_INFO("time_diff : %lf minDist : %f", time_diff, minDist);
-    if (((time_diff > 0.0) && (time_diff) < 5.0) && minDist < 0.3)
-      return abs(time_diff);
+    if (((time_diff > -26.0) && (time_diff) < 15.0) && minDist < 0.3)
+      return (time_diff);
     else
       return 0.0;
   }
@@ -648,8 +649,8 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
       }
       //
       time_diff1 = R2PathTime[R2p] - R1PathTime[R1p];
-      if (abs(time_diff1) > 10.0)
-        minDist = 100000.0;
+      // if (abs(time_diff1) > 10.0)
+      //   minDist = 100000.0;
     }
     if (!pt3.empty())
     {
@@ -674,8 +675,8 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
     double time_diff = min_(time_diff1, time_diff2);
     ROS_INFO("time_diff : %lf minDist : %f", time_diff, minDist);
 
-    if (((time_diff > 0.0) && (time_diff) < 5.0) && minDist < 0.3)
-      return abs(time_diff);
+    if (((time_diff > -26.0) && (time_diff) < 15.0) && minDist < 0.3)
+      return (time_diff);
     else
       return 0.0;
   }
@@ -701,8 +702,8 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
       }
       //
       time_diff1 = R3PathTime[R3p] - R1PathTime[R1p];
-      if (abs(time_diff1) > 10.0)
-        minDist = 100000.0;
+      // if (abs(time_diff1) > 10.0)
+      //   minDist = 100000.0;
     }
     if (!pt2.empty())
     {
@@ -727,8 +728,8 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
     }
     double time_diff = min_(time_diff1, time_diff2);
     ROS_INFO("time_diff : %lf minDist : %f", time_diff, minDist);
-    if (((time_diff > 0.0) && (time_diff) < 5.0) && minDist < 0.3)
-      return abs(time_diff);
+    if (((time_diff > -26.0) && (time_diff) < 15.0) && minDist < 0.3)
+      return (time_diff);
     else
       return 0.0;
   }
@@ -754,6 +755,7 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
   // ROS_INFO("robot1 time is : %lf ",(R1PathTime[R1p] - R1PathTime[0]));
   // ROS_INFO("robot2 time is : %lf ",(R2PathTime[R2p] - R2PathTime[0]));
   // return minT;
+  return 0;
 }
 
 //-------------------------------- Callback function ---------------------------------//
@@ -821,15 +823,36 @@ void odom3Callback(const nav_msgs::Odometry &msg)
   odomFlag3 = true;
 }
 
-void done_plan_to_track_Cb(const actionlib::SimpleClientGoalState &state, const parking_msgs::Planner2TrackerResultConstPtr &result)
+void done_plan_to_track_Cb_one(const actionlib::SimpleClientGoalState &state, const parking_msgs::Planner2TrackerResultConstPtr &result)
 {
   if (result->result)
   {
-    ROS_INFO("3 - result  recieve2");
-    is_parking_order_result_true = true;
+    // ROS_INFO("3 - result  recieve2");
+    is_parking_order_result_true_one = true;
   }
-  std::cout << "done_plan_to_track_Cb result is : " << result->result << "\n";
+  // std::cout << "done_plan_to_track_Cb result is : " << result->result << "\n";
 }
+
+void done_plan_to_track_Cb_two(const actionlib::SimpleClientGoalState &state, const parking_msgs::Planner2TrackerResultConstPtr &result)
+{
+  if (result->result)
+  {
+    // ROS_INFO("3 - result  recieve2");
+    is_parking_order_result_true_two = true;
+  }
+  // std::cout << "done_plan_to_track_Cb result is : " << result->result << "\n";
+}
+
+void done_plan_to_track_Cb_thr(const actionlib::SimpleClientGoalState &state, const parking_msgs::Planner2TrackerResultConstPtr &result)
+{
+  if (result->result)
+  {
+    // ROS_INFO("3 - result  recieve2");
+    is_parking_order_result_true_thr = true;
+  }
+  // std::cout << "done_plan_to_track_Cb result is : " << result->result << "\n";
+}
+
 void feedback_plan_to_track_Cb(const parking_msgs::Planner2TrackerFeedbackConstPtr &feedback)
 {
   // std::cout << "percent :  " << feedback->percent << "%"<< "\n";
@@ -892,11 +915,11 @@ void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int 
       path.poses.push_back(pose_stamped);
 
       if (curRobot == 1)
-        R1PathTime.push_back(Time + 0.03333 * i);
+        R1PathTime.push_back(Time + 0.05 * i);
       if (curRobot == 2)
-        R2PathTime.push_back(Time + 0.03333 * i);
+        R2PathTime.push_back(Time + 0.05 * i);
       if (curRobot == 3)
-        R3PathTime.push_back(Time + 0.03333 * i);
+        R3PathTime.push_back(Time + 0.05 * i);
     }
 
     parking_msgs::Planner2TrackerGoal goal;
@@ -907,32 +930,55 @@ void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int 
     if (curRobot == 1)
     {
       minTime = calc_path_time(R1PathList, R2PathList, R3PathList, 1);
+      
+      path_pub1.publish(path);
+      if (minTime < 0.0 && minTime > -10.0)
+        minTime = 15.0;
+      else if (minTime < -10.0)
+        minTime = 20.0;
+      else if (minTime > 0.0 && minTime < 10.0) minTime = 15.0;
       for (int t = 0; t < R1PathTime.size(); t++)
         R1PathTime[t] += minTime;
-      path_pub1.publish(path);
-      ros::Duration(minTime*1.5).sleep();
-      ac_plan2track1->sendGoal(goal, &done_plan_to_track_Cb, &activeCb, &feedback_plan_to_track_Cb);
+      ROS_INFO("Time is : %lf", minTime);
+      ros::Duration(minTime).sleep();
+      ac_plan2track1->sendGoal(goal, &done_plan_to_track_Cb_one, &activeCb, &feedback_plan_to_track_Cb);
     }
     else if (curRobot == 2)
     {
       minTime = calc_path_time(R1PathList, R2PathList, R3PathList, 2);
+
+      path_pub2.publish(path);
+      
+      if (minTime < 0.0 && minTime > -10.0)
+        minTime = 15.0;
+      else if (minTime < -10.0)
+        minTime = 20.0;
+      else if (minTime > 0.0 && minTime < 10.0) minTime = 15.0;
       for (int t = 0; t < R2PathTime.size(); t++)
         R2PathTime[t] += minTime;
-      path_pub2.publish(path);
-      ros::Duration(minTime*1.5).sleep();
-      ac_plan2track2->sendGoal(goal, &done_plan_to_track_Cb, &activeCb, &feedback_plan_to_track_Cb);
+
+      ROS_INFO("Time is : %lf", minTime);
+      ros::Duration(minTime).sleep();
+      ac_plan2track2->sendGoal(goal, &done_plan_to_track_Cb_two, &activeCb, &feedback_plan_to_track_Cb);
     }
     else if (curRobot == 3)
     {
       minTime = calc_path_time(R1PathList, R2PathList, R3PathList, 3);
+      
+      path_pub3.publish(path);
+      if (minTime < 0.0 && minTime > -10.0)
+        minTime = 15.0;
+      else if (minTime < -10.0)
+        minTime = 20.0;
+      else if (minTime > 0.0 && minTime < 10.0) minTime = 15.0;
       for (int t = 0; t < R3PathTime.size(); t++)
         R3PathTime[t] += minTime;
-      path_pub3.publish(path);
-      ros::Duration(minTime*1.5).sleep();
-      ac_plan2track3->sendGoal(goal, &done_plan_to_track_Cb, &activeCb, &feedback_plan_to_track_Cb);
+
+      ROS_INFO("Time is : %lf", minTime);
+      ros::Duration(minTime).sleep();
+      ac_plan2track3->sendGoal(goal, &done_plan_to_track_Cb_thr, &activeCb, &feedback_plan_to_track_Cb);
     }
 
-    ROS_INFO("Time is : %lf", minTime);
     double end_time = ros::Time::now().toSec();
 
     ROS_INFO("Find a valid path successfully! Use %f s", end_time - start_time);
@@ -1105,10 +1151,22 @@ int main(int argc, char **argv)
     // }
     // Wait for end result
 
-    if (is_parking_order_result_true)
+    if (is_parking_order_result_true_one)
     {
       action1.isSuccess = true;
-      is_parking_order_result_true = false;
+      is_parking_order_result_true_one = false;
+    }
+
+    if (is_parking_order_result_true_two)
+    {
+      action2.isSuccess = true;
+      is_parking_order_result_true_two = false;
+    }
+
+    if (is_parking_order_result_true_thr)
+    {
+      action3.isSuccess = true;
+      is_parking_order_result_true_thr = false;
     }
 
     ros::spinOnce();
