@@ -94,7 +94,6 @@ public:
         setCentralWidget(label);
     }
 };
-
 class NewDialog : public QDialog
 {
     Q_OBJECT
@@ -132,6 +131,7 @@ private:
 
 signals:
     void ParkingIn_SIGNAL(ParkingInfo* parkinginfo);
+    void ParkingOut_SIGNAL(ParkingInfo* parkinginfo);
 
 public Q_SLOTS:
     void ButtonInClicked()
@@ -144,7 +144,7 @@ public Q_SLOTS:
     }
     void ButtonOutClicked()
     {
-      //emit ParkingIn_SIGNAL(parkinginfo);
+      emit ParkingOut_SIGNAL(parkinginfo);
     }
     void ButtonCancelClicked()
     {
@@ -250,7 +250,59 @@ public :
 
     void ParkingOut_ing()
     {
+      if(parkinginfo->GetParkingStatus()=="parkout")
+      {
+        if (layout_status != nullptr)
+            {
+                QLayoutItem* item;
+                while ((item = layout_button->takeAt(0)) != nullptr)
+                {
+                    QWidget* widget = item->widget();
+                    if (widget != nullptr)
+                    {
+                        layout_button->removeWidget(widget);
+                        delete widget;
+                    }
+                    delete item;
+                }
+                while ((item = layout_status->takeAt(0)) != nullptr)
+                {
+                    QWidget* widget = item->widget();
+                    if (widget != nullptr)
+                    {
+                        layout_status->removeWidget(widget);
+                        delete widget;
+                    }
+                    delete item;
+                }
+                delete layout_status;
+            }
 
+        //buttonIn->setEnabled(false);
+
+        SetDialog();
+        SetLayout();
+        SetConnect();
+        update();
+      }
+    }
+
+    void ParkingOut_done()
+    {
+      SetBackgroundColor();
+      if(parkinginfo->GetParkingStatus()=="empty")
+      {
+        str_status_kor = "주차상태 : ";
+        str_status_kor += "출차완료";
+
+        label1->setText(str_status_kor);
+
+        str_carNum = "차량번호 : ";
+        label2->setText(str_carNum);
+
+        str_date = "주차일자 : ";
+        label3->setText(str_date);
+      }
     }
 
 
@@ -314,7 +366,7 @@ public :
         str_status_kor += "주차중..";
 
       }
-      else if(str_status=="outing")
+      else if(str_status=="parkout")
       {
         str_status_kor += "출차중..";
       }
@@ -323,8 +375,17 @@ public :
       str_carNum = "차량번호 : " + QString::fromStdString(parkinginfo->GetCarNum());
       label2->setText(str_carNum);
 
-      str_date = "주차일자 : " + QString::fromStdString(parkinginfo->StartTime());
-      label3->setText(str_date);
+
+      if(str_status=="parkout")
+      {
+        str_date = "출차일자 : " + QString::fromStdString(parkinginfo->StartTime());
+        label3->setText(str_date);
+      }
+      else {
+        str_date = "주차일자 : " + QString::fromStdString(parkinginfo->StartTime());
+        label3->setText(str_date);
+      }
+
 
       layout_status->addWidget(label0);
       layout_status->addWidget(label1);
@@ -402,6 +463,12 @@ public:
   QLabel* parkingLotTarget_label;
   ParkingInfo* parkingLotTarget_info;
 
+  //now Out Target
+  std::vector<double> parkoutLotTarget;
+  QGraphicsView* parkoutLotTarget_view;
+  QLabel* parkoutLotTarget_label;
+  ParkingInfo* parkoutLotTarget_info;
+
   std::list<int> EmptyList;
   int parkingNum; //nums of parking lot
   ClickableLabel* PL;
@@ -423,8 +490,11 @@ public:
 
   void ParkingIn_Ready();
   void ParkingIn_NotReady();
+  void ParkingOut_Ready();
+  void ParkingOut_NotReady();
 
   bool canPark = true;
+
 
 public Q_SLOTS:
 
@@ -433,10 +503,12 @@ public Q_SLOTS:
 
   void RobotPose_SLOT(nav_msgs::Odometry::ConstPtr odom);
   void ParkingDone_SLOT(parking_msgs::parkingDone::ConstPtr data);
+  void ParkoutDone_SLOT(parking_msgs::parkingDone::ConstPtr data);
   void Sequence_SLOT(parking_msgs::Sequence::ConstPtr seq);
 
   // Second Window에서 오는 시그널을 받는 SLOT
   void ParkingIn_SLOT(ParkingInfo* info);
+  void ParkingOut_SLOT(ParkingInfo* info);
 
   // For second Window(parkinglot information)
   void openNewWindow(ParkingInfo* info);

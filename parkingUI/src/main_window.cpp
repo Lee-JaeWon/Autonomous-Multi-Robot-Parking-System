@@ -228,6 +228,33 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 //    qnode.WriteParkingData();
   }
 
+  // Callback is current parking mission done
+  void MainWindow::ParkoutDone_SLOT(parking_msgs::parkingDone::ConstPtr data)
+  {
+    //if(!data->data) return;
+    if(data->type == "ParkOut")
+    {
+      if(data->job == "Parker")
+      {
+        if(data->parkinglot<100)
+        {
+          //출차된 공간이므로 이차제 빨간색으로 변하게함
+          SetLabelGreen(parkoutLotTarget_label);
+          parkoutLotTarget_info->SetStatus("empty");
+
+          //만약 사용자가 Dialog를 보고있다면 실시간으로 변동
+          newDialog->SetInfo(parkoutLotTarget_info);
+          newDialog->ParkingOut_done();
+
+          PL[parkoutLotTarget_info->GetParkingLot()].Pdata=*parkoutLotTarget_info;
+          qnode.ParkingData[parkoutLotTarget_info->GetParkingLot()] = *parkoutLotTarget_info;
+          qnode.WriteParkingData();
+
+        }
+      }
+    }
+  }
+
   void MainWindow::Sequence_SLOT(parking_msgs::Sequence::ConstPtr seq)
   {
     while (ui.tableWidget->rowCount() > 0) {
@@ -369,8 +396,65 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
       msgBox.setStandardButtons(QMessageBox::Ok);
       msgBox.exec();
     }
+  }
 
+  void MainWindow::ParkingOut_SLOT(ParkingInfo* info)
+  {
 
+    QMessageBox msgBox;
+    QString str1 = "본인의 차량번호가 맞습니까?";
+    QString str2 = "차량번호 : ";
+    str2 += QString::fromStdString(info->GetCarNum());
+
+    msgBox.setWindowTitle("차량번호 확인 메시지");
+    msgBox.setText(str1);
+    msgBox.setInformativeText(str2);
+    msgBox.setStandardButtons(QMessageBox::No|QMessageBox::Yes);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+    int ret = msgBox.exec();
+
+    if(ret==QMessageBox::Yes)
+    {
+      parking_msgs::order srv;
+      srv.request.order = PARKOUT;
+      srv.request.parkinglot = info->GetParkingLot();
+      srv.request.carNum = info->GetCarNum();
+
+      if(qnode.client.call(srv))
+      {
+        std::cout<<"Successed Service!!"<<"\n";
+
+        std::vector<double> target;
+        int index = info->GetParkingLot();
+        target = qnode.PL[index];
+
+        info->SetCarNum(info->GetCarNum());
+        info->SetStartTime();
+        info->SetStatus("parkout");
+
+        parkoutLotTarget_label = &PL[index];
+        parkoutLotTarget_info = info;
+        parkoutLotTarget = target;
+
+        std::cout<<"Published!!! \n";
+        newDialog->SetInfo(info);
+        newDialog->ParkingOut_ing();
+
+        SetLabelGray(&PL[index]);
+        ParkingOut_NotReady();
+
+        //비어있는 주차공간list에서 현재 추자명령이 들어간 원소 삭제
+        //EmptyList.remove(index);
+      }
+
+    }
+    else if(ret==QMessageBox::No)
+    {
+
+    }
+    else {
+
+    }
   }
 
   //Robot 위치 표시
@@ -444,6 +528,20 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     ui.pushButton_ParkIn->setText("로봇 채우는중..");
   }
 
+  void MainWindow::ParkingOut_Ready()
+  {
+    canPark = true;
+    //ui.pushButton_ParkOut->setEnabled(true);
+    ui.pushButton_ParkOut->setText("출차하기");
+  }
+
+  void MainWindow::ParkingOut_NotReady()
+  {
+    canPark = false;
+    //ui.pushButton_ParkOut->setEnabled(false);
+    ui.pushButton_ParkOut->setText("출차중..");
+  }
+
   void MainWindow::openNewWindow(ParkingInfo* info)
   {
     delete newDialog;
@@ -451,6 +549,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     //newDialog->exec();
     newDialog->show();
     connect(newDialog, &NewDialog::ParkingIn_SIGNAL, this, &MainWindow::ParkingIn_SLOT);
+    connect(newDialog, &NewDialog::ParkingOut_SIGNAL, this, &MainWindow::ParkingOut_SLOT);
   }
 
   void MainWindow::openNewWindow(int num)
@@ -459,6 +558,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     newDialog = new NewDialog(&qnode.ParkingData[num],this);
     newDialog->show();
     connect(newDialog, &NewDialog::ParkingIn_SIGNAL, this, &MainWindow::ParkingIn_SLOT);
+    connect(newDialog, &NewDialog::ParkingOut_SIGNAL, this, &MainWindow::ParkingOut_SLOT);
   }
 
   MainWindow::~MainWindow() {}
@@ -510,4 +610,21 @@ void parkingUI::MainWindow::on_pushButton_ParkIn_clicked()
 void parkingUI::MainWindow::on_pushButton_ParkOut_clicked()
 {
 
+  //임시 !!!
+
+  //출차된 공간이므로 이제 빨간색으로 변하게함
+  SetLabelGreen(parkoutLotTarget_label);
+  parkoutLotTarget_info->SetStatus("empty");
+  parkoutLotTarget_info->SetEmptyTime();
+  parkoutLotTarget_info->SetCarNum("");
+  //만약 사용자가 Dialog를 보고있다면 실시간으로 변동
+  newDialog->SetInfo(parkoutLotTarget_info);
+
+  newDialog->ParkingOut_done();
+  PL[parkoutLotTarget_info->GetParkingLot()].Pdata=*parkoutLotTarget_info;
+
+  qnode.ParkingData[parkoutLotTarget_info->GetParkingLot()] = *parkoutLotTarget_info;
+
+  qnode.WriteParkingData();
+  ParkingLotInit();
 }
