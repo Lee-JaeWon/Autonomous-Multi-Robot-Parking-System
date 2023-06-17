@@ -80,6 +80,15 @@ class ParkingInfo
       this->status=status;
     }
 
+    void SetEmptyTime()
+    {
+      this->startYear=0;
+      this->startMonth=0;
+      this->startDate=0;
+      this->startHour=0;
+      this->startMinute=0;
+    }
+
     void SetStartTime()
     {
       time_t timer;
@@ -92,15 +101,6 @@ class ParkingInfo
       this->startDate=t->tm_mday;
       this->startHour=t->tm_hour;
       this->startMinute=t->tm_min;
-
-//      QDateTime time = QDateTime::currentDateTime();
-//      this->startYear=time.date().year();
-//      this->startMonth=time.date().month();
-//      this->startDate=time.date().day();
-//      this->startHour=time.time().hour();
-//      this->startMinute=time.time().minute();
-
-
     }
 
     void SetOutTime(int Year, int Mon, int Date, int Hour, int Min)
