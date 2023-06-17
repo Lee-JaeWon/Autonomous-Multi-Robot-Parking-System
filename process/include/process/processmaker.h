@@ -55,6 +55,12 @@ parking_msgs::Sequence seq;
 
 enum {PARKIN, PARKOUT};
 
+// For parking strategy
+std::vector<bool> carList;
+std::vector<bool> paletteList;
+std::vector<int> robotList;
+
+
 //Sequence
 Sequence sequence;
 

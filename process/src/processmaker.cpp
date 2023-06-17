@@ -50,7 +50,7 @@ bool OrderCallBack(parking_msgs::order::Request &req, parking_msgs::order::Respo
   }
   else if(req.order==PARKOUT)
   {
-    sequence.OrderParkOut(req.parkinglot,req.carNum);
+    sequence.OrderParkOut(req.parkinglot, PL[req.parkinglot], req.carNum);
   }
 
   return true;
@@ -108,74 +108,127 @@ void PubAction(std::vector<int> v)
   }
 }
 
-int main(int argc, char **argv)
+void ReadParkingData(int parkingNum)
 {
+  std::string filePath = "../catkin_ws/src/parkingUI/config/ParkingLotInfo.txt";
 
-  ros::init(argc, argv, "processmaker");
-
-  ros::NodeHandle nh;
-  ros::NodeHandle n("~");
-
-  // Parameters //
-  n.getParam("parkingNum", parkingNum);
-
-  PL = new std::vector<double>[parkingNum];
-  std::string key = "PL";
-  for (int i = 0; i < parkingNum; i++)
+  //std::cout<<filePath<<"\n";
+  std::ifstream readfile(filePath);
+  if(readfile.fail())
   {
-    std::string paramName = key + std::to_string(i);
-    n.getParam(paramName, PL[i]);
+    std::cerr << "Error!" << std::endl;
   }
 
-  n.getParam("InputSpot", InputSpot);
-  n.getParam("OutputSpot", OutputSpot);
-  n.getParam("LiftingSpot", LiftingSpot);
-  n.getParam("LiftingSpot_two", LiftingSpot_two);
+  if (!readfile.eof()) {
 
-  n.getParam("MainSpot", MainSpot);
-  n.getParam("robot_num", robot_num);
+    for(int i=0; i< parkingNum; i++)
+    {
+      int parkingLot;
+      readfile >> parkingLot;
 
-  // Server //
-  server = nh.advertiseService("service", OrderCallBack);
+      std::string status;
+      readfile >> status;
 
-  // Action Client //
-  //std::vector<actionlib::SimpleActionClient<parking_msgs::parkingOrderAction> *> ac(robot_num);
+      if(status == "full")
+      {
+        std::string carInfo;
+        readfile >> carInfo;
 
-  // 각 클라이언트를 초기화
-  for (int i = 0; i < robot_num; i++)
-  {
-    std::string actionServerName = "robot_" + std::to_string(i + 1) + "/action_parking_order";
-    ac[i] = new actionlib::SimpleActionClient<parking_msgs::parkingOrderAction>(actionServerName, true);
+        int Year, Month, Date, Hour, Minute;
+        readfile >> Year;
+        readfile >> Month;
+        readfile >> Date;
+        readfile >> Hour;
+        readfile >> Minute;
+        carList.push_back(true);
+      }
+      else if(status == "empty")
+      {
+        carList.push_back(false);
+      }
+
+    }
+    carList.push_back(false);
+    carList.push_back(false);
   }
+  readfile.close();
+}
 
-  // Publisher //
-  // pub = nh.advertise<geometry_msgs::PointStamped>("clicked_point",1);
-  pub_parking_done = nh.advertise<parking_msgs::parkingDone>("parking_done", 1);
-  pub_Sequence = nh.advertise<parking_msgs::Sequence>("Sequence", 1);
-  pubMove = new ros::Publisher[robot_num];
-  robot_namespace = new std::string[robot_num];
-  std::string baseName = "/robot_";
-  for (int i = 0; i < robot_num; i++)
-  {
-    robot_namespace[i] = baseName + std::to_string(i + 1);
-    std::string topicName = robot_namespace[i] + "/move_base_simple/goal";
-    pubMove[i] = nh.advertise<geometry_msgs::PoseStamped>(topicName, 1);
-  }
 
-  // Init //
-  ParkingData = new ParkingInfo[parkingNum];
+int main(int argc, char** argv){
 
-  // Sequence //
-  sequence.SetInOutSpot(InputSpot, OutputSpot);
-  sequence.SetLiftingSpot(LiftingSpot, LiftingSpot_two);
+   ros::init(argc, argv, "processmaker");
 
-      // ac.waitForServer();
+   ros::NodeHandle nh;
+   ros::NodeHandle n("~");
 
-      ros::Rate rate(30);
-  while (ros::ok())
-  {
+   // Parameters //
+   n.getParam("parkingNum",parkingNum);
 
-    //시퀀스변동사항 있으면
+   PL = new std::vector<double>[parkingNum];
+   std::string key = "PL";
+   for(int i=0; i<parkingNum; i++)
+   {
+     std::string paramName = key + std::to_string(i);
+     n.getParam(paramName, PL[i]);
+   }
+
+   n.getParam("InputSpot", InputSpot);
+   n.getParam("OutputSpot", OutputSpot);
+
+   n.getParam("MainSpot",MainSpot);
+   n.getParam("robot_num",robot_num);
+
+   // Server //
+   server = nh.advertiseService("service",OrderCallBack);
+
+   // Action Client //
+   //std::vector<actionlib::SimpleActionClient<parking_msgs::parkingOrderAction>*> ac(robot_num);
+
+   // 각 클라이언트를 초기화 - move
+   for (int i = 0; i < robot_num; i++) {
+     std::string actionServerName = "robot_" + std::to_string(i+1) + "/action_parking_order";
+     ac[i] = new actionlib::SimpleActionClient<parking_msgs::parkingOrderAction>(actionServerName, true);
+   }
+
+   // 각 클라이언트를 초기화 -lift
+   for (int i = 0; i < robot_num; i++) {
+     std::string actionServerName = "robot_" + std::to_string(i+1) + "/action_lift_order";
+     acLift[i] = new actionlib::SimpleActionClient<parking_msgs::liftOrderAction>(actionServerName, true);
+   }
+
+   // Publisher //
+   //pub = nh.advertise<geometry_msgs::PointStamped>("clicked_point",1);
+   pub_parking_done = nh.advertise<parking_msgs::parkingDone>("parking_done",1);
+   pub_Sequence = nh.advertise<parking_msgs::Sequence>("Sequence",1);
+   pubMove = new ros::Publisher[robot_num];
+   robot_namespace = new std::string[robot_num];
+   std::string baseName = "/robot_";
+   for(int i=0; i<robot_num; i++)
+   {
+     robot_namespace[i] = baseName + std::to_string(i+1);
+     std::string topicName = robot_namespace[i] + "/move_base_simple/goal";
+     pubMove[i] = nh.advertise<geometry_msgs::PoseStamped>(topicName,1);
+   }
+
+   // Init //
+   ParkingData = new ParkingInfo[parkingNum];
+   ReadParkingData(parkingNum);
+   robotList = {0,2,3,0,0,0,1,0}; //PL0~7 + InLot + OutLot
+   paletteList = {false, true, true, true, true, true, true, false};
+
+   // Sequence //
+   sequence.SetRobotNum(robot_num);
+   sequence.SetInOutSpot(InputSpot,OutputSpot);
+   sequence.SetLists(carList, paletteList, robotList);
+   sequence.SetPL(PL);
+
+   //ac.waitForServer();
+
+   ros::Rate rate(30);
+   while (ros::ok()){
+
+     //시퀀스변동사항 있으면
      if(seq!=sequence.GetSequence())
      {
        std::cout<<"Sequence change!"<<"\n";
@@ -201,16 +254,16 @@ int main(int argc, char **argv)
 
      }
 
-    for (int i = 0; i < seq.miniSequence.size(); i++)
-    {
-      if (seq.miniSequence[i].condition == "Done")
-      {
-        // sequence.RemoveSequence();
-      }
-    }
+     for(int i=0; i<seq.miniSequence.size();i++)
+     {
+       if(seq.miniSequence[i].condition=="Done")
+       {
+         //sequence.RemoveSequence();
+       }
+     }
 
-    ros::spinOnce();
-    rate.sleep();
-  }
-  return 0;
+     ros::spinOnce();
+     rate.sleep();
+   }
+   return 0;
 };
