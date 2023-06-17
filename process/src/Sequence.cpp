@@ -18,7 +18,6 @@ private:
   std::vector<double> LiftingSpot;
   std::vector<double> LiftingSpot_two;
 
-
   int mini_seq_number = 0;
   int robot_number = 0;
   int action_number = 0;
@@ -32,6 +31,9 @@ public:
   std::list<geometry_msgs::PoseStamped> Pnt;
   std::list<std::string> orderType;
   std::list<std::vector<int>> locationList;
+  
+  std::list<std::vector<int>> *robot_stack;
+  std::list<std::vector<int>> *robot_doing;
 
   // pub message
   geometry_msgs::PoseStamped order;
@@ -63,6 +65,8 @@ public:
   void SetRobotNum(int num)
   {
     this->robot_num = num;
+    robot_stack = new std::list<std::vector<int>>[num];
+    robot_doing = new std::list<std::vector<int>>[num];
   }
 
   void SetProcessDone(int i, int j, int k)
@@ -194,6 +198,117 @@ public:
       Seq.miniSequence.erase(Seq.miniSequence.begin() + i);
     }
   }
+  
+  void Seq2Stack()
+  {
+    // 스택 갱신
+    std::list<std::vector<int>> *stack = new std::list<std::vector<int>>[robot_num];
+    for(int i=0; i<Seq.miniSequence.size();i++)
+    {
+      if (Seq.miniSequence[i].condition=="Done") continue;
+
+      bool sequenceDone = true;
+
+      for(int j=0; j<Seq.miniSequence[i].process.size();j++)
+      {
+        if (Seq.miniSequence[i].process[j].condition=="Done") continue;
+
+        //모든 명령이 Done 했는지 확인 위한 변수
+        bool processDone = true;
+
+        for(int k=0; k<Seq.miniSequence[i].process[j].action.size();k++)
+        {
+          if(Seq.miniSequence[i].process[j].action[k].condition=="NotStart")
+          {
+            std::vector<int> v;
+            v.push_back(i);
+            v.push_back(j);
+            v.push_back(k);
+
+            int rNum = Seq.miniSequence[i].process[j].robotNumber;
+            stack[rNum].push_back(v);
+            robot_stack[rNum] = stack[rNum];
+          }
+
+          if(Seq.miniSequence[i].process[j].action[k].condition!="Done")
+            processDone = false;
+        }
+
+        if(processDone)
+          Seq.miniSequence[i].process[j].condition = "Done";
+
+        if(Seq.miniSequence[i].process[j].condition!="Done")
+          sequenceDone = false;
+      }
+
+      if(sequenceDone)
+        Seq.miniSequence[i].condition = "Done";
+    }
+  }
+
+  void PopStack()
+  {
+    for(int i=0;i<robot_num;i++)
+    {
+      if(robot_doing[i].empty() && !robot_stack[i].empty())
+      {
+        robot_doing[i].push_back(robot_stack[i].front());
+        robot_stack[i].pop_front();
+      }
+    }
+  }
+
+  std::string CheckOrderStyle(int n)
+  {
+    if(!robot_doing[n].empty())
+    {
+      int i = robot_doing[n].front().at(0);
+      int j = robot_doing[n].front().at(1);
+      int k = robot_doing[n].front().at(2);
+      return Seq.miniSequence[i].process[j].action[k].action;
+    }
+    else return "None";
+  }
+
+  std::vector<int> GiveOrder(int n)
+  {
+    if(!robot_doing[n].empty())
+    {
+      int i = robot_doing[n].front().at(0);
+      int j = robot_doing[n].front().at(1);
+      int k = robot_doing[n].front().at(2);
+      Seq.miniSequence[i].condition="Working";
+      Seq.miniSequence[i].process[j].condition="Working";
+      Seq.miniSequence[i].process[j].action[k].condition="Working";
+
+      return robot_doing[n].front();
+    }
+  }
+
+  bool CheckOrderEmpty(int n)
+  {
+    if(robot_doing[n].size()==1)
+    {
+      robot_doing[n].push_back(robot_doing[n].front());
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  void SetProcessDone(int i, int j, int k, int rNum)
+  {
+    if(robot_doing[rNum].front().at(0)==i &&
+              robot_doing[rNum].front().at(1)==j &&
+                    robot_doing[rNum].front().at(2)==k)
+    {
+      Seq.miniSequence[i].process[j].action[k].condition="Done";
+      robot_doing[rNum].clear();
+    }
+  }
+
 
   void CheckSequence()
   {

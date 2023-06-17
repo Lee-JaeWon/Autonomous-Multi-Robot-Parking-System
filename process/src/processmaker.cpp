@@ -1,25 +1,40 @@
 #include "process/processmaker.h"
 
-void doneCb(const actionlib::SimpleClientGoalState &state, const parking_msgs::parkingOrderResultConstPtr &result)
+void doneMoveCb(const actionlib::SimpleClientGoalState& state,const parking_msgs::parkingOrderResultConstPtr &result)
 {
-  if (result->sequence)
+  if(result->sequence)
   {
-    std::cout << "result is True"
-              << "\n";
+    std::cout<<"result is True"<<"\n";
     int i = result->i;
     int j = result->j;
     int k = result->k;
-    parking_msgs::parkingDone msg;
-    msg.type = sequence.GetSequence().miniSequence[i].order;
-    msg.job = sequence.GetSequence().miniSequence[i].process[j].job;
-    msg.parkinglot = sequence.GetSequence().miniSequence[i].process[j].action[k].parkingLot;
-    pub_parking_done.publish(msg);
-    sequence.SetProcessDone(i, j, k);
+    int rNum = result->robotNum;
+    sequence.SetProcessDone(i, j, k, rNum);
+
+//    parking_msgs::parkingDone msg;
+//    msg.type = sequence.GetSequence().miniSequence[i].order;
+//    msg.job  = sequence.GetSequence().miniSequence[i].process[j].job;
+//    msg.parkinglot = sequence.GetSequence().miniSequence[i].process[j].action[k].parkingLot;
+//    pub_parking_done.publish(msg);
   }
-  else
+  else {
+    std::cout<<"result is False"<<"\n";
+  }
+}
+
+void doneLiftCb(const actionlib::SimpleClientGoalState& state,const parking_msgs::liftOrderResultConstPtr &result)
+{
+  if(result->sequence)
   {
-    std::cout << "result is False"
-              << "\n";
+    std::cout<<"result is True"<<"\n";
+    int i = result->i;
+    int j = result->j;
+    int k = result->k;
+    int rNum = result->robotNum;
+    sequence.SetProcessDone(i, j, k, rNum);
+  }
+  else {
+    std::cout<<"result is False"<<"\n";
   }
 }
 
@@ -28,31 +43,69 @@ bool OrderCallBack(parking_msgs::order::Request &req, parking_msgs::order::Respo
   res.accepted = true;
   res.answer = req.carNum;
 
-  // Sequence
-  if (req.order == PARKIN)
+  //Sequence
+  if(req.order==PARKIN)
   {
     sequence.OrderParkIn(req.parkinglot, PL[req.parkinglot], req.carNum);
   }
-  else if (req.order == PARKOUT)
+  else if(req.order==PARKOUT)
   {
-    sequence.OrderParkOut(req.parkinglot, req.carNum);
+    sequence.OrderParkOut(req.parkinglot,req.carNum);
   }
-
-  // ParkingGoalPublsiher(PL[(int)req.parkinglot]);
 
   return true;
 }
 
-void ParkingGoalPublsiher(std::vector<double> goal)
+// 0617
+void PubAction(std::vector<int> v)
 {
-  geometry_msgs::PoseStamped point;
-  point.header.frame_id = "map";
+  int i = v.at(0);
+  int j = v.at(1);
+  int k = v.at(2);
 
-  point.pose.position.x = goal.at(0);
-  point.pose.position.y = goal.at(1);
-  point.pose.position.z = 0.0;
+  int rNum = seq.miniSequence[i].process[j].robotNumber;
 
-  // pub.publish(point);
+  std::string type = seq.miniSequence[i].process[j].action[k].action;
+
+  if(type=="Move")
+  {
+    geometry_msgs::PoseStamped ps;
+    ps.header.frame_id = "map";
+    ps.pose.position.x = seq.miniSequence[i].process[j].action[k].x;
+    ps.pose.position.y = seq.miniSequence[i].process[j].action[k].y;
+
+    parking_msgs::parkingOrderGoal goal;
+    goal.goal = ps;
+    goal.robotNum = rNum;
+    goal.i = i;
+    goal.j = j;
+    goal.k = k;
+
+    //ac[rNumber]->waitForServer();
+    ac.at(rNum)->sendGoal(goal, &doneMoveCb);
+  }
+  else if(type=="LiftUp")
+  {
+    parking_msgs::liftOrderGoal goal;
+    goal.type = "LiftUp";
+    goal.robotNum = rNum;
+    goal.i = i;
+    goal.j = j;
+    goal.k = k;
+
+    acLift.at(rNum)->sendGoal(goal, &doneLiftCb);
+  }
+  else if(type=="LiftDown")
+  {
+    parking_msgs::liftOrderGoal goal;
+    goal.type = "LiftDown";
+    goal.robotNum = rNum;
+    goal.i = i;
+    goal.j = j;
+    goal.k = k;
+
+    acLift.at(rNum)->sendGoal(goal, &doneLiftCb);
+  }
 }
 
 int main(int argc, char **argv)
@@ -86,7 +139,7 @@ int main(int argc, char **argv)
   server = nh.advertiseService("service", OrderCallBack);
 
   // Action Client //
-  std::vector<actionlib::SimpleActionClient<parking_msgs::parkingOrderAction> *> ac(robot_num);
+  //std::vector<actionlib::SimpleActionClient<parking_msgs::parkingOrderAction> *> ac(robot_num);
 
   // 각 클라이언트를 초기화
   for (int i = 0; i < robot_num; i++)
@@ -122,42 +175,31 @@ int main(int argc, char **argv)
   while (ros::ok())
   {
 
-    if (seq != sequence.GetSequence())
-    {
-      std::cout << "Sequence change!"
-                << "\n";
-      seq = sequence.GetSequence();
-      pub_Sequence.publish(seq);
-    }
-    else
-    {
-      seq = sequence.GetSequence();
-    }
+    //시퀀스변동사항 있으면
+     if(seq!=sequence.GetSequence())
+     {
+       std::cout<<"Sequence change!"<<"\n";
+       seq = sequence.GetSequence();
+       pub_Sequence.publish(seq);
+       // 스택갱신
+       sequence.Seq2Stack();
+     }
+     else
+     {
+       seq = sequence.GetSequence();
+     }
 
-    if (sequence.IsHaveOrder() == "Move")
-    {
+     //0617 new
+     sequence.PopStack();
 
-      int robotNumber = sequence.getRobotNum();
-      geometry_msgs::PoseStamped stamp = sequence.Mover();
-      std::vector<int> vec = sequence.getLocation();
+     for(int i=0;i<robot_num;i++)
+     {
+       if(sequence.CheckOrderEmpty(i))
+       {
+         PubAction(sequence.GiveOrder(i));
+       }
 
-      parking_msgs::parkingOrderGoal goal;
-      goal.goal = stamp;
-      goal.robotNum = robotNumber;
-      goal.i = vec.at(0);
-      goal.j = vec.at(1);
-      goal.k = vec.at(2);
-
-      // ac[rNumber]->waitForServer();
-      ac.at(robotNumber)->sendGoal(goal, &doneCb);
-      // ac.at(robotNumber)->sendGoal(goal);
-    }
-    else if (sequence.IsHaveOrder() == "LiftUp")
-    {
-    }
-    else if (sequence.IsHaveOrder() == "LiftDown")
-    {
-    }
+     }
 
     for (int i = 0; i < seq.miniSequence.size(); i++)
     {

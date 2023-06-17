@@ -22,6 +22,7 @@ add_service_files(
 
 add_action_files(
   FILES
+  liftOrder.action
   parkingOrder.action
   Planner2Tracker.action
 )

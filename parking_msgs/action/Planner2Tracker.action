@@ -4,6 +4,7 @@ int32 robotNum
 ---
 # result
 bool result
+int32 robotNum
 ---
 # feedback
 int32 percent

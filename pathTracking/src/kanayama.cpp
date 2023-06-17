@@ -22,7 +22,7 @@ private:
   int hz = 33;
   double timeStep = 0.3; // 0.3sec in a node
   double k_x, k_y, k_theta;
-  int max_trajGap = 2;
+  int max_trajGap = 20; //2
 
   // Time
   double nowTime;
@@ -155,22 +155,24 @@ public:
       else
       {
         q_r[i].linear.x = sqrt((after_x - now_x) * (after_x - now_x) + (after_y - now_y) * (after_y - now_y)) * sqrt(2) / this->timeStep;
-        // q_r[i].linear.x = sqrt((after_x-now_x)*(after_x-now_x) + (after_y-now_y)*(after_y-now_y))/2*q_r[i].angular.z/sin((now_th - pre_th)/2);
+
       }
 
-      //      std::cout <<"---------------------------"<<"\n";
-      //      std::cout <<"index        : "<<i<<"\n";
-      //      std::cout <<"now_th       : "<<now_th<<"\n";
-      //      std::cout <<"pre_th       : "<<pre_th<<"\n";
       q_r[i].linear.x = 0.15;
     }
 
 
-    q_r[this->trajectory_length - 1].linear.x = 0.0;
-    q_r[this->trajectory_length - 1].angular.z = 0.0;
+//    q_r[this->trajectory_length - 1].linear.x = 0.0;
+//    q_r[this->trajectory_length - 1].angular.z = 0.0;
+    //new 0617
+    q_r[this->trajectory_length - 1].linear.x = q_r[this->trajectory_length - 2].linear.x;
+    q_r[this->trajectory_length - 1].angular.z = q_r[this->trajectory_length - 2].angular.z;
 
-    p_r[this->trajectory_length - 1].x = this->trajectory.poses[this->trajectory_length - 1].pose.position.x;
-    p_r[this->trajectory_length - 1].y = this->trajectory.poses[this->trajectory_length - 1].pose.position.x;
+//    p_r[this->trajectory_length - 1].x = this->trajectory.poses[this->trajectory_length - 1].pose.position.x;
+//    p_r[this->trajectory_length - 1].y = this->trajectory.poses[this->trajectory_length - 1].pose.position.x;
+//    p_r[this->trajectory_length - 1].theta = p_r[this->trajectory_length - 2].theta;
+    p_r[this->trajectory_length - 1].x = p_r[this->trajectory_length - 2].x;
+    p_r[this->trajectory_length - 1].y = p_r[this->trajectory_length - 2].y;
     p_r[this->trajectory_length - 1].theta = p_r[this->trajectory_length - 2].theta;
   }
 
@@ -327,9 +329,9 @@ public:
     error_y = -delta_x * sin(robot_th) + delta_y * cos(robot_th);
     error_theta = delta_theta;
 
-    if (q_r[index].linear.x < 0.1)
+    if (q_r[index].linear.x < 0.2)
     {
-      q_r[index].linear.x = 0.1;
+      q_r[index].linear.x = 0.2;
     }
 
     double linear_vel = q_r[index].linear.x * cos(error_theta) + k_x * error_x;
