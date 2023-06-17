@@ -1,5 +1,5 @@
 #goal
-geometry_msgs/PoseStamped goal
+string type
 int32 robotNum
 int32 i
 int32 j

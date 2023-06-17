@@ -21,7 +21,7 @@
     <!-- For robot_1 -->
         <node pkg="pathTracking" type="tracker" name="robot1_tracker" output="screen">
         <param name="tracker" type="string" value="Kanayama"/>
-        <param name="k_x" type="double" value="5"/>
+        <param name="k_x" type="double" value="0.1"/>
         <param name="k_y" type="double" value="10"/>
         <param name="timeStep" type="double" value="0.08"/>
         <param name="hz" type="int" value="33"/>
@@ -32,7 +32,7 @@
     <!-- For robot_2 -->
     <node pkg="pathTracking" type="tracker" name="robot2_tracker" output="screen">
         <param name="tracker" type="string" value="Kanayama"/>
-        <param name="k_x" type="double" value="5"/>
+        <param name="k_x" type="double" value="0.1"/>
         <param name="k_y" type="double" value="10"/>
         <param name="timeStep" type="double" value="0.08"/>
         <param name="hz" type="int" value="33"/>
@@ -43,7 +43,7 @@
     <!-- For robot_3 -->
     <node pkg="pathTracking" type="tracker" name="robot3_tracker" output="screen">
         <param name="tracker" type="string" value="Kanayama"/>
-        <param name="k_x" type="double" value="5"/>
+        <param name="k_x" type="double" value="0.1"/>
         <param name="k_y" type="double" value="10"/>
         <param name="timeStep" type="double" value="0.08"/>
         <param name="hz" type="int" value="33"/>

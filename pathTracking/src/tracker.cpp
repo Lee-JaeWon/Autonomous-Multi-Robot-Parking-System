@@ -234,7 +234,6 @@ int main(int argc, char **argv)
           ROS_INFO("Tracking Done!!");
           meanErr = distErr / errCnt;
           ROS_INFO("mean error : %f", meanErr);
-          ROS_INFO("1");
           action_plan_to_track.isSuccess=true;
         }
       }
@@ -283,7 +282,8 @@ int main(int argc, char **argv)
     {
       cmd_vel.linear.x = 0.0;
       cmd_vel.angular.z = 0.0;
-      pub_vel.publish(cmd_vel);
+      accelerator(cmd_vel);
+      pub_vel.publish(ref_vel);
       // pub_vel_pt.publish(cmd_vel);
     }
 

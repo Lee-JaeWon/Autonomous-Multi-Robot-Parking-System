@@ -16,6 +16,9 @@
 #include "actionlib/client/terminal_state.h"
 #include <parking_msgs/parkingOrderAction.h>
 #include <parking_msgs/parkingDone.h>
+#include <parking_msgs/liftOrderAction.h>
+
+int robot_num=3;
 
 
 //Publishers
@@ -31,6 +34,8 @@ ros::Subscriber sub;
 ros::ServiceServer server;
 
 //Action Client
+std::vector<actionlib::SimpleActionClient<parking_msgs::parkingOrderAction>*> ac(robot_num);
+std::vector<actionlib::SimpleActionClient<parking_msgs::liftOrderAction>*> acLift(robot_num);
 
 
 //variables
@@ -44,7 +49,6 @@ std::vector<double> OutputSpot;
 std::vector<double> LiftingSpot;
 std::vector<double> LiftingSpot_two;
 
-int robot_num=3;
 std::string* robot_namespace;
 
 parking_msgs::Sequence seq;
@@ -56,4 +60,5 @@ Sequence sequence;
 
 //Methods
 bool OrderCallBack(parking_msgs::order::Request &req, parking_msgs::order::Response &res);
-void ParkingGoalPublsiher(std::vector<double> goal);
+
+void PubAction(std::vector<int>);

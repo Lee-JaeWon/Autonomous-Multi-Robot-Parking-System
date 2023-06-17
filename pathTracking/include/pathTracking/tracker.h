@@ -85,6 +85,11 @@ bool velstop_flag = true;
 
 void pathCallback(const nav_msgs::Path::ConstPtr& path_);
 void tf_Listener();
+void accelerator(geometry_msgs::Twist cmd_vel)
+{
+  ref_vel.linear.x = ref_vel.linear.x + (cmd_vel.linear.x - ref_vel.linear.x)/5;
+  ref_vel.angular.z = ref_vel.angular.z + (cmd_vel.linear.z - ref_vel.angular.z)/10;
+}
 
 
 // Action Server Class - Planner2Tracker
