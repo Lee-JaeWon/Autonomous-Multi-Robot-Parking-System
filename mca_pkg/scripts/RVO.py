@@ -37,7 +37,7 @@ class get_global_map():
         self.robot_1_pose_ns = "/robot_1"
         self.robot_2_pose_ns = "/robot_2"
         self.robot_3_pose_ns = "/robot_3"
-        self.PI = pi
+      
 
         self.listener_one = tf.TransformListener()
         self.listener_two = tf.TransformListener()
@@ -109,6 +109,12 @@ class get_global_map():
         self.ws_model['robot_radius'] = 40.0
         self.robot_patch = [None]*self.num_robots
         self.goal_patch = [None]*self.num_robots
+
+        self.math = Math_calc()
+        self.PI = pi
+        self.ip = [[0] for _ in range(self.num_robots)]
+        self.op = [[0] for _ in range(self.num_robots)]
+        self.degree = [[0] for _ in range(self.num_robots)]
 
     # Map
     def mapCallback(self, data):
@@ -244,6 +250,13 @@ class get_global_map():
                     #               1550*self.V_des[i][1],
                     #               head_width=2.0, head_length=1.5, fc=cmap(i), ec=cmap(i))
 
+                for i in range(self.num_robots):
+                    self.ip[i], self.degree[i] = self.math.calc_theta(
+                        self.math.unit_vector(self.V_res[i]), self.P[i])
+                    self.op[i] = self.math.outer_product(
+                        self.math.unit_vector(self.V_res[i]), self.P[i])
+
+
                 for i in range(0, self.map_height):
                     for j in range(0, self.map_width):
                         if self.map_data[i * self.map_width + j] > 60:  # Occupied Score
@@ -258,13 +271,23 @@ class get_global_map():
 
                 if self.emer_flag is True:
                     self.robot_1_twist.linear.x = sqrt(self.V_res[0][0]**2 + self.V_res[0][1]**2)
-                    self.robot_1_twist.angular.z = self.V_pt[0][1] * 1.5
+                    if self.op[0] > 0:
+                        self.robot_1_twist.angular.z = -1 * self.degree[0]/250
+                    elif self.op[0] <= 0:
+                        self.robot_1_twist.angular.z = self.degree[0]/250
+
 
                     self.robot_2_twist.linear.x = sqrt(self.V_res[1][0]**2 + self.V_res[1][1]**2)
-                    self.robot_2_twist.angular.z = self.V_pt[1][1] * 1.5
+                    if self.op[1] > 0:
+                        self.robot_2_twist.angular.z = -1 * self.degree[1]/250
+                    elif self.op[1] <= 0:
+                        self.robot_2_twist.angular.z = self.degree[1]/250
 
                     self.robot_3_twist.linear.x = sqrt(self.V_res[2][0]**2 + self.V_res[2][1]**2)
-                    self.robot_3_twist.angular.z = self.V_pt[2][1] * 1.5
+                    if self.op[2] > 0:
+                        self.robot_3_twist.angular.z = -1 * self.degree[2]/250
+                    elif self.op[2] <= 0:
+                        self.robot_3_twist.angular.z = self.degree[2]/250
 
                     if self.robot_1_twist.linear.x >= 0.1:
                         self.robot_1_twist.linear.x = 0.1
@@ -513,6 +536,45 @@ class get_global_map():
                 else:
                     return False
 
+
+class Math_calc():
+    def __init__(self):
+        self.a = (1, 1)
+        self.b = (1, 1)
+
+    def unit_vector(self, x):
+        return (x[0] / self.dist(x), x[1] / self.dist(x))
+
+    def calc_one_vector(self, x1, x2):
+        return (x1[0] - x2[0], x1[1] - x2[1])
+
+    def dist(self, v):
+        return sqrt(v[0] ** 2 + v[1] ** 2)
+
+    def inner_product(self):
+        dist_A = self.dist(self.a)
+        dist_B = self.dist(self.b)
+        if dist_A == 0:
+            dist_A = 1.0
+        if dist_B == 0:
+            dist_B = 1.0
+        ip = self.a[0] * self.b[0] + self.a[1] * self.b[1]
+        cost = round(ip / (dist_A * dist_B), 2)
+
+        x = acos(cost)
+        deg = degrees(x)
+        return ip, deg
+
+    def calc_theta(self, a, b):
+        self.a = a
+        self.b = b
+        return self.inner_product()
+
+    def outer_product(self, a, b):
+        return np.cross(a, b)
+
+    def L2_Norm(self, x, y):
+        return sqrt((x[0] - y[0])**2 + (x[1] - y[1])**2)
 
 if __name__ == '__main__':
     _map_obj = get_global_map()

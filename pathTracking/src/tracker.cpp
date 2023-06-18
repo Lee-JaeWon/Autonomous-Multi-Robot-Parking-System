@@ -8,13 +8,11 @@
 
 // #include <pathTracking/errorData.h>
 
-std::string s;
-
 void localpathCallback(const nav_msgs::Path::ConstPtr &path_)
 {
-//  local_path = *path_;
-//  trajectiory_subscribed = true;
-//  // pub.publish(path_);
+  //  local_path = *path_;
+  //  trajectiory_subscribed = true;
+  //  // pub.publish(path_);
 }
 
 // void globalpathCallback(const nav_msgs::Path::ConstPtr &path_)
@@ -45,7 +43,7 @@ void tf_Listener(std::string map_ns, std::string baselink_ns)
   }
   catch (tf2::TransformException &ex)
   {
-    //ROS_WARN("%s", ex.what());
+    // ROS_WARN("%s", ex.what());
     tf_listened = false;
     //    ros::Duration(1.0).sleep();
     //    continue;
@@ -106,7 +104,6 @@ int main(int argc, char **argv)
   std::string action_plan_to_track_ns = s + "/action_plan_to_track";
   Planner2TrackerAction action_plan_to_track(action_plan_to_track_ns);
 
-
   std::string baselink_ns = s + "base_link";
   std::string map_ns = "map";
 
@@ -153,6 +150,9 @@ int main(int argc, char **argv)
   int errCnt = 0;
   double distErr = 0;
   double meanErr = 0;
+
+  ref_vel.linear.x = 0.0;
+  ref_vel.angular.z = 0.0;
 
   ros::Rate rate(hz);
   while (ros::ok())
@@ -215,7 +215,7 @@ int main(int argc, char **argv)
           ROS_INFO("Tracking Done!!start_tracking %d", start_tracking);
           meanErr = distErr / errCnt;
           ROS_INFO("mean error : %f", meanErr);
-          action_plan_to_track.isSuccess=true;
+          action_plan_to_track.isSuccess = true;
         }
       }
       else if (tracker_name == "Kanayama")
@@ -230,11 +230,18 @@ int main(int argc, char **argv)
 
         if (kanayama->End_trajectory())
         {
+          if(action_plan_to_track.goal_.rotation == true){
+          cmd_vel = kanayama->End_vel();
+          pub_vel.publish(cmd_vel);
+          ros::Duration(5.23).sleep();
+          cmd_vel.angular.z = 0.0;
+          pub_vel.publish(cmd_vel);
+          }
           start_tracking = false;
           ROS_INFO("Tracking Done!!");
           meanErr = distErr / errCnt;
           ROS_INFO("mean error : %f", meanErr);
-          action_plan_to_track.isSuccess=true;
+          action_plan_to_track.isSuccess = true;
         }
       }
       else if (tracker_name == "PID")
@@ -242,13 +249,12 @@ int main(int argc, char **argv)
         pid->Set_robot_pos(robot_X, robot_Y, robot_Yaw);
         cmd_vel = pid->Get_vel();
         pose_ = pid->Get_Dp();
-         if (pid->End_Tracking())
-         {
-           ROS_INFO("Tracking Done!!");
-           start_tracking = false;
-           action_plan_to_track.isSuccess=true;
-
-         }
+        if (pid->End_Tracking())
+        {
+          ROS_INFO("Tracking Done!!");
+          start_tracking = false;
+          action_plan_to_track.isSuccess = true;
+        }
       }
 
       // pub to rviz
@@ -257,6 +263,7 @@ int main(int argc, char **argv)
       pub_dp.publish(pnt);
       pub_left_traj.publish(leftTraj);
     }
+
     else
     {
       // ROS_INFO("Tracking Done!! for cmd_vel");

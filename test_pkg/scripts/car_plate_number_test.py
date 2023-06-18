@@ -11,7 +11,7 @@ from cv_bridge import CvBridge
 plt.style.use('dark_background')
 sys.path.append(os.getcwd())
 # img = cv2.imread('./images/car_plate_test5.jpg')
-img = cv2.imread('/home/hyoseok/catkin_ws/src/test_pkg/images/TEST.jpg')
+img = cv2.imread('../images/TEST.jpg')
 
 def Detection(data):
     k_cnt = 0
@@ -29,7 +29,7 @@ def Detection(data):
         return False
 
 
-def find_number(img_ori = img):
+def find_number(img_ori):
     # bridge = CvBridge()
     # # cv_image = bridge.imgmsg_to_cv2(image_message, desired_encoding='passthrough')
     # img_ori = bridge.imgmsg_to_cv2(image_msg, desired_encoding='passthrough')
@@ -377,11 +377,11 @@ def find_number(img_ori = img):
 
 
 # img = cv2.imread('./images/car_plate_test5.jpg')
-img = cv2.imread('/home/hyoseok/catkin_ws/src/test_pkg/images/car_plate_test5.jpg')
-
+img = cv2.imread('/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/test_pkg/images/car_plate.jpg')
 Number , img ,dect= find_number(img)
 print(Number)
 print(dect)
+
 
 # cv2.imshow("car_number_plate",img)
 # cv2.waitKey(0)

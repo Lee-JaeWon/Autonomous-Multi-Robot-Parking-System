@@ -222,7 +222,7 @@ class task_allocation():
             self.ax[2].plot([self.robot_pos[self.row_ind,0],self.task_pos[greedy_task,0]],[self.robot_pos[self.row_ind,1],self.task_pos[greedy_task,1]],'r--')
         self.ax[2].set_title("Greedy algorithm cost: {:.3}".format(self.greedy_total_cost))
 
-        if self.hungarian_total_cost < self.greedy_total_cost :
+        if self.hungarian_total_cost <= self.greedy_total_cost :
             self.ax[0].set_title("Hungarian algorithm is better.")
             self.fig.set_facecolor("#40CBEA")
         else:

@@ -2,7 +2,7 @@
 <launch>
   <!-- Arguments -->
   <arg name="model" default="burger"/>
-  <arg name="map_file" default="$(find turtlebot3_navigation)/maps/map2.yaml"/>
+  <arg name="map_file" default="$(find map)/maps/map.yaml"/>
 
 
   <include file="$(find turtlebot3_navigation)/launch/multi_0_turtlebot3_navigation.launch">

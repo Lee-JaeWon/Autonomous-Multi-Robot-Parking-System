@@ -41,7 +41,7 @@
     <include file="$(find multi_parking_sys)/launch/multi_pathtracker.launch" />
     
     <!-- System UI -->
-    <include file="$(find parkingUI)/launch/parkingUI.launch">
+    <include file="$(find parkingUI)/launch/parkingUI.launch" output="screen">
     </include>
 
     <!-- Emergency UI -->
@@ -49,11 +49,11 @@
     <arg name="robot_1_init_x" default="-1.0"/>
     <arg name="robot_1_init_y" default=" 1.5"/>
     <arg name="robot_1_init_a" default=" 0.0"/>
-    <arg name="robot_2_init_x" default=" 1.0"/>
-    <arg name="robot_2_init_y" default=" 0.0"/>
-    <arg name="robot_2_init_a" default="-3.141592"/>
-    <arg name="robot_3_init_x" default=" 1.0"/>
-    <arg name="robot_3_init_y" default="-1.3"/>
+    <arg name="robot_2_init_x" default="-1.1"/>
+    <arg name="robot_2_init_y" default=" 0.75"/>
+    <arg name="robot_2_init_a" default=" 0.0"/>
+    <arg name="robot_3_init_x" default=" 1.25"/>
+    <arg name="robot_3_init_y" default="-0.34"/>
     <arg name="robot_3_init_a" default="-3.141592"/>
     <node pkg="ui_emergency" type="ui_emergency" name="ui_emergency" output="screen">
         <param name="num_of_robots" type="int" value="3"/>

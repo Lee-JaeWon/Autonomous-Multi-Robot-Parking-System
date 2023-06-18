@@ -52,8 +52,10 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
   //QString img_path = "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/multi_parking_sys/map/mymap0527.pgm";
   QImage img(img_path);
 
+
   // Load Image
   map_ori = QPixmap::fromImage(img);
+
 
   // Rotate Image 90 degree (CCW)
   //map = map.transformed(QTransform().rotate(-90));
@@ -69,10 +71,12 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
   map = map_ori.scaled(MAP_RE_WIDTH,MAP_RE_HEIGHT);
 
+
   // Show map Image on graphicsView
   QGraphicsScene* scene = new QGraphicsScene;
   ui.graphicsView->setScene(scene);
   scene->addPixmap(map);
+
 
   //SIGNAL//
   qRegisterMetaType<nav_msgs::Odometry::ConstPtr>("nav_msgs::Odometry::ConstPtr");
@@ -87,6 +91,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
   //INIT
   ParkingLotInit();
   InOutLotInit();
+
 
   //Sequence 표 설정
   ui.tableWidget->setColumnCount(6);
@@ -215,54 +220,75 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
       }
     }
 
-//    //Parking된 공간이므로 이제 빨간색으로 변하게함
-//    SetLabelRed(parkingLotTarget_label);
-//    parkingLotTarget_info->SetStatus("full");
-
-//    //만약 사용자가 Dialog를 보고있다면 실시간으로 변동
-//    newDialog->SetInfo(parkingLotTarget_info);
-//    newDialog->ParkingIn_done();
-
-//    PL[parkingLotTarget_info->GetParkingLot()].Pdata=*parkingLotTarget_info;
-//    qnode.ParkingData[parkingLotTarget_info->GetParkingLot()] = *parkingLotTarget_info;
-//    qnode.WriteParkingData();
-  }
-
-  // Callback is current parking mission done
-  void MainWindow::ParkoutDone_SLOT(parking_msgs::parkingDone::ConstPtr data)
-  {
-    //if(!data->data) return;
     if(data->type == "ParkOut")
     {
       if(data->job == "Parker")
       {
         if(data->parkinglot<100)
         {
-          //출차된 공간이므로 이차제 빨간색으로 변하게함
-          SetLabelGreen(parkoutLotTarget_label);
-          parkoutLotTarget_info->SetStatus("empty");
+          on_pushButton_ParkOut_clicked();
+//          //출차된 공간이므로 이차제 빨간색으로 변하게함
+//          SetLabelGreen(parkoutLotTarget_label);
+//          parkoutLotTarget_info->SetStatus("empty");
 
-          //만약 사용자가 Dialog를 보고있다면 실시간으로 변동
-          newDialog->SetInfo(parkoutLotTarget_info);
-          newDialog->ParkingOut_done();
+//          //만약 사용자가 Dialog를 보고있다면 실시간으로 변동
+//          newDialog->SetInfo(parkoutLotTarget_info);
+//          newDialog->ParkingOut_done();
 
-          PL[parkoutLotTarget_info->GetParkingLot()].Pdata=*parkoutLotTarget_info;
-          qnode.ParkingData[parkoutLotTarget_info->GetParkingLot()] = *parkoutLotTarget_info;
-          qnode.WriteParkingData();
+//          PL[parkoutLotTarget_info->GetParkingLot()].Pdata=*parkoutLotTarget_info;
+//          qnode.ParkingData[parkoutLotTarget_info->GetParkingLot()] = *parkoutLotTarget_info;
+//          qnode.WriteParkingData();
 
         }
       }
     }
   }
 
+  // Callback is current parking mission done
+  void MainWindow::ParkoutDone_SLOT(parking_msgs::parkingDone::ConstPtr data)
+  {
+//    if(!data->data) return;
+//    if(data->type == "ParkOut")
+//    {
+//      if(data->job == "Parker")
+//      {
+//        if(data->parkinglot<100)
+//        {
+//          on_pushButton_ParkOut_clicked();
+////          //출차된 공간이므로 이차제 빨간색으로 변하게함
+////          SetLabelGreen(parkoutLotTarget_label);
+////          parkoutLotTarget_info->SetStatus("empty");
+
+////          //만약 사용자가 Dialog를 보고있다면 실시간으로 변동
+////          newDialog->SetInfo(parkoutLotTarget_info);
+////          newDialog->ParkingOut_done();
+
+////          PL[parkoutLotTarget_info->GetParkingLot()].Pdata=*parkoutLotTarget_info;
+////          qnode.ParkingData[parkoutLotTarget_info->GetParkingLot()] = *parkoutLotTarget_info;
+////          qnode.WriteParkingData();
+
+//        }
+//      }
+//    }
+  }
+
   void MainWindow::Sequence_SLOT(parking_msgs::Sequence::ConstPtr seq)
   {
+    //QScrollArea* scrollArea = new QScrollArea();
     while (ui.tableWidget->rowCount() > 0) {
         ui.tableWidget->removeRow(0);
     }
 
-    ui.tableWidget->setColumnCount(6);
+    std::cout<< "Sequence_SLOT In ";
+    ui.tableWidget->setColumnCount(8);
     ui.tableWidget->setColumnWidth(0,150);
+    ui.tableWidget->setColumnWidth(1,150);
+    ui.tableWidget->setColumnWidth(2,150);
+    ui.tableWidget->setColumnWidth(3,150);
+    ui.tableWidget->setColumnWidth(4,150);
+    ui.tableWidget->setColumnWidth(5,150);
+    ui.tableWidget->setColumnWidth(6,150);
+    ui.tableWidget->setColumnWidth(7,150);
 
     for(int i=0;i<seq->miniSequence.size();i++)
     {
@@ -310,6 +336,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
       }
 
     }
+    std::cout<< "Sequence_SLOT Out ";
   }
 
   // Second Window에서 오는 주차 실행 시그널을 받는 SLOT
@@ -609,22 +636,31 @@ void parkingUI::MainWindow::on_pushButton_ParkIn_clicked()
 
 void parkingUI::MainWindow::on_pushButton_ParkOut_clicked()
 {
-
+  int y=0;
   //임시 !!!
-
+  std::cout<<y<<"\n"; y++;
   //출차된 공간이므로 이제 빨간색으로 변하게함
   SetLabelGreen(parkoutLotTarget_label);
+  std::cout<<y<<"\n"; y++;
   parkoutLotTarget_info->SetStatus("empty");
+  std::cout<<y<<"\n"; y++;
   parkoutLotTarget_info->SetEmptyTime();
+  std::cout<<y<<"\n"; y++;
   parkoutLotTarget_info->SetCarNum("");
+  std::cout<<y<<"\n"; y++;
   //만약 사용자가 Dialog를 보고있다면 실시간으로 변동
   newDialog->SetInfo(parkoutLotTarget_info);
-
+  std::cout<<y<<"\n"; y++;
   newDialog->ParkingOut_done();
+  std::cout<<y<<"\n"; y++;
   PL[parkoutLotTarget_info->GetParkingLot()].Pdata=*parkoutLotTarget_info;
+  std::cout<<y<<"\n"; y++;
 
   qnode.ParkingData[parkoutLotTarget_info->GetParkingLot()] = *parkoutLotTarget_info;
+  std::cout<<y<<"\n"; y++;
 
   qnode.WriteParkingData();
+  std::cout<<y<<"\n"; y++;
   ParkingLotInit();
+  std::cout<<y<<"\n"; y++;
 }

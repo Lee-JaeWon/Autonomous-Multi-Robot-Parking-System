@@ -49,10 +49,14 @@ bool tf_listened = false;
 bool trajectiory_subscribed = false;
 bool start_tracking = false;
 
+std::string s; //for namespace
+
 double distError;
 double robot_X;
 double robot_Y;
 double robot_Yaw;
+
+geometry_msgs::Twist ref_vel;
 
 //Hz Paramaeter
 int hz = 33;
@@ -87,8 +91,15 @@ void pathCallback(const nav_msgs::Path::ConstPtr& path_);
 void tf_Listener();
 void accelerator(geometry_msgs::Twist cmd_vel)
 {
-  ref_vel.linear.x = ref_vel.linear.x + (cmd_vel.linear.x - ref_vel.linear.x)/5;
-  ref_vel.angular.z = ref_vel.angular.z + (cmd_vel.linear.z - ref_vel.angular.z)/10;
+//  if(ref_vel.linear.x != 0)
+//  {
+//    ref_vel.angular.z = ref_vel.angular.z + (cmd_vel.linear.z - ref_vel.angular.z)/20;
+//  }
+//  else {
+//    ref_vel = cmd_vel;
+//  }
+  //ref_vel.linear.x = ref_vel.linear.x + (cmd_vel.linear.x - ref_vel.linear.x)/5;
+  ref_vel.angular.z = ref_vel.angular.z + (cmd_vel.linear.z - ref_vel.angular.z)/20;
 }
 
 
@@ -133,6 +144,8 @@ public:
     ROS_INFO("plan to tracker action called");
     this->action_called = true;
     this->goal_ = *goal;
+    //goal_.rotation=true;
+    
 
     //글로벌 변수로 전달
     local_path = goal_.path;
@@ -155,6 +168,7 @@ public:
     {
       isSuccess = false;
       result_.result=true;
+      result_.robotNum=goal_.robotNum;
       as_.setSucceeded(result_);
     }
   }

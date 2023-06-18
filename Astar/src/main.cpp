@@ -504,36 +504,21 @@ public:
     action_called = true;
     goal_ = *goal;
 
-    // 시퀀스 vector를 초기화합니다.
-    feedback_.percent.push_back(0);
-    // start=true;
-
-    for (int i = 1; i <= goal->robotNum; i++)
-    {
-      // cancel action
-      if (as_.isPreemptRequested() || !ros::ok())
-      {
-        ROS_INFO("%s: Preempted", action_name_.c_str());
-        as_.setPreempted();
-        isSuccess = false;
-        break;
-      }
-      feedback_.percent.push_back(i);
-      as_.publishFeedback(feedback_);
-    }
-
     while (!isSuccess) // action not done = still running
     {
+      feedback_.percent=0;
+      as_.publishFeedback(feedback_);
     }
 
     if (isSuccess) // action done
     {
-      ROS_INFO("3");
+      //ROS_INFO("3");
       isSuccess = false;
       result_.sequence = true;
       result_.i = goal_.i;
       result_.j = goal_.j;
       result_.k = goal_.k;
+      result_.robotNum = goal_.robotNum;
       ROS_INFO("%s: Succeeded", action_name_.c_str());
       as_.setSucceeded(result_);
       result_.sequence = false;
@@ -897,6 +882,7 @@ void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int 
 
   if (!PathList.empty())
   {
+    ROS_INFO("path_size = %d",PathList.size());
     path.header.stamp = ros::Time::now();
     path.header.frame_id = map_ns;
     path.poses.clear();
@@ -925,6 +911,7 @@ void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int 
     parking_msgs::Planner2TrackerGoal goal;
     goal.path = path;
     goal.robotNum = goal_.robotNum;
+    goal.rotation = goal_.rotation;
     double minTime = 0.0;
 
     if (curRobot == 1)

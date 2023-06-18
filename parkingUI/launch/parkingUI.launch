@@ -10,7 +10,7 @@
   <!-- parkingUI -->
   <node pkg="parkingUI" type="parkingUI" name="parkingUI" output="screen">
     <param name = "robot_num" type="int" value="$(arg robot_num_)" />
-    <param name = "map_path" type="string" value= "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/map/maps/test_map_rotate_90.png" />
+    <param name = "map_path" type="string" value= "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/map/maps/capstone_map.png" />
   </node>
 
   <!-- processmaker -->

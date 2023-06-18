@@ -40,7 +40,7 @@ namespace ui_main
     int count = 0;
     
     // coord frame
-    std::string robot_1_map = "robot_1/map";
+    std::string robot_1_map = "map";
     /////////////////////////////////////////////
     
     // flags
@@ -64,37 +64,37 @@ namespace ui_main
     /////////////////////////////////////////////
 
     // goal, pre_goal, text
-    double one_goal_x = 1.8;
-    double one_goal_y = 1.6;
+    double one_goal_x = 0.85;
+    double one_goal_y = 0.7;
     double one_goal_ox = 0.0;
     double one_goal_oy = 0.0;
-    double one_goal_oz = 0.69862;
-    double one_goal_ow = 0.71548;
+    double one_goal_oz = 0.0;
+    double one_goal_ow = 1.0;
 
-    double one_pre_goal_x = 1.8;
-    double one_pre_goal_y = 1.1;
-    double one_pre_goal_oz = 0.69862;
-    double one_pre_goal_ow = 0.71548;
+    double one_pre_goal_x = 0.85;
+    double one_pre_goal_y = 0.6;
+    double one_pre_goal_oz = 0.0;
+    double one_pre_goal_ow = 0.1;
 
-    double text_first_goal_x = 1.8;
-    double text_first_goal_y = 1.8;
-    double text_first_goal_oz = 0.69862;
-    double text_first_goal_ow = 0.71548;
+    double text_first_goal_x = 0.85;
+    double text_first_goal_y = 0.7;
+    double text_first_goal_oz = 0.0;
+    double text_first_goal_ow = 0.1;
 
-    double two_goal_x = 1.8;
-    double two_goal_y = 0.1;
+    double two_goal_x = 0.85;
+    double two_goal_y = 0.05;
     double two_goal_ox = 0.0;
     double two_goal_oy = 0.0;
     double two_goal_oz = 0.0;
     double two_goal_ow = 1.0;
 
-    double two_pre_goal_x = 1.4;
-    double two_pre_goal_y = 0.1;
+    double two_pre_goal_x = 0.85;
+    double two_pre_goal_y = 0.0;
     double two_pre_goal_oz = 0.0;
     double two_pre_goal_ow = 1.0;
 
-    double text_two_goal_x = 1.8;
-    double text_two_goal_y = 0.3;
+    double text_two_goal_x = 0.85;
+    double text_two_goal_y = 0.1;
     double text_two_goal_oz = 0.0;
     double text_two_goal_ow = 1.0;
     /////////////////////////////////////////////

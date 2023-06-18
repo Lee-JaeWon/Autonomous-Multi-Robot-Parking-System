@@ -13,4 +13,4 @@ int32 j
 int32 k
 ---
 #feedback
-int32[] percent
+int32 percent

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 # import libraries
 import rospy
 import cv2

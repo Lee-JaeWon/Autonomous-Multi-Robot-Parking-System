@@ -86,7 +86,7 @@ public:
     this->trajectory = trajectory_;
     this->trajectory_copy = this->trajectory;
     this->trajectory_length = (int)this->trajectory.poses.size();
-    this->last_index = this->trajectory_length - 1;
+    this->last_index = this->trajectory_length - 20;
 
     // pos & vel
     q_r = (geometry_msgs::Twist *)realloc(q_r, sizeof(geometry_msgs::Twist) * this->trajectory_length);
@@ -158,7 +158,7 @@ public:
 
       }
 
-      q_r[i].linear.x = 0.15;
+      q_r[i].linear.x = 0.2;
     }
 
 
@@ -285,7 +285,7 @@ public:
 
   bool End_trajectory()
   {
-    if (this->last_index == this->target_index && (this->target_index - this->closetIndex < 3))
+     if (this->last_index == this->target_index && (this->target_index - this->closetIndex < 3))
     {
       return true;
     }
@@ -387,4 +387,10 @@ public:
   {
     return this->trajectory;
   }
+   geometry_msgs::Twist End_vel()
+   {
+    desired_robot_vel.linear.x = 0.0;
+    desired_robot_vel.angular.z=0.6;
+    return desired_robot_vel;
+   }
 };

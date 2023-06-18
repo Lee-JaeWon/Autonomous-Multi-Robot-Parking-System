@@ -1,6 +1,7 @@
 # goal
 nav_msgs/Path path
 int32 robotNum
+bool rotation
 ---
 # result
 bool result

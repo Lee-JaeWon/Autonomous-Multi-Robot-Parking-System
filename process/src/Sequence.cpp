@@ -126,6 +126,7 @@ public :
       act1.x = pos.at(0);
       act1.y = pos.at(1);
       act1.orientation = 0.0;
+      act1.rotation = true;
 
       //LiftDown
       parking_msgs::action act2;
@@ -178,6 +179,7 @@ public :
         act1.x = InputSpot.at(0);
         act1.y = InputSpot.at(1);
         act1.orientation = 0.0;
+        act1.rotation = false;
 
         //LiftDown
         parking_msgs::action act2;
@@ -185,6 +187,17 @@ public :
         act2.condition = "NotStart";
         act2.action = "LiftDown";
         act2.parkingLot = 999;
+
+        //Move to parking lot
+        parking_msgs::action act3;
+        act3.number = action_number++;
+        act3.condition = "NotStart";
+        act3.action = "Move";
+        act3.parkingLot = 999;
+        act3.x = InputSpot.at(0);
+        act3.y = InputSpot.at(1);
+        act3.orientation = 0.0;
+        act3.rotation = true;
 
 
         rP.job="Mover";
@@ -196,6 +209,7 @@ public :
         rP.action.push_back(act0);
         rP.action.push_back(act1);
         rP.action.push_back(act2);
+        rP.action.push_back(act3);
 
         mSeq.process.push_back(rP);
 
@@ -228,6 +242,7 @@ public :
         act0.x = PL[i].at(0);
         act0.y = PL[i].at(1);
         act0.orientation = 0.0;
+        act0.rotation = true;
 
         rP.job="Mover";
         rP.condition = "NotStart";
@@ -247,6 +262,26 @@ public :
     }
 
     Seq.miniSequence.push_back(mSeq);
+    std::cout<< "robot list after In: ";
+    for(int i=0;i<8;i++)
+    {
+      std::cout<< " "<<robotList.at(i);
+    }
+    std::cout<<"\n";
+
+    std::cout<< "palette list after In: ";
+    for(int i=0;i<8;i++)
+    {
+      std::cout<< " "<<paletteList.at(i);
+    }
+    std::cout<<"\n";
+
+    std::cout<< "car list after In: ";
+    for(int i=0;i<8;i++)
+    {
+      std::cout<< " "<<carList.at(i);
+    }
+    std::cout<<"\n";
   }
 
   void OrderParkOut(int parkingNum, std::vector<double> pos, std::string carNum)
@@ -272,6 +307,7 @@ public :
         act0.x = pos.at(0);
         act0.y = pos.at(1);
         act0.orientation = 0.0;
+        act0.rotation = true;
 
         //LiftUp
         parking_msgs::action act1;
@@ -285,10 +321,11 @@ public :
         act2.number = action_number++;
         act2.condition = "NotStart";
         act2.action = "Move";
-        act2.parkingLot = parkingNum;
+        act2.parkingLot = 999;
         act2.x = OutputSpot.at(0);
         act2.y = OutputSpot.at(1);
         act2.orientation = 0.0;
+        act2.rotation = false;
 
         //LiftDown
         parking_msgs::action act3;
@@ -298,38 +335,55 @@ public :
         act3.parkingLot = 999;
 
         //Wait
-        //딜레이 몇초 넣어야 할듯?
-
-        //LiftUp
+        //Move to OutputLot
         parking_msgs::action act4;
         act4.number = action_number++;
         act4.condition = "NotStart";
-        act4.action = "LiftUp";
+        act4.action = "Move";
         act4.parkingLot = 999;
+        act4.x = OutputSpot.at(0);
+        act4.y = OutputSpot.at(1);
+        act4.orientation = 0.0;
+        act4.rotation = true;
 
-        //Move back
+        //LiftUp
         parking_msgs::action act5;
         act5.number = action_number++;
         act5.condition = "NotStart";
-        act5.action = "Move";
-        act5.parkingLot = parkingNum;
-        act5.x = pos.at(0);
-        act5.y = pos.at(1);
-        act5.orientation = 0.0;
+        act5.action = "LiftUp";
+        act5.parkingLot = 999;
 
-        //LiftDown
+        //Move back
         parking_msgs::action act6;
         act6.number = action_number++;
         act6.condition = "NotStart";
-        act6.action = "LiftDown";
-        act6.parkingLot = 999;
+        act6.action = "Move";
+        act6.parkingLot = parkingNum;
+        act6.x = pos.at(0);
+        act6.y = pos.at(1);
+        act6.orientation = 0.0;
+        act6.rotation = true;
+
+        //LiftDown
+        parking_msgs::action act7;
+        act7.number = action_number++;
+        act7.condition = "NotStart";
+        act7.action = "LiftDown";
+        act7.parkingLot = 999;
 
         rP.job="ParkOuter";
         rP.condition = "NotStart";
 
-        rP.robotNumber = (robotList.at(robotList.size()-2)-1);
+        rP.robotNumber = (robotList.at(i)-1);
 
         rP.action.push_back(act0);
+        rP.action.push_back(act1);
+        rP.action.push_back(act2);
+        rP.action.push_back(act3);
+        rP.action.push_back(act4);
+        rP.action.push_back(act5);
+        rP.action.push_back(act6);
+        rP.action.push_back(act7);
 
         mSeq.process.push_back(rP);
 
@@ -342,6 +396,27 @@ public :
       }
     }
     Seq.miniSequence.push_back(mSeq);
+
+    std::cout<< "robot list after Out: ";
+    for(int i=0;i<8;i++)
+    {
+      std::cout<< " "<<robotList.at(i);
+    }
+    std::cout<<"\n";
+
+    std::cout<< "palette list after Out: ";
+    for(int i=0;i<8;i++)
+    {
+      std::cout<< " "<<paletteList.at(i);
+    }
+    std::cout<<"\n";
+
+    std::cout<< "car list after Out: ";
+    for(int i=0;i<8;i++)
+    {
+      std::cout<< " "<<carList.at(i);
+    }
+    std::cout<<"\n";
   }
 
   void RemoveProcess()

@@ -1,0 +1,52 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/lee-jaewon/carto_ws/install_isolated/include/**",
+        "/home/lee-jaewon/catkin_ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/lee-jaewon/catkin_ws/src/als_ros/src/als_ros/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/Astar/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/dwa_planner/include/**",
+        "/home/lee-jaewon/catkin_ws/src/DynamixelSDK/ros/dynamixel_sdk/include/**",
+        "/home/lee-jaewon/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_controllers/include/**",
+        "/home/lee-jaewon/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_operators/include/**",
+        "/home/lee-jaewon/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_toolbox/include/**",
+        "/home/lee-jaewon/catkin_ws/src/gmcl/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/mca_pkg/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/obstacle_pkg/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/parkingUI/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/pathTracking/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/process/include/**",
+        "/home/lee-jaewon/catkin_ws/src/ros_qt_format/include/**",
+        "/home/lee-jaewon/catkin_ws/src/template_gui_package/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/test_pkg/include/**",
+        "/home/lee-jaewon/catkin_ws/src/geometry2/tf2/include/**",
+        "/home/lee-jaewon/catkin_ws/src/geometry2/tf2_bullet/include/**",
+        "/home/lee-jaewon/catkin_ws/src/geometry2/tf2_eigen/include/**",
+        "/home/lee-jaewon/catkin_ws/src/geometry2/tf2_geometry_msgs/include/**",
+        "/home/lee-jaewon/catkin_ws/src/geometry2/tf2_kdl/include/**",
+        "/home/lee-jaewon/catkin_ws/src/geometry2/tf2_msgs/include/**",
+        "/home/lee-jaewon/catkin_ws/src/geometry2/tf2_ros/include/**",
+        "/home/lee-jaewon/catkin_ws/src/geometry2/tf2_sensor_msgs/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/turtlebot3_simulations/turtlebot3_fake/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/turtlebot3_simulations/turtlebot3_gazebo/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/turtlebot3/turtlebot3_slam/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/ui_emergency/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/ui_main/include/**",
+        "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/usb_cam/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

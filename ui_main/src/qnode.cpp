@@ -214,7 +214,7 @@ namespace ui_main
 
         geometry_msgs::PoseStamped goal_msg;
 
-        goal_msg.header.frame_id = "robot_1/map";  // 헤더의 프레임 ID 설정
+        goal_msg.header.frame_id = "map";  // 헤더의 프레임 ID 설정
         goal_msg.header.stamp = ros::Time::now();  // 헤더의 타임 스탬프 설정
         goal_msg.pose.position.x = one_pre_goal_x; // 목표 위치의 x 좌표
         goal_msg.pose.position.y = one_pre_goal_y; // 목표 위치의 y 좌표
@@ -236,7 +236,7 @@ namespace ui_main
 
         geometry_msgs::PoseStamped goal_msg_return;
 
-        goal_msg_return.header.frame_id = "robot_1/map"; // 헤더의 프레임 ID 설정
+        goal_msg_return.header.frame_id = "map"; // 헤더의 프레임 ID 설정
         goal_msg_return.header.stamp = ros::Time::now(); // 헤더의 타임 스탬프 설정
         goal_msg_return.pose.position.x = 0.0;           // 목표 위치의 x 좌표
         goal_msg_return.pose.position.y = 0.0;           // 목표 위치의 y 좌표

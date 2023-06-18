@@ -4,29 +4,39 @@ void doneMoveCb(const actionlib::SimpleClientGoalState& state,const parking_msgs
 {
   if(result->sequence)
   {
-    std::cout<<"result is True"<<"\n";
+    std::cout<<"Move result is True"<<"\n";
     int i = result->i;
     int j = result->j;
     int k = result->k;
     int rNum = result->robotNum;
     sequence.SetProcessDone(i, j, k, rNum);
 
-//    parking_msgs::parkingDone msg;
-//    msg.type = sequence.GetSequence().miniSequence[i].order;
-//    msg.job  = sequence.GetSequence().miniSequence[i].process[j].job;
-//    msg.parkinglot = sequence.GetSequence().miniSequence[i].process[j].action[k].parkingLot;
-//    pub_parking_done.publish(msg);
+    parking_msgs::parkingDone msg;
+    msg.type = sequence.GetSequence().miniSequence[i].order;
+    msg.job  = sequence.GetSequence().miniSequence[i].process[j].job;
+    msg.parkinglot = sequence.GetSequence().miniSequence[i].process[j].action[k].parkingLot;
+    pub_parking_done.publish(msg);
   }
   else {
     std::cout<<"result is False"<<"\n";
   }
 }
 
+void activeMoveCb()
+{
+
+}
+
+void feedbackMoveCb(const parking_msgs::parkingOrderFeedbackConstPtr & feedback)
+{
+
+}
+
 void doneLiftCb(const actionlib::SimpleClientGoalState& state,const parking_msgs::liftOrderResultConstPtr &result)
 {
   if(result->sequence)
   {
-    std::cout<<"result is True"<<"\n";
+    std::cout<<"Lift result is True"<<"\n";
     int i = result->i;
     int j = result->j;
     int k = result->k;
@@ -36,6 +46,16 @@ void doneLiftCb(const actionlib::SimpleClientGoalState& state,const parking_msgs
   else {
     std::cout<<"result is False"<<"\n";
   }
+}
+
+void activeLiftCb()
+{
+
+}
+
+void feedbackLiftCb(const parking_msgs::liftOrderFeedbackConstPtr & feedback)
+{
+
 }
 
 bool OrderCallBack(parking_msgs::order::Request &req, parking_msgs::order::Response &res)
@@ -64,6 +84,7 @@ void PubAction(std::vector<int> v)
   int k = v.at(2);
 
   int rNum = seq.miniSequence[i].process[j].robotNumber;
+  ROS_INFO("robot %d", rNum);
 
   std::string type = seq.miniSequence[i].process[j].action[k].action;
 
@@ -80,9 +101,10 @@ void PubAction(std::vector<int> v)
     goal.i = i;
     goal.j = j;
     goal.k = k;
+    goal.rotation = seq.miniSequence[i].process[j].action[k].rotation;
 
     //ac[rNumber]->waitForServer();
-    ac.at(rNum)->sendGoal(goal, &doneMoveCb);
+    ac.at(rNum)->sendGoal(goal, &doneMoveCb, &activeMoveCb, &feedbackMoveCb);
   }
   else if(type=="LiftUp")
   {
@@ -93,7 +115,7 @@ void PubAction(std::vector<int> v)
     goal.j = j;
     goal.k = k;
 
-    acLift.at(rNum)->sendGoal(goal, &doneLiftCb);
+    acLift.at(rNum)->sendGoal(goal, &doneLiftCb, &activeLiftCb, &feedbackLiftCb);
   }
   else if(type=="LiftDown")
   {
@@ -104,13 +126,13 @@ void PubAction(std::vector<int> v)
     goal.j = j;
     goal.k = k;
 
-    acLift.at(rNum)->sendGoal(goal, &doneLiftCb);
+    acLift.at(rNum)->sendGoal(goal, &doneLiftCb, &activeLiftCb, &feedbackLiftCb);
   }
 }
 
 void ReadParkingData(int parkingNum)
 {
-  std::string filePath = "../catkin_ws/src/parkingUI/config/ParkingLotInfo.txt";
+  std::string filePath = "../catkin_ws/src/Autonomous-Multi-Robot-Parking-System/parkingUI/config/ParkingLotInfo.txt";
 
   //std::cout<<filePath<<"\n";
   std::ifstream readfile(filePath);
@@ -214,7 +236,7 @@ int main(int argc, char** argv){
    // Init //
    ParkingData = new ParkingInfo[parkingNum];
    ReadParkingData(parkingNum);
-   robotList = {0,2,3,0,0,0,1,0}; //PL0~7 + InLot + OutLot
+   robotList = {0,3,2,0,0,0,1,0}; //PL0~5 + InLot + OutLot
    paletteList = {false, true, true, true, true, true, true, false};
 
    // Sequence //
