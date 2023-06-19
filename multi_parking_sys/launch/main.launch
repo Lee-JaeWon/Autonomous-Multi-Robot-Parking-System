@@ -21,6 +21,9 @@
     <include file="$(find multi_parking_sys)/launch/multi_amcl.launch">
         <arg name="map_file" value="$(arg map_file)"/>
     </include>
+    
+    <!--  -->
+    <include file="$(find mul_amcl)/launch/start_ekf_localization.launch" />
 
     <!-- Odometry -->
     <include file="$(find multi_parking_sys)/launch/multi_odometry.launch" />
@@ -49,10 +52,12 @@
     <arg name="robot_1_init_x" default="-1.0"/>
     <arg name="robot_1_init_y" default=" 1.5"/>
     <arg name="robot_1_init_a" default=" 0.0"/>
-    <arg name="robot_2_init_x" default="-1.1"/>
+
+    <arg name="robot_2_init_x" default="-1.05"/>
     <arg name="robot_2_init_y" default=" 0.75"/>
     <arg name="robot_2_init_a" default=" 0.0"/>
-    <arg name="robot_3_init_x" default=" 1.25"/>
+
+    <arg name="robot_3_init_x" default=" 1.2"/>
     <arg name="robot_3_init_y" default="-0.34"/>
     <arg name="robot_3_init_a" default="-3.141592"/>
     <node pkg="ui_emergency" type="ui_emergency" name="ui_emergency" output="screen">

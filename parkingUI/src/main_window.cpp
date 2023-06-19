@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file /src/main_window.cpp
  *
  * @brief Implementation for the qt gui.
@@ -17,6 +17,8 @@
 
 #define MAP_RE_WIDTH 1024
 #define MAP_RE_HEIGHT 1024
+#define MAP_GAP 2.61
+//2.56
 
 enum {PARKIN, PARKOUT};
 
@@ -143,8 +145,16 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
       PL[i].setAlignment(Qt::AlignHCenter | Qt::AlignTop);
 
-      if(PL[i].Pdata.GetParkingStatus() == "empty") SetLabelGreen(&PL[i]);
-      else SetLabelRed(&PL[i]);
+      if(PL[i].Pdata.GetParkingStatus() == "empty")
+      {
+        PL[i].SetUnClickable();
+        SetLabelGreen(&PL[i]);
+      }
+      else
+      {
+        PL[i].SetClickable();
+        SetLabelRed(&PL[i]);
+      }
       scene->addWidget(&PL[i]);
 
       connect(&PL[i], &ClickableLabel::clicked, this, &MainWindow::onParkingLabelClicked);
@@ -185,8 +195,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     // Location Scaling
     x = x * MAP_RE_WIDTH / (MAP_WIDTH * MAP_RESOLUTION);
     y = y * MAP_RE_HEIGHT / (MAP_HEIGHT * MAP_RESOLUTION);
-    x += 2.56 / (MAP_WIDTH * MAP_RESOLUTION) * MAP_RE_WIDTH;
-    y += 2.56 / (MAP_HEIGHT * MAP_RESOLUTION) * MAP_RE_HEIGHT;
+    x += MAP_GAP / (MAP_WIDTH * MAP_RESOLUTION) * MAP_RE_WIDTH;
+    y += MAP_GAP / (MAP_HEIGHT * MAP_RESOLUTION) * MAP_RE_HEIGHT;
 
 
     // Draw Point
@@ -204,6 +214,9 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
       {
         if(data->parkinglot<100)
         {
+          PL[data->parkinglot].SetUnClickable();
+          std::cout <<"data->parkinglot: "<<data->parkinglot<<"\n";
+
           //Parking된 공간이므로 이제 빨간색으로 변하게함
           SetLabelRed(parkingLotTarget_label);
           parkingLotTarget_info->SetStatus("full");
@@ -222,23 +235,27 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
     if(data->type == "ParkOut")
     {
-      if(data->job == "Parker")
+      if(data->job == "ParkOuter")
       {
         if(data->parkinglot<100)
         {
-          on_pushButton_ParkOut_clicked();
-//          //출차된 공간이므로 이차제 빨간색으로 변하게함
-//          SetLabelGreen(parkoutLotTarget_label);
-//          parkoutLotTarget_info->SetStatus("empty");
+          //주차공간list에서 현재 출자명령이 들어간 원소 추가
+          EmptyList.push_back(data->parkinglot);
 
-//          //만약 사용자가 Dialog를 보고있다면 실시간으로 변동
-//          newDialog->SetInfo(parkoutLotTarget_info);
-//          newDialog->ParkingOut_done();
 
-//          PL[parkoutLotTarget_info->GetParkingLot()].Pdata=*parkoutLotTarget_info;
-//          qnode.ParkingData[parkoutLotTarget_info->GetParkingLot()] = *parkoutLotTarget_info;
-//          qnode.WriteParkingData();
+          //출차된 공간이므로 이제 빨간색으로 변하게함
+          SetLabelGreen(parkoutLotTarget_label);
+          parkoutLotTarget_info->SetStatus("empty");
+          parkoutLotTarget_info->SetEmptyTime();
+          parkoutLotTarget_info->SetCarNum("");
+          //만약 사용자가 Dialog를 보고있다면 실시간으로 변동
+          newDialog->SetInfo(parkoutLotTarget_info);
+          newDialog->ParkingOut_done();
+          PL[parkoutLotTarget_info->GetParkingLot()].Pdata=*parkoutLotTarget_info;
 
+          qnode.ParkingData[parkoutLotTarget_info->GetParkingLot()] = *parkoutLotTarget_info;
+          qnode.WriteParkingData();
+          ParkingLotInit();
         }
       }
     }
@@ -281,14 +298,14 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
     std::cout<< "Sequence_SLOT In ";
     ui.tableWidget->setColumnCount(8);
-    ui.tableWidget->setColumnWidth(0,150);
-    ui.tableWidget->setColumnWidth(1,150);
-    ui.tableWidget->setColumnWidth(2,150);
-    ui.tableWidget->setColumnWidth(3,150);
-    ui.tableWidget->setColumnWidth(4,150);
-    ui.tableWidget->setColumnWidth(5,150);
-    ui.tableWidget->setColumnWidth(6,150);
-    ui.tableWidget->setColumnWidth(7,150);
+    ui.tableWidget->setColumnWidth(0,100);
+    ui.tableWidget->setColumnWidth(1,75);
+    ui.tableWidget->setColumnWidth(2,75);
+    ui.tableWidget->setColumnWidth(3,75);
+    ui.tableWidget->setColumnWidth(4,75);
+    ui.tableWidget->setColumnWidth(5,75);
+    ui.tableWidget->setColumnWidth(6,75);
+    ui.tableWidget->setColumnWidth(7,75);
 
     for(int i=0;i<seq->miniSequence.size();i++)
     {
@@ -385,6 +402,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
           parkingLotTarget_label = &PL[index];
           parkingLotTarget_info = info;
+          PL[index].Pdata = *info;
           parkingLotTarget = target;
 
           std::cout<<"Published!!! \n";
@@ -396,6 +414,9 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
           //비어있는 주차공간list에서 현재 추자명령이 들어간 원소 삭제
           EmptyList.remove(index);
+
+          std::cout <<"index: "<<index<<"\n";
+          PL[index].SetClickable();
         }
         else
         {
@@ -470,8 +491,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
         SetLabelGray(&PL[index]);
         ParkingOut_NotReady();
 
-        //비어있는 주차공간list에서 현재 추자명령이 들어간 원소 삭제
-        //EmptyList.remove(index);
+//        //비어있는 주차공간list에서 현재 추자명령이 들어간 원소 삭제
+//        EmptyList.push_back(index);
       }
 
     }
@@ -597,10 +618,10 @@ std::vector<double> parkingUI::MainWindow::TransXY(std::vector<double> point)
 {
   std::vector<double> result = point;
 
-  result.at(0) = (-point.at(1)+2.56)*MAP_RE_WIDTH/(MAP_WIDTH * MAP_RESOLUTION);
+  result.at(0) = (-point.at(1)+MAP_GAP)*MAP_RE_WIDTH/(MAP_WIDTH * MAP_RESOLUTION);
   result.at(0) -= PARKING_WIDTH/2;
 
-  result.at(1) = (-point.at(0)+2.56)*MAP_RE_HEIGHT/(MAP_HEIGHT * MAP_RESOLUTION);
+  result.at(1) = (-point.at(0)+MAP_GAP)*MAP_RE_HEIGHT/(MAP_HEIGHT * MAP_RESOLUTION);
   result.at(1) -= PARKING_HEIGHT/2;
 
   return result;
@@ -624,43 +645,67 @@ void parkingUI::MainWindow::SetLabelGray(QLabel* l)
 
 void parkingUI::MainWindow::onParkingLabelClicked(ParkingInfo* info)
 {
-  //선택한 주차공간 채우기
-  openNewWindow(info);
+  std::cout<<info->GetParkingStatus()<<"\n";
+  if(!(info->GetParkingStatus()=="empty"))
+  {
+    //선택한 주차공간 채우기
+    openNewWindow(info);
+  }
+
 }
 
 void parkingUI::MainWindow::on_pushButton_ParkIn_clicked()
 {
   //가장 가까운 주차공간부터 채우기
-  openNewWindow(&qnode.ParkingData[*std::min_element(EmptyList.begin(), EmptyList.end())]);
+  if(!EmptyList.empty())
+  {
+    openNewWindow(&qnode.ParkingData[*std::min_element(EmptyList.begin(), EmptyList.end())]);
+  }
+  else
+  {
+    QMessageBox msgBox;
+    QString str1 = "더이상 주차 가능한 공간이 없습니다";
+
+    msgBox.setWindowTitle("주차불가!");
+    msgBox.setText(str1);
+    msgBox.addButton(QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    int ret = msgBox.exec();
+
+    if (ret == QMessageBox::Ok)
+    {
+        // 확인 버튼이 클릭되었을 때 실행할 코드 작성
+    }
+  }
 }
 
 void parkingUI::MainWindow::on_pushButton_ParkOut_clicked()
 {
-  int y=0;
-  //임시 !!!
-  std::cout<<y<<"\n"; y++;
-  //출차된 공간이므로 이제 빨간색으로 변하게함
-  SetLabelGreen(parkoutLotTarget_label);
-  std::cout<<y<<"\n"; y++;
-  parkoutLotTarget_info->SetStatus("empty");
-  std::cout<<y<<"\n"; y++;
-  parkoutLotTarget_info->SetEmptyTime();
-  std::cout<<y<<"\n"; y++;
-  parkoutLotTarget_info->SetCarNum("");
-  std::cout<<y<<"\n"; y++;
-  //만약 사용자가 Dialog를 보고있다면 실시간으로 변동
-  newDialog->SetInfo(parkoutLotTarget_info);
-  std::cout<<y<<"\n"; y++;
-  newDialog->ParkingOut_done();
-  std::cout<<y<<"\n"; y++;
-  PL[parkoutLotTarget_info->GetParkingLot()].Pdata=*parkoutLotTarget_info;
-  std::cout<<y<<"\n"; y++;
+//  int y=0;
+//  //임시 !!!
+//  std::cout<<y<<"\n"; y++;
+//  //출차된 공간이므로 이제 빨간색으로 변하게함
+//  SetLabelGreen(parkoutLotTarget_label);
+//  std::cout<<y<<"\n"; y++;
+//  parkoutLotTarget_info->SetStatus("empty");
+//  std::cout<<y<<"\n"; y++;
+//  parkoutLotTarget_info->SetEmptyTime();
+//  std::cout<<y<<"\n"; y++;
+//  parkoutLotTarget_info->SetCarNum("");
+//  std::cout<<y<<"\n"; y++;
+//  //만약 사용자가 Dialog를 보고있다면 실시간으로 변동
+//  newDialog->SetInfo(parkoutLotTarget_info);
+//  std::cout<<y<<"\n"; y++;
+//  newDialog->ParkingOut_done();
+//  std::cout<<y<<"\n"; y++;
+//  PL[parkoutLotTarget_info->GetParkingLot()].Pdata=*parkoutLotTarget_info;
+//  std::cout<<y<<"\n"; y++;
 
-  qnode.ParkingData[parkoutLotTarget_info->GetParkingLot()] = *parkoutLotTarget_info;
-  std::cout<<y<<"\n"; y++;
+//  qnode.ParkingData[parkoutLotTarget_info->GetParkingLot()] = *parkoutLotTarget_info;
+//  std::cout<<y<<"\n"; y++;
 
-  qnode.WriteParkingData();
-  std::cout<<y<<"\n"; y++;
-  ParkingLotInit();
-  std::cout<<y<<"\n"; y++;
+//  qnode.WriteParkingData();
+//  std::cout<<y<<"\n"; y++;
+//  ParkingLotInit();
+//  std::cout<<y<<"\n"; y++;
 }

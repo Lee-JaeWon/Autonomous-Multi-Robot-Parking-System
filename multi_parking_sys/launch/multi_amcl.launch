@@ -24,12 +24,17 @@
     <group ns = "$(arg namespace_one)">
         <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
         <node pkg="amcl" type="amcl" name="amcl">
+
+        <!-- <remap from="odom" to="/odometry/filtered"/> -->
+        
             <rosparam file="$(find mul_amcl)/param/amcl_params.yaml" command="load" />
             <param name="initial_pose_x" value="$(arg robot_1_init_x)"/>
             <param name="initial_pose_y" value="$(arg robot_1_init_y)"/>
             <param name="initial_pose_a" value="$(arg robot_1_init_a)"/>
 
+            <!-- <param name="odom_frame_id" value="$(arg namespace_one)/odom"/>-->
             <param name="odom_frame_id" value="$(arg namespace_one)/odom"/>
+
             <param name="base_frame_id" value="$(arg namespace_one)/base_link"/>
             <param name="use_map_topic" value="true"/>
             <!-- <param name="first_map_only" value="true"/> -->

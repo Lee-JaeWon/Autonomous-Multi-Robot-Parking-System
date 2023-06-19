@@ -2,6 +2,8 @@
 geometry_msgs/PoseStamped goal
 int32 robotNum
 bool rotation
+bool priority
+int32 seqNum
 int32 i
 int32 j
 int32 k

@@ -15,7 +15,7 @@
 <arg name="tracker_mode" default="Kanayama"/>
 <!--<arg name="tracker_mode" default="Stanley_PID"/>-->
 
-<!-- Stanley Tracker -->
+<!-- Kanayama Tracker -->
 
 <group if="$(eval tracker_mode == 'Kanayama')">
     <!-- For robot_1 -->
@@ -24,7 +24,7 @@
         <param name="k_x" type="double" value="0.1"/>
         <param name="k_y" type="double" value="8"/>
         <param name="timeStep" type="double" value="0.08"/>
-        <param name="hz" type="int" value="33"/>
+        <param name="hz" type="int" value="100"/>
         <param name="namespace" value="$(arg namespace_one)"/>
         <param name="tracker" type="string" value="Kanayama"/>
     </node>
@@ -35,7 +35,7 @@
         <param name="k_x" type="double" value="0.1"/>
         <param name="k_y" type="double" value="8"/>
         <param name="timeStep" type="double" value="0.08"/>
-        <param name="hz" type="int" value="33"/>
+        <param name="hz" type="int" value="100"/>
         <param name="namespace" value="$(arg namespace_two)"/>
         <param name="tracker" type="string" value="Kanayama"/>
     </node>
@@ -46,7 +46,7 @@
         <param name="k_x" type="double" value="0.1"/>
         <param name="k_y" type="double" value="8"/>
         <param name="timeStep" type="double" value="0.08"/>
-        <param name="hz" type="int" value="33"/>
+        <param name="hz" type="int" value="100"/>
         <param name="namespace" value="$(arg namespace_three)"/>
         <param name="tracker" type="string" value="Kanayama"/>
     </node>

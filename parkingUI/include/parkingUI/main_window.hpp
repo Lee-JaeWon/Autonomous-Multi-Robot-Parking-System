@@ -53,9 +53,20 @@ class ClickableLabel : public QLabel
 public:
     explicit ClickableLabel(QWidget* parent = nullptr) : QLabel(parent) {}
     int index=0;
+    bool clickable;
     void setIndex(int i)
     {
       this->index = i;
+    }
+
+    void SetClickable()
+    {
+      clickable = true;
+    }
+
+    void SetUnClickable()
+    {
+      clickable = false;
     }
 
     void paintEvent(QPaintEvent *event) override
@@ -76,8 +87,11 @@ signals:
 protected:
     void mousePressEvent(QMouseEvent* event) override
     {
+      //if(clickable)
+      //{
         emit clicked(&Pdata);
         QLabel::mousePressEvent(event);
+      //}
     }
 };
 
@@ -174,7 +188,7 @@ public :
       }
       else if(str=="parking")
       {
-        palette.setColor(QPalette::Background, QColor(220,220,220)); // 배경색을 파란색으로 설정
+        palette.setColor(QPalette::Background, QColor(220,220,220)); // 배경색을 회색으로 설정
         this->setPalette(palette);
       }
     }

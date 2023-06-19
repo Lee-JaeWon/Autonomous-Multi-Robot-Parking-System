@@ -101,9 +101,6 @@ public :
     mSeq.order="ParkIn";
     mSeq.SequenceNumber=mini_seq_number++;
 
-
-
-
     //실제 주차하는 로봇
     if(robotList.at(robotList.size()-2)!=0)
     {
@@ -127,6 +124,8 @@ public :
       act1.y = pos.at(1);
       act1.orientation = 0.0;
       act1.rotation = true;
+      act1.seqNum = mSeq.SequenceNumber;
+      act1.priority = true;
 
       //LiftDown
       parking_msgs::action act2;
@@ -180,6 +179,8 @@ public :
         act1.y = InputSpot.at(1);
         act1.orientation = 0.0;
         act1.rotation = false;
+        act1.seqNum = mSeq.SequenceNumber;
+        act1.priority = false;
 
         //LiftDown
         parking_msgs::action act2;
@@ -198,6 +199,9 @@ public :
         act3.y = InputSpot.at(1);
         act3.orientation = 0.0;
         act3.rotation = true;
+        act3.seqNum = mSeq.SequenceNumber;
+        act3.priority = false;
+
 
 
         rP.job="Mover";
@@ -243,6 +247,8 @@ public :
         act0.y = PL[i].at(1);
         act0.orientation = 0.0;
         act0.rotation = true;
+        act0.seqNum = mSeq.SequenceNumber;
+        act0.priority = false;
 
         rP.job="Mover";
         rP.condition = "NotStart";
@@ -291,110 +297,231 @@ public :
     mSeq.order="ParkOut";
     mSeq.SequenceNumber=mini_seq_number++;
 
-    for(int i=carList.size()-3; i>=0; i--)
+    if(robotList.at(parkingNum)!=0)
     {
-      if(paletteList.at(i)==true && robotList.at(i)!=0)
+      parking_msgs::robotProcess rP;
+      int action_number=0;
+
+//      //Move to Target Car
+//      parking_msgs::action act0;
+//      act0.number = action_number++;
+//      act0.condition = "NotStart";
+//      act0.action = "Move";
+//      act0.parkingLot = parkingNum;
+//      act0.x = pos.at(0);
+//      act0.y = pos.at(1);
+//      act0.orientation = 0.0;
+//      act0.rotation = true;
+//      act0.seqNum = mSeq.SequenceNumber;
+//      act0.priority = true;
+
+      //LiftUp
+      parking_msgs::action act1;
+      act1.number = action_number++;
+      act1.condition = "NotStart";
+      act1.action = "LiftUp";
+      act1.parkingLot = 999;
+
+      //Move to OutputLot
+      parking_msgs::action act2;
+      act2.number = action_number++;
+      act2.condition = "NotStart";
+      act2.action = "Move";
+      act2.parkingLot = 999;
+      act2.x = OutputSpot.at(0);
+      act2.y = OutputSpot.at(1);
+      act2.orientation = 0.0;
+      act2.rotation = false;
+      act2.seqNum = mSeq.SequenceNumber;
+      act2.priority = false;
+
+      //LiftDown
+      parking_msgs::action act3;
+      act3.number = action_number++;
+      act3.condition = "NotStart";
+      act3.action = "LiftDown";
+      act3.parkingLot = 999;
+
+      //Wait
+      //Move to OutputLot
+      parking_msgs::action act4;
+      act4.number = action_number++;
+      act4.condition = "NotStart";
+      act4.action = "Move";
+      act4.parkingLot = 999;
+      act4.x = OutputSpot.at(0);
+      act4.y = OutputSpot.at(1);
+      act4.orientation = 0.0;
+      act4.rotation = true;
+      act4.seqNum = mSeq.SequenceNumber;
+      act4.priority = false;
+
+      //LiftUp
+      parking_msgs::action act5;
+      act5.number = action_number++;
+      act5.condition = "NotStart";
+      act5.action = "LiftUp";
+      act5.parkingLot = 999;
+
+      //Move back
+      parking_msgs::action act6;
+      act6.number = action_number++;
+      act6.condition = "NotStart";
+      act6.action = "Move";
+      act6.parkingLot = parkingNum;
+      act6.x = pos.at(0);
+      act6.y = pos.at(1);
+      act6.orientation = 0.0;
+      act6.rotation = true;
+      act6.seqNum = mSeq.SequenceNumber;
+      act6.priority = false;
+
+      //LiftDown
+      parking_msgs::action act7;
+      act7.number = action_number++;
+      act7.condition = "NotStart";
+      act7.action = "LiftDown";
+      act7.parkingLot = 999;
+
+      rP.job="ParkOuter";
+      rP.condition = "NotStart";
+
+      rP.robotNumber = (robotList.at(parkingNum)-1);
+
+      //rP.action.push_back(act0);
+      rP.action.push_back(act1);
+      rP.action.push_back(act2);
+      rP.action.push_back(act3);
+      rP.action.push_back(act4);
+      rP.action.push_back(act5);
+      rP.action.push_back(act6);
+      rP.action.push_back(act7);
+
+      mSeq.process.push_back(rP);
+
+      //List 재구성
+      carList.at(parkingNum)=false;
+
+      //std::swap(robotList[i],robotList[parkingNum]);
+    }
+    else
+    {
+      for(int i=carList.size()-3; i>=0; i--)
       {
-        parking_msgs::robotProcess rP;
-        int action_number=0;
 
-        //Move to Target Car
-        parking_msgs::action act0;
-        act0.number = action_number++;
-        act0.condition = "NotStart";
-        act0.action = "Move";
-        act0.parkingLot = parkingNum;
-        act0.x = pos.at(0);
-        act0.y = pos.at(1);
-        act0.orientation = 0.0;
-        act0.rotation = true;
+        if(paletteList.at(i)==true && robotList.at(i)!=0)
+        {
+          parking_msgs::robotProcess rP;
+          int action_number=0;
 
-        //LiftUp
-        parking_msgs::action act1;
-        act1.number = action_number++;
-        act1.condition = "NotStart";
-        act1.action = "LiftUp";
-        act1.parkingLot = 999;
+          //Move to Target Car
+          parking_msgs::action act0;
+          act0.number = action_number++;
+          act0.condition = "NotStart";
+          act0.action = "Move";
+          act0.parkingLot = parkingNum;
+          act0.x = pos.at(0);
+          act0.y = pos.at(1);
+          act0.orientation = 0.0;
+          act0.rotation = true;
+          act0.seqNum = mSeq.SequenceNumber;
+          act0.priority = true;
 
-        //Move to OutputLot
-        parking_msgs::action act2;
-        act2.number = action_number++;
-        act2.condition = "NotStart";
-        act2.action = "Move";
-        act2.parkingLot = 999;
-        act2.x = OutputSpot.at(0);
-        act2.y = OutputSpot.at(1);
-        act2.orientation = 0.0;
-        act2.rotation = false;
+          //LiftUp
+          parking_msgs::action act1;
+          act1.number = action_number++;
+          act1.condition = "NotStart";
+          act1.action = "LiftUp";
+          act1.parkingLot = 999;
 
-        //LiftDown
-        parking_msgs::action act3;
-        act3.number = action_number++;
-        act3.condition = "NotStart";
-        act3.action = "LiftDown";
-        act3.parkingLot = 999;
+          //Move to OutputLot
+          parking_msgs::action act2;
+          act2.number = action_number++;
+          act2.condition = "NotStart";
+          act2.action = "Move";
+          act2.parkingLot = 999;
+          act2.x = OutputSpot.at(0);
+          act2.y = OutputSpot.at(1);
+          act2.orientation = 0.0;
+          act2.rotation = false;
+          act2.seqNum = mSeq.SequenceNumber;
+          act2.priority = false;
 
-        //Wait
-        //Move to OutputLot
-        parking_msgs::action act4;
-        act4.number = action_number++;
-        act4.condition = "NotStart";
-        act4.action = "Move";
-        act4.parkingLot = 999;
-        act4.x = OutputSpot.at(0);
-        act4.y = OutputSpot.at(1);
-        act4.orientation = 0.0;
-        act4.rotation = true;
+          //LiftDown
+          parking_msgs::action act3;
+          act3.number = action_number++;
+          act3.condition = "NotStart";
+          act3.action = "LiftDown";
+          act3.parkingLot = 999;
 
-        //LiftUp
-        parking_msgs::action act5;
-        act5.number = action_number++;
-        act5.condition = "NotStart";
-        act5.action = "LiftUp";
-        act5.parkingLot = 999;
+          //Wait
+          //Move to OutputLot
+          parking_msgs::action act4;
+          act4.number = action_number++;
+          act4.condition = "NotStart";
+          act4.action = "Move";
+          act4.parkingLot = 999;
+          act4.x = OutputSpot.at(0);
+          act4.y = OutputSpot.at(1);
+          act4.orientation = 0.0;
+          act4.rotation = true;
+          act4.seqNum = mSeq.SequenceNumber;
+          act4.priority = false;
 
-        //Move back
-        parking_msgs::action act6;
-        act6.number = action_number++;
-        act6.condition = "NotStart";
-        act6.action = "Move";
-        act6.parkingLot = parkingNum;
-        act6.x = pos.at(0);
-        act6.y = pos.at(1);
-        act6.orientation = 0.0;
-        act6.rotation = true;
+          //LiftUp
+          parking_msgs::action act5;
+          act5.number = action_number++;
+          act5.condition = "NotStart";
+          act5.action = "LiftUp";
+          act5.parkingLot = 999;
 
-        //LiftDown
-        parking_msgs::action act7;
-        act7.number = action_number++;
-        act7.condition = "NotStart";
-        act7.action = "LiftDown";
-        act7.parkingLot = 999;
+          //Move back
+          parking_msgs::action act6;
+          act6.number = action_number++;
+          act6.condition = "NotStart";
+          act6.action = "Move";
+          act6.parkingLot = parkingNum;
+          act6.x = pos.at(0);
+          act6.y = pos.at(1);
+          act6.orientation = 0.0;
+          act6.rotation = true;
+          act6.seqNum = mSeq.SequenceNumber;
+          act6.priority = false;
 
-        rP.job="ParkOuter";
-        rP.condition = "NotStart";
+          //LiftDown
+          parking_msgs::action act7;
+          act7.number = action_number++;
+          act7.condition = "NotStart";
+          act7.action = "LiftDown";
+          act7.parkingLot = 999;
 
-        rP.robotNumber = (robotList.at(i)-1);
+          rP.job="ParkOuter";
+          rP.condition = "NotStart";
 
-        rP.action.push_back(act0);
-        rP.action.push_back(act1);
-        rP.action.push_back(act2);
-        rP.action.push_back(act3);
-        rP.action.push_back(act4);
-        rP.action.push_back(act5);
-        rP.action.push_back(act6);
-        rP.action.push_back(act7);
+          rP.robotNumber = (robotList.at(i)-1);
 
-        mSeq.process.push_back(rP);
+          rP.action.push_back(act0);
+          rP.action.push_back(act1);
+          rP.action.push_back(act2);
+          rP.action.push_back(act3);
+          rP.action.push_back(act4);
+          rP.action.push_back(act5);
+          rP.action.push_back(act6);
+          rP.action.push_back(act7);
 
-        //List 재구성
-        carList.at(parkingNum)=false;
+          mSeq.process.push_back(rP);
 
-        std::swap(robotList[i],robotList[parkingNum]);
+          //List 재구성
+          carList.at(parkingNum)=false;
 
-        break;
+          std::swap(robotList[i],robotList[parkingNum]);
+
+          break;
+        }
       }
     }
+
+
     Seq.miniSequence.push_back(mSeq);
 
     std::cout<< "robot list after Out: ";

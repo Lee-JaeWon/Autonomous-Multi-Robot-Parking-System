@@ -182,7 +182,7 @@ public:
     this->k_y = k_y_;
     this->k_theta = 2 * sqrt(this->k_y);
     this->timeStep = timeStep_;
-    this->hz = hz_;
+    this->hz = hz_/3;
   }
 
   double return_Dist()
@@ -329,9 +329,9 @@ public:
     error_y = -delta_x * sin(robot_th) + delta_y * cos(robot_th);
     error_theta = delta_theta;
 
-    if (q_r[index].linear.x < 0.2)
+    if (q_r[index].linear.x < 0.1)
     {
-      q_r[index].linear.x = 0.2;
+      q_r[index].linear.x = 0.1;
     }
 
     double linear_vel = q_r[index].linear.x * cos(error_theta) + k_x * error_x;
@@ -361,15 +361,17 @@ public:
       angular_vel = -0.6;
     }
 
-    if (linear_vel >= 0.10)
+    if (linear_vel >= 0.09)
     {
-      linear_vel = 0.10;
+      linear_vel = 0.09;
     }
-    else if (linear_vel <= -0.10)
+    else if (linear_vel <= -0.09)
     {
-      linear_vel = -0.10;
+      linear_vel = -0.09;
     }
 
+//    double rounded_linear_vel = round(linear_vel * 100.0) / 100.0;
+//    double rounded_angular_vel = round(angular_vel * 100.0) / 100.0;
     desired_robot_vel.linear.x = linear_vel;
     desired_robot_vel.angular.z = angular_vel;
     return desired_robot_vel;

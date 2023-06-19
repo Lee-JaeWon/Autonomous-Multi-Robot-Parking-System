@@ -291,7 +291,7 @@ int main(int argc, char **argv)
       cmd_vel.angular.z = 0.0;
       accelerator(cmd_vel);
       pub_vel.publish(ref_vel);
-      // pub_vel_pt.publish(cmd_vel);
+      //pub_vel_pt.publish(cmd_vel);
     }
 
     ros::spinOnce();

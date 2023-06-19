@@ -9,3 +9,5 @@ float32 x
 float32 y
 float32 orientation
 bool rotation
+bool priority
+int32 seqNum

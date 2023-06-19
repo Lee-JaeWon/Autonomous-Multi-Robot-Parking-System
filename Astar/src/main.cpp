@@ -392,6 +392,9 @@
 #include <parking_msgs/parkingOrderAction.h>
 #include <parking_msgs/Planner2TrackerAction.h>
 
+#include <mutex>
+std::mutex resultMutex;
+
 using namespace cv;
 using namespace std;
 
@@ -414,6 +417,10 @@ actionlib::SimpleActionClient<parking_msgs::Planner2TrackerAction> *ac_plan2trac
 actionlib::SimpleActionClient<parking_msgs::Planner2TrackerAction> *ac_plan2track2;
 actionlib::SimpleActionClient<parking_msgs::Planner2TrackerAction> *ac_plan2track3;
 
+vector<actionlib::SimpleActionClient<parking_msgs::Planner2TrackerAction> *> actionList;
+
+vector<parking_msgs::Planner2TrackerGoal> goalList;
+
 // Object
 nav_msgs::OccupancyGrid OccGridMask;
 nav_msgs::Path path;
@@ -431,6 +438,9 @@ vector<Point> R3PathList;
 vector<double> R1PathTime;
 vector<double> R2PathTime;
 vector<double> R3PathTime;
+
+vector<int> seqList;
+
 
 std::string s;
 geometry_msgs::PoseStamped path_point;
@@ -451,11 +461,16 @@ bool odomFlag1;
 bool odomFlag2;
 bool odomFlag3;
 
+bool Priority;
+int seqNumber;
+bool pPass = false;
 bool mapFlag;
 bool targetFlag;
 bool is_parking_order_result_true_one = false;
 bool is_parking_order_result_true_two = false;
 bool is_parking_order_result_true_thr = false;
+
+int seq_done=0;
 
 // Triggers
 
@@ -500,28 +515,34 @@ public:
   // goal을 받아 지정된 액션을 수행
   void executeCB(const parking_msgs::parkingOrderGoalConstPtr &goal)
   {
+    result_.sequence = false;
 
     action_called = true;
     goal_ = *goal;
 
     while (!isSuccess) // action not done = still running
     {
-      feedback_.percent=0;
-      as_.publishFeedback(feedback_);
+      // feedback_.percent=0;
+      // as_.publishFeedback(feedback_);
     }
 
     if (isSuccess) // action done
     {
-      //ROS_INFO("3");
+      // ROS_INFO("3");
       isSuccess = false;
       result_.sequence = true;
       result_.i = goal_.i;
       result_.j = goal_.j;
       result_.k = goal_.k;
+
+      Priority = goal_.priority;
+      seqNumber = goal_.seqNum;
+
       result_.robotNum = goal_.robotNum;
+
       ROS_INFO("%s: Succeeded", action_name_.c_str());
       as_.setSucceeded(result_);
-      result_.sequence = false;
+      ROS_INFO("after setSuc");
     }
   }
 
@@ -617,6 +638,7 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
     ROS_INFO("second path publish");
     if (!pt1.empty())
     {
+        ROS_INFO("1 path not empty");
       for (int i = 0; i < pt2.size(); i++)
       {
         for (int j = 0; j < pt1.size(); j++)
@@ -639,6 +661,8 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
     }
     if (!pt3.empty())
     {
+        ROS_INFO("3 path not empty");
+
       for (int i = 0; i < pt2.size(); i++)
       {
         for (int j = 0; j < pt3.size(); j++)
@@ -665,8 +689,10 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
     else
       return 0.0;
   }
+
   else if (curp == 3)
   {
+
     ROS_INFO("third path publish");
     if (!pt1.empty())
     {
@@ -719,26 +745,6 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
       return 0.0;
   }
 
-  // OccGridParam.Image2MapTransform(R1PathList[R1p], r1pointt);
-  // OccGridParam.Image2MapTransform(R2PathList[R2p], r2pointt);
-
-  // t1.header.frame_id="map";
-  // t1.header.stamp = ros::Time::now();
-  // t1.point.x = r1pointt.x;
-  // t1.point.y = r1pointt.y;
-
-  // t2.header.frame_id="map";
-  // t2.header.stamp = ros::Time::now();
-  // t2.point.x = r2pointt.x;
-  // t2.point.y = r2pointt.y;
-
-  // point_pub1.publish(t1);
-  // point_pub2.publish(t2);
-
-  // ROS_INFO("min dist: %f",minDist);
-  // ROS_INFO("time diff: %lf", (R1PathTime[R1p] - R2PathTime[R2p]) );
-  // ROS_INFO("robot1 time is : %lf ",(R1PathTime[R1p] - R1PathTime[0]));
-  // ROS_INFO("robot2 time is : %lf ",(R2PathTime[R2p] - R2PathTime[0]));
   // return minT;
   return 0;
 }
@@ -810,6 +816,8 @@ void odom3Callback(const nav_msgs::Odometry &msg)
 
 void done_plan_to_track_Cb_one(const actionlib::SimpleClientGoalState &state, const parking_msgs::Planner2TrackerResultConstPtr &result)
 {
+  // 결과(result) 처리를 뮤텍스로 보호
+  std::lock_guard<std::mutex> lock(resultMutex);
   if (result->result)
   {
     // ROS_INFO("3 - result  recieve2");
@@ -820,6 +828,8 @@ void done_plan_to_track_Cb_one(const actionlib::SimpleClientGoalState &state, co
 
 void done_plan_to_track_Cb_two(const actionlib::SimpleClientGoalState &state, const parking_msgs::Planner2TrackerResultConstPtr &result)
 {
+  // 결과(result) 처리를 뮤텍스로 보호
+  std::lock_guard<std::mutex> lock(resultMutex);
   if (result->result)
   {
     // ROS_INFO("3 - result  recieve2");
@@ -830,6 +840,8 @@ void done_plan_to_track_Cb_two(const actionlib::SimpleClientGoalState &state, co
 
 void done_plan_to_track_Cb_thr(const actionlib::SimpleClientGoalState &state, const parking_msgs::Planner2TrackerResultConstPtr &result)
 {
+  // 결과(result) 처리를 뮤텍스로 보호
+  std::lock_guard<std::mutex> lock(resultMutex);
   if (result->result)
   {
     // ROS_INFO("3 - result  recieve2");
@@ -848,7 +860,7 @@ void activeCb()
   ROS_INFO("Goal just went active");
 }
 
-void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int curRobot)
+void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int curRobot, bool priority, int seq)
 {
   double start_time = ros::Time::now().toSec();
   // Start planning path
@@ -882,7 +894,7 @@ void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int 
 
   if (!PathList.empty())
   {
-    ROS_INFO("path_size = %d",PathList.size());
+    ROS_INFO("path_size = %d", PathList.size());
     path.header.stamp = ros::Time::now();
     path.header.frame_id = map_ns;
     path.poses.clear();
@@ -912,62 +924,140 @@ void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int 
     goal.path = path;
     goal.robotNum = goal_.robotNum;
     goal.rotation = goal_.rotation;
-    double minTime = 0.0;
+    seqNumber = seq;
 
-    if (curRobot == 1)
+
+    Priority = priority;
+    // List push
+    if (curRobot == 1) actionList.push_back(ac_plan2track1);
+    if (curRobot == 2) actionList.push_back(ac_plan2track2);
+    if (curRobot == 3) actionList.push_back(ac_plan2track3);
+    goalList.push_back(goal);
+    seqList.push_back(seq);
+
+
+    ROS_INFO("Priority : %d", priority);
+    ROS_INFO("robot num : %d", goal.robotNum);
+    ROS_INFO("robot seq : %d", seq);
+    
+
+    if(priority) seq_done++;
+    if (seq < seq_done)
     {
-      minTime = calc_path_time(R1PathList, R2PathList, R3PathList, 1);
-      
-      path_pub1.publish(path);
-      if (minTime < 0.0 && minTime > -10.0)
-        minTime = 15.0;
-      else if (minTime < -10.0)
-        minTime = 20.0;
-      else if (minTime > 0.0 && minTime < 10.0) minTime = 15.0;
-      for (int t = 0; t < R1PathTime.size(); t++)
-        R1PathTime[t] += minTime;
-      ROS_INFO("Time is : %lf", minTime);
-      ros::Duration(minTime).sleep();
-      ac_plan2track1->sendGoal(goal, &done_plan_to_track_Cb_one, &activeCb, &feedback_plan_to_track_Cb);
+      goal = goalList.back();
+      if(!pPass){
+
+        if (goal.robotNum == 0)
+        {
+          path_pub1.publish(goal.path);
+          actionList.back()->sendGoal(goal, &done_plan_to_track_Cb_one, &activeCb, &feedback_plan_to_track_Cb);
+        }
+        if (goal.robotNum == 1)
+
+        {
+          path_pub2.publish(goal.path);
+          actionList.back()->sendGoal(goal, &done_plan_to_track_Cb_two, &activeCb, &feedback_plan_to_track_Cb);
+        }
+        if (goal.robotNum == 2)
+        {
+          path_pub3.publish(goal.path);
+          actionList.back()->sendGoal(goal, &done_plan_to_track_Cb_thr, &activeCb, &feedback_plan_to_track_Cb);
+        }
+
+        goalList.pop_back();
+        actionList.pop_back();
+        seqList.pop_back();
+        pPass = true;
+        ROS_INFO("pPass is True");
+      }
+
+      pPass = true;
+
+      bool flag = false;
+      while (!actionList.empty()){
+
+            double minTime = 0.0;
+            int idx = 0;
+            for(const auto& action : actionList){
+
+              goal = goalList[idx];
+              int curseq = seqList[idx];
+
+              if (goal.robotNum == 0)
+              {
+                minTime = calc_path_time(R1PathList, R2PathList, R3PathList, 1);
+
+                path_pub1.publish(goal.path);
+                if (minTime < 0.0 && minTime > -10.0)
+                  minTime = 10.0;
+                // else if (minTime < -10.0)
+                //   minTime = 20.0;
+                else if (minTime > 0.0 && minTime < 10.0)
+                  minTime = 15.0;
+                for (int t = 0; t < R1PathTime.size(); t++)
+                  R1PathTime[t] += minTime;
+
+                ROS_INFO("Time is : %lf", minTime);
+                ros::Duration(minTime).sleep();
+                ac_plan2track1->sendGoal(goal, &done_plan_to_track_Cb_one, &activeCb, &feedback_plan_to_track_Cb);
+                flag = true;
+
+              }
+              else if (goal.robotNum == 1 )
+              {
+                minTime = calc_path_time(R1PathList, R2PathList, R3PathList, 2);
+
+                path_pub2.publish(goal.path);
+
+                if (minTime < 0.0 && minTime > -10.0)
+                  minTime = 10.0;
+                // else if (minTime < -10.0)
+                //   minTime = 20.0;
+                else if (minTime > 0.0 && minTime < 10.0)
+                  minTime = 15.0;
+                for (int t = 0; t < R2PathTime.size(); t++)
+                  R2PathTime[t] += minTime;
+
+                ROS_INFO("Time is : %lf", minTime);
+                ros::Duration(minTime).sleep();
+                ac_plan2track2->sendGoal(goal, &done_plan_to_track_Cb_two, &activeCb, &feedback_plan_to_track_Cb);
+                flag = true;
+
+
+              }
+              else if (goal.robotNum == 2 )
+              {
+                minTime = calc_path_time(R1PathList, R2PathList, R3PathList, 3);
+
+                path_pub3.publish(goal.path);
+                if (minTime < 0.0 && minTime > -10.0)
+                  minTime = 10.0;
+                // else if (minTime < -10.0)
+                //   minTime = 20.0;
+                else if (minTime > 0.0 && minTime < 10.0)
+                  minTime = 15.0;
+
+                for (int t = 0; t < R3PathTime.size(); t++)
+                  R3PathTime[t] += minTime;
+
+                ROS_INFO("Time is : %lf", minTime);
+                ros::Duration(minTime).sleep();
+                ac_plan2track3->sendGoal(goal, &done_plan_to_track_Cb_thr, &activeCb, &feedback_plan_to_track_Cb);
+                flag = true;
+              }
+            idx++;
+          }
+        
+          goalList.pop_back();
+          actionList.pop_back();
+          seqList.pop_back();
+          pPass = false;
+          if(!flag) break;
     }
-    else if (curRobot == 2)
-    {
-      minTime = calc_path_time(R1PathList, R2PathList, R3PathList, 2);
 
-      path_pub2.publish(path);
-      
-      if (minTime < 0.0 && minTime > -10.0)
-        minTime = 15.0;
-      else if (minTime < -10.0)
-        minTime = 20.0;
-      else if (minTime > 0.0 && minTime < 10.0) minTime = 15.0;
-      for (int t = 0; t < R2PathTime.size(); t++)
-        R2PathTime[t] += minTime;
-
-      ROS_INFO("Time is : %lf", minTime);
-      ros::Duration(minTime).sleep();
-      ac_plan2track2->sendGoal(goal, &done_plan_to_track_Cb_two, &activeCb, &feedback_plan_to_track_Cb);
-    }
-    else if (curRobot == 3)
-    {
-      minTime = calc_path_time(R1PathList, R2PathList, R3PathList, 3);
-      
-      path_pub3.publish(path);
-      if (minTime < 0.0 && minTime > -10.0)
-        minTime = 15.0;
-      else if (minTime < -10.0)
-        minTime = 20.0;
-      else if (minTime > 0.0 && minTime < 10.0) minTime = 15.0;
-      for (int t = 0; t < R3PathTime.size(); t++)
-        R3PathTime[t] += minTime;
-
-      ROS_INFO("Time is : %lf", minTime);
-      ros::Duration(minTime).sleep();
-      ac_plan2track3->sendGoal(goal, &done_plan_to_track_Cb_thr, &activeCb, &feedback_plan_to_track_Cb);
     }
 
     double end_time = ros::Time::now().toSec();
-
     ROS_INFO("Find a valid path successfully! Use %f s", end_time - start_time);
   }
   else
@@ -1013,6 +1103,7 @@ int main(int argc, char **argv)
   std::string goal_ns = s + "/move_base_simple/goal";
   std::string odom_ns = s + "/odom";
   std::string initpose_ns = s + "/initialpose";
+
   tf::TransformListener listener;
 
   // Subscriber
@@ -1061,7 +1152,8 @@ int main(int argc, char **argv)
     // Call Action Once
 
     if (odomFlag1 && action1.action_called)
-    {
+    { 
+      ROS_INFO("robot 1 action received");
       TargetPointtCallback(action1.getTarget());
 
       tf::StampedTransform transform;
@@ -1079,12 +1171,13 @@ int main(int argc, char **argv)
       Point2d tPoint = Point2d(transform.getOrigin().x(), transform.getOrigin().y());
       OccGridParam.Map2ImageTransform(tPoint, startPoint1);
 
-      publish_path("map", action1.goal_, 1);
+      publish_path("map", action1.goal_, 1, action1.goal_.priority, action1.goal_.seqNum);
       action1.action_called = false;
     }
 
     else if (odomFlag2 && action2.action_called)
-    {
+    { 
+      ROS_INFO("robot 2 action received");
       TargetPointtCallback(action2.getTarget());
       tf::StampedTransform transform;
       try
@@ -1100,12 +1193,14 @@ int main(int argc, char **argv)
       Point2d tPoint = Point2d(transform.getOrigin().x(), transform.getOrigin().y());
       OccGridParam.Map2ImageTransform(tPoint, startPoint2);
 
-      publish_path("map", action2.goal_, 2);
+      publish_path("map", action2.goal_, 2, action2.goal_.priority, action2.goal_.seqNum);
       action2.action_called = false;
     }
 
     else if (odomFlag3 && action3.action_called)
-    {
+
+    { 
+      ROS_INFO("robot 3 action received");
       TargetPointtCallback(action3.getTarget());
 
       tf::StampedTransform transform;
@@ -1123,7 +1218,7 @@ int main(int argc, char **argv)
       Point2d tPoint = Point2d(transform.getOrigin().x(), transform.getOrigin().y());
       OccGridParam.Map2ImageTransform(tPoint, startPoint3);
 
-      publish_path("map", action3.goal_, 3);
+      publish_path("map", action3.goal_, 3, action3.goal_.priority, action3.goal_.seqNum);
       action3.action_called = false;
     }
 

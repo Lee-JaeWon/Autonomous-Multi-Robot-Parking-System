@@ -1,7 +1,11 @@
 #include "process/processmaker.h"
+std::mutex resultMutex;
 
 void doneMoveCb(const actionlib::SimpleClientGoalState& state,const parking_msgs::parkingOrderResultConstPtr &result)
 {
+  // 결과(result) 처리를 뮤텍스로 보호
+    std::lock_guard<std::mutex> lock(resultMutex);
+
   if(result->sequence)
   {
     std::cout<<"Move result is True"<<"\n";
@@ -27,12 +31,12 @@ void activeMoveCb()
 
 }
 
-void feedbackMoveCb(const parking_msgs::parkingOrderFeedbackConstPtr & feedback)
+void feedbackMoveCb(const parking_msgs::parkingOrderFeedbackConstPtr& feedback)
 {
 
 }
 
-void doneLiftCb(const actionlib::SimpleClientGoalState& state,const parking_msgs::liftOrderResultConstPtr &result)
+void doneLiftCb(const actionlib::SimpleClientGoalState& state,const parking_msgs::liftOrderResultConstPtr& result)
 {
   if(result->sequence)
   {
@@ -102,6 +106,8 @@ void PubAction(std::vector<int> v)
     goal.j = j;
     goal.k = k;
     goal.rotation = seq.miniSequence[i].process[j].action[k].rotation;
+    goal.seqNum = seq.miniSequence[i].process[j].action[k].seqNum;
+    goal.priority = seq.miniSequence[i].process[j].action[k].priority;
 
     //ac[rNumber]->waitForServer();
     ac.at(rNum)->sendGoal(goal, &doneMoveCb, &activeMoveCb, &feedbackMoveCb);
@@ -236,7 +242,7 @@ int main(int argc, char** argv){
    // Init //
    ParkingData = new ParkingInfo[parkingNum];
    ReadParkingData(parkingNum);
-   robotList = {0,3,2,0,0,0,1,0}; //PL0~5 + InLot + OutLot
+   robotList = {0,2,3,0,0,0,1,0}; //PL0~5 + InLot + OutLot
    paletteList = {false, true, true, true, true, true, true, false};
 
    // Sequence //
@@ -247,7 +253,8 @@ int main(int argc, char** argv){
 
    //ac.waitForServer();
 
-   ros::Rate rate(30);
+   ros::Rate rate(33);
+   ros::AsyncSpinner(0);
    while (ros::ok()){
 
      //시퀀스변동사항 있으면
@@ -276,13 +283,13 @@ int main(int argc, char** argv){
 
      }
 
-     for(int i=0; i<seq.miniSequence.size();i++)
-     {
-       if(seq.miniSequence[i].condition=="Done")
-       {
-         //sequence.RemoveSequence();
-       }
-     }
+//     for(int i=0; i<seq.miniSequence.size();i++)
+//     {
+//       if(seq.miniSequence[i].condition=="Done")
+//       {
+//         //sequence.RemoveSequence();
+//       }
+//     }
 
      ros::spinOnce();
      rate.sleep();

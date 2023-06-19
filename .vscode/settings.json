@@ -84,5 +84,6 @@
         "codecvt": "cpp",
         "qmainwindow": "cpp"
     },
-    "cmake.sourceDirectory": "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/ui_emergency"
+    "cmake.sourceDirectory": "/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/ui_emergency",
+    "C_Cpp.errorSquiggles": "disabled"
 }

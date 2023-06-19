@@ -10,8 +10,8 @@ class Spline_path:
     def __init__ (self):
 
         rospy.init_node("spline_path")
-        rospy.Subscriber("/robot_1/map",OccupancyGrid,self.MapCB)
-        rospy.Subscriber("/robot_1/global_path",Path,self.PathCB)
+        rospy.Subscriber("/path_map",OccupancyGrid,self.MapCB)
+        rospy.Subscriber("/path",Path,self.PathCB)
         self.path_pub = rospy.Publisher("/spline_path",Path,queue_size=1)
         
                         ### map data ###
@@ -59,22 +59,21 @@ class Spline_path:
         wx.append(mx[-1])
         wy.append(my[-1])
 
-        cx, cy, cyaw, ck, s = cubic_spline_planner.calc_spline_course(wx, wy, ds= 0.1)
+        cx, cy, cyaw, ck, s = cubic_spline_planner.calc_spline_course(wx, wy, ds= 0.9)
         path_msg = Path()
         path_list = []
         path_msg.header.seq = rospy.Time.now()
-        path_msg.header.frame_id = "robot_1/map"
+        path_msg.header.frame_id = "/map"
 
         for idx,(cur_x, cur_y) in enumerate(zip(cx,cy)):
             x,y = self.mapToworld(cur_x , cur_y)
             pose_msg = PoseStamped()
-            pose_msg.header.frame_id = "robot_1/map"
+            pose_msg.header.frame_id = "/map"
             pose_msg.pose.position.x = x
             pose_msg.pose.position.y = y
             path_list.append(pose_msg)
-
+        print(len(path_list))
         path_msg.poses = path_list
-        
         self.path_pub.publish(path_msg)
         print("success")
 
