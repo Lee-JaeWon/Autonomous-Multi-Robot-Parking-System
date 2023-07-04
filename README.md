@@ -19,5 +19,5 @@ Please read the [abstract.md file](./abstract.md) of our study.
 [About_Setting.md](./About_Setting/)
 
 ## Result
-<p align="center"><img src="./gif/parkin.gif" width="500px"></p>  
+<p align="center"><img src="./gif/parkin720.gif" width="500px"></p>  
 <p align="center"> Park In </p>   
