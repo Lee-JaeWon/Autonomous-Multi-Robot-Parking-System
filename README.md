@@ -21,3 +21,5 @@ Please read the [abstract.md file](./abstract.md) of our study.
 ## Result
 <p align="center"><img src="./gif/parkin720.gif" width="500px"></p>  
 <p align="center"> Park In </p>   
+<p align="center"><img src="./gif/parkout720.gif" width="500px"></p>  
+<p align="center"> Park Out </p>   
