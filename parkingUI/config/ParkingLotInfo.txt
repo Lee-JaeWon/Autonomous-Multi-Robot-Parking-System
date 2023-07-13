@@ -1,6 +1,6 @@
-0 full 123가1234 2023 6 20 1 56
-1 empty
-2 empty
-3 empty
-4 empty
+0 full 0 0 0 0 0 1
+0 
+0 
+0 
+0 
 5 empty

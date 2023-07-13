@@ -99,8 +99,8 @@ void accelerator(geometry_msgs::Twist cmd_vel)
 //    ref_vel = cmd_vel;
 //  }
 
-  ref_vel.linear.x = ref_vel.linear.x + (cmd_vel.linear.x - ref_vel.linear.x)/50;
-  ref_vel.angular.z = ref_vel.angular.z + (cmd_vel.linear.z - ref_vel.angular.z)/50;
+  ref_vel.linear.x = ref_vel.linear.x + (cmd_vel.linear.x - ref_vel.linear.x)/20;
+  ref_vel.angular.z = ref_vel.angular.z + (cmd_vel.linear.z - ref_vel.angular.z)/20;
 }
 
 

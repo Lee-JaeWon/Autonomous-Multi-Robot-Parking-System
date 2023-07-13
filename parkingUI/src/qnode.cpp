@@ -94,7 +94,7 @@ bool QNode::init() {
 
   //Client
   client = nh.serviceClient<parking_msgs::order>("service");
-  clientCarNum = nh.serviceClient<parking_msgs::carNum>("carNumSignal");
+  clientCarNum = nh.serviceClient<parking_msgs::carNum>("carNum_srv");
 
   // Data Read & into Class //
   //free(ParkingData);

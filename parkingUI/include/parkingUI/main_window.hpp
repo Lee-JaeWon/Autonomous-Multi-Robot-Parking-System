@@ -496,6 +496,7 @@ public:
   void SetLabelGray(QLabel* l);
 
   std::vector<double> TransXY(std::vector<double> point);
+  std::vector<double> TransXY2(std::vector<double> point);
 
   void ParkingLotInit();
   void InOutLotInit();

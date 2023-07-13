@@ -18,6 +18,7 @@
 #define MAP_RE_WIDTH 1024
 #define MAP_RE_HEIGHT 1024
 #define MAP_GAP 2.61
+#define MAP_GAP_ORI 2.56
 //2.56
 
 enum {PARKIN, PARKOUT};
@@ -65,6 +66,9 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
   //Get parking lot size
   #define PARKING_WIDTH qnode.PL_SIZE.at(0)/0.005    // (length(m) / resolution(0.005)
   #define PARKING_HEIGHT qnode.PL_SIZE.at(1)/0.005
+
+  #define INOUT_WIDTH 0.64/0.005
+  #define INOUT_HEIGHT 0.66/0.005
 
   //Get Map size
   #define MAP_WIDTH map_ori.width()
@@ -140,7 +144,13 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
       QString text = "PL" + QString::number(i);
       PL[i].setText(text);
 
-      std::vector<double> point = TransXY(qnode.PL[i]);
+      std::vector<double> point = TransXY2(qnode.PL[i]);
+      if(i==4 || i==5)
+      {
+        point.at(0) += 10;
+
+      }
+      point.at(1) -= 10;
       PL[i].setGeometry(point.at(0),point.at(1),PARKING_WIDTH,PARKING_HEIGHT);
 
       PL[i].setAlignment(Qt::AlignHCenter | Qt::AlignTop);
@@ -171,7 +181,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     InputLot->setPixmap(pixmap);
     InputLot->setText("Input Lot");
     std::vector<double> point = TransXY(qnode.InputSpot);
-    InputLot->setGeometry(point.at(0),point.at(1),PARKING_WIDTH,PARKING_HEIGHT);
+    point.at(1) += 20;
+    InputLot->setGeometry(point.at(0),point.at(1),INOUT_WIDTH,INOUT_HEIGHT);
     InputLot->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     SetLabelGray(InputLot);
     scene->addWidget(InputLot);
@@ -180,7 +191,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     OutputLot->setPixmap(pixmap);
     OutputLot->setText("Output Lot");
     point = TransXY(qnode.OutputSpot);
-    OutputLot->setGeometry(point.at(0),point.at(1),PARKING_WIDTH,PARKING_HEIGHT);
+    OutputLot->setGeometry(point.at(0),point.at(1),INOUT_WIDTH,INOUT_HEIGHT);
     OutputLot->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     SetLabelGray(OutputLot);
     scene->addWidget(OutputLot);
@@ -214,7 +225,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
       {
         if(data->parkinglot<100)
         {
-          PL[data->parkinglot].SetUnClickable();
+          PL[data->parkinglot].SetClickable();
           std::cout <<"data->parkinglot: "<<data->parkinglot<<"\n";
 
           //Parking된 공간이므로 이제 빨간색으로 변하게함
@@ -255,10 +266,11 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
           qnode.ParkingData[parkoutLotTarget_info->GetParkingLot()] = *parkoutLotTarget_info;
           qnode.WriteParkingData();
-          ParkingLotInit();
+//          ParkingLotInit();
         }
       }
     }
+    ParkingLotInit();
   }
 
   // Callback is current parking mission done
@@ -364,9 +376,9 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     parking_msgs::carNum service;
     service.request.signal=true;
 
-    service.response.carNum = "123가1234";
-    if(isCar)
-    //if(qnode.clientCarNum.call(service))
+    //service.response.carNum = "123가1234";
+    //if(isCar)
+    if(qnode.clientCarNum.call(service))
     {
       QMessageBox msgBox;
       QString str1 = "차량번호가 올바른지 확인해주세요";
@@ -615,6 +627,19 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 }  // namespace parkingUI
 
 std::vector<double> parkingUI::MainWindow::TransXY(std::vector<double> point)
+{
+  std::vector<double> result = point;
+
+  result.at(0) = (-point.at(1)+MAP_GAP_ORI)*MAP_RE_WIDTH/(MAP_WIDTH * MAP_RESOLUTION);
+  result.at(0) -= PARKING_WIDTH/2;
+
+  result.at(1) = (-point.at(0)+MAP_GAP_ORI)*MAP_RE_HEIGHT/(MAP_HEIGHT * MAP_RESOLUTION);
+  result.at(1) -= PARKING_HEIGHT/2;
+
+  return result;
+}
+
+std::vector<double> parkingUI::MainWindow::TransXY2(std::vector<double> point)
 {
   std::vector<double> result = point;
 

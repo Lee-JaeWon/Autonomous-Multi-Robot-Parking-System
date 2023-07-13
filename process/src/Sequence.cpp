@@ -333,7 +333,7 @@ public :
       act2.orientation = 0.0;
       act2.rotation = false;
       act2.seqNum = mSeq.SequenceNumber;
-      act2.priority = false;
+      act2.priority = true;
 
       //LiftDown
       parking_msgs::action act3;

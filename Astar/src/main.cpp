@@ -627,7 +627,7 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
     // ROS_INFO("%f %f",time_diff1 , time_diff2);
     double time_diff = min_(time_diff1, time_diff2);
     ROS_INFO("time_diff : %lf minDist : %f", time_diff, minDist);
-    if (((time_diff > -26.0) && (time_diff) < 15.0) && minDist < 0.3)
+    if (((time_diff > -25.0) && (time_diff) < 20.0) && minDist < 0.3)
       return (time_diff);
     else
       return 0.0;
@@ -684,7 +684,7 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
     double time_diff = min_(time_diff1, time_diff2);
     ROS_INFO("time_diff : %lf minDist : %f", time_diff, minDist);
 
-    if (((time_diff > -26.0) && (time_diff) < 15.0) && minDist < 0.3)
+    if (((time_diff > -25.0) && (time_diff) < 20.0) && minDist < 0.3)
       return (time_diff);
     else
       return 0.0;
@@ -739,7 +739,7 @@ double calc_path_time(vector<Point> pt1, vector<Point> pt2, vector<Point> pt3, i
     }
     double time_diff = min_(time_diff1, time_diff2);
     ROS_INFO("time_diff : %lf minDist : %f", time_diff, minDist);
-    if (((time_diff > -26.0) && (time_diff) < 15.0) && minDist < 0.3)
+    if (((time_diff > -25.0) && (time_diff) < 20.0) && minDist < 0.3)
       return (time_diff);
     else
       return 0.0;
@@ -945,23 +945,28 @@ void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int 
     if (seq < seq_done)
     {
       goal = goalList.back();
-      if(!pPass){
+      if(priority){
 
         if (goal.robotNum == 0)
         {
           path_pub1.publish(goal.path);
           actionList.back()->sendGoal(goal, &done_plan_to_track_Cb_one, &activeCb, &feedback_plan_to_track_Cb);
+          ROS_INFO("priority publish");
         }
         if (goal.robotNum == 1)
 
         {
           path_pub2.publish(goal.path);
           actionList.back()->sendGoal(goal, &done_plan_to_track_Cb_two, &activeCb, &feedback_plan_to_track_Cb);
+          ROS_INFO("priority publish");
+        
         }
         if (goal.robotNum == 2)
         {
           path_pub3.publish(goal.path);
           actionList.back()->sendGoal(goal, &done_plan_to_track_Cb_thr, &activeCb, &feedback_plan_to_track_Cb);
+          ROS_INFO("priority publish");
+        
         }
 
         goalList.pop_back();
@@ -971,7 +976,7 @@ void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int 
         ROS_INFO("pPass is True");
       }
 
-      pPass = true;
+      //pPass = true;
 
       bool flag = false;
       while (!actionList.empty()){
@@ -988,12 +993,12 @@ void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int 
                 minTime = calc_path_time(R1PathList, R2PathList, R3PathList, 1);
 
                 path_pub1.publish(goal.path);
-                if (minTime < 0.0 && minTime > -10.0)
-                  minTime = 10.0;
+                if (minTime < 0.0 && minTime > -25.0)
+                  minTime = 25.0;
                 // else if (minTime < -10.0)
                 //   minTime = 20.0;
-                else if (minTime > 0.0 && minTime < 10.0)
-                  minTime = 15.0;
+                else if (minTime > 0.0 && minTime < 10.0) minTime = 15.0;
+                else if (minTime > 10.0) minTime = 25.0;
                 for (int t = 0; t < R1PathTime.size(); t++)
                   R1PathTime[t] += minTime;
 
@@ -1013,8 +1018,8 @@ void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int 
                   minTime = 10.0;
                 // else if (minTime < -10.0)
                 //   minTime = 20.0;
-                else if (minTime > 0.0 && minTime < 10.0)
-                  minTime = 15.0;
+                else if (minTime > 0.0 && minTime < 10.0) minTime = 15.0;
+                else if (minTime > 10.0) minTime = 25.0;
                 for (int t = 0; t < R2PathTime.size(); t++)
                   R2PathTime[t] += minTime;
 
@@ -1034,12 +1039,9 @@ void publish_path(std::string map_ns, parking_msgs::parkingOrderGoal goal_, int 
                   minTime = 10.0;
                 // else if (minTime < -10.0)
                 //   minTime = 20.0;
-                else if (minTime > 0.0 && minTime < 10.0)
-                  minTime = 15.0;
-
-                for (int t = 0; t < R3PathTime.size(); t++)
-                  R3PathTime[t] += minTime;
-
+                else if (minTime > 0.0 && minTime < 10.0) minTime = 15.0;
+                else if (minTime > 10.0) minTime = 25.0;
+                for (int t = 0; t < R3PathTime.size(); t++) R3PathTime[t] += minTime;
                 ROS_INFO("Time is : %lf", minTime);
                 ros::Duration(minTime).sleep();
                 ac_plan2track3->sendGoal(goal, &done_plan_to_track_Cb_thr, &activeCb, &feedback_plan_to_track_Cb);

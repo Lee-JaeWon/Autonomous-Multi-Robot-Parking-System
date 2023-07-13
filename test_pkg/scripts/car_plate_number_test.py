@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 import pytesseract
 from cv_bridge import CvBridge
 
-plt.style.use('dark_background')
-sys.path.append(os.getcwd())
+
+# sys.path.append(os.getcwd())
 # img = cv2.imread('./images/car_plate_test5.jpg')
-img = cv2.imread('../images/TEST.jpg')
+# img = cv2.imread('/home/hyoseok/catkin_ws/src/test_pkg/images/plz.jpg')
 
 def Detection(data):
     k_cnt = 0
@@ -61,24 +61,18 @@ def find_number(img_ori):
     )
     # 
     # plt.figure(figsize=(12, 10))
-    # plt.imshow(img_thresh, cmap='gray')
-    # plt.show()
 
     #윤곽선
 
     ## 윤곽선 찾기
     contours, _ = cv2.findContours(img_thresh, mode=cv2.RETR_LIST, method=cv2.CHAIN_APPROX_SIMPLE)
 
-    # temp_result = np.zeros((height, width, channel), dtype=np.uint8)
+    temp_result = np.zeros((height, width, channel), dtype=np.uint8)
     # 전체 윤곽선 그리기
     # cv2.drawContours(temp_result, contours=contours, contourIdx=-1, color=(255, 255, 255))
+
     # plt.imshow(temp_result)
     # plt.show()
-
-
-
-
-
         
     # 컨투어의 사각형 범위 찾기
 
@@ -107,7 +101,7 @@ def find_number(img_ori):
 
 
     # MIN_AREA = 100
-    MIN_AREA = 50
+    MIN_AREA = 100
     MAX_AREA = 500
     # MIN_WIDTH, MIN_HEIGHT = 2, 8
     # MIN_WIDTH, MIN_HEIGHT = 10, 40
@@ -133,24 +127,20 @@ def find_number(img_ori):
     # visualize possible contours
     temp_result = np.zeros((height, width, channel), dtype=np.uint8)
 
-    for d in possible_contours:
-    #     cv2.drawContours(temp_result, d['contour'], -1, (255, 255, 255))
-        cv2.rectangle(temp_result, pt1=(d['x'], d['y']), pt2=(d['x']+d['w'], d['y']+d['h']), color=(255, 255, 255), thickness=1)
-
-    # plt.imshow(temp_result)
-    # plt.show()
-
+    # for d in possible_contours:
+    # #     cv2.drawContours(temp_result, d['contour'], -1, (255, 255, 255))
+    #     cv2.rectangle(temp_result, pt1=(d['x'], d['y']), pt2=(d['x']+d['w'], d['y']+d['h']), color=(255, 255, 255), thickness=1)
 
 
 
     # Parameters
-    MAX_DIAG_MULTIPLYER = 10 # 5 ,6  , cx 거리가 윤곽선 대각선 길이의 5배 안으로 있을 때
+    MAX_DIAG_MULTIPLYER = 4 # 5 ,6  , cx 거리가 윤곽선 대각선 길이의 5배 안으로 있을 때
     MAX_ANGLE_DIFF = 20.0 # 12.0 , 45 # cx 아크탄젠트 각도 리미트
     MAX_AREA_DIFF = 1.0# 0.5 면적 차이 
     MAX_WIDTH_DIFF = 1.0 # 0.8 너비 차이
     MAX_HEIGHT_DIFF = 1.0 # 0.2 높이 차이
-    MIN_N_MATCHED = 5 # 3 3개 이상 되어야 번호판 인정
-    MIN_CENTER_DIFF = 20
+    MIN_N_MATCHED = 5# 3 3개 이상 되어야 번호판 인정
+    MIN_CENTER_DIFF = 10
 
     def find_chars(contour_list):
         matched_result_idx = []
@@ -219,17 +209,19 @@ def find_number(img_ori):
     temp_result = np.zeros((height, width, channel), dtype=np.uint8)
 
 
-    for r in matched_result:
-        for d in r:
-    #         cv2.drawContours(temp_result, d['contour'], -1, (255, 255, 255))
-            cv2.rectangle(temp_result, pt1=(d['x'], d['y']), pt2=(d['x']+d['w'], d['y']+d['h']), color=(255, 255, 255), thickness=1)
-            cv2.rectangle(img_ori, pt1=(d['x'], d['y']), pt2=(d['x']+d['w'], d['y']+d['h']), color=(0, 255, 0), thickness=1)
+    # for r in matched_result:
+    #     for d in r:
+    # #         cv2.drawContours(temp_result, d['contour'], -1, (255, 255, 255))
+    #         cv2.rectangle(temp_result, pt1=(d['x'], d['y']), pt2=(d['x']+d['w'], d['y']+d['h']), color=(255, 255, 255), thickness=1)
+    #         cv2.rectangle(img_ori, pt1=(d['x'], d['y']), pt2=(d['x']+d['w'], d['y']+d['h']), color=(0, 255, 0), thickness=1)
             
-#####
+####
     # plt.imshow(temp_result)
+    # plt.show()
+    # print("abc")
     # plt.imshow(img_ori)
     # plt.show()
-
+    # print("abcd")
 
     ############################################################################################################################################
 
@@ -237,12 +229,14 @@ def find_number(img_ori):
 
     PLATE_WIDTH_PADDING = 1.5 # 1.3
     PLATE_HEIGHT_PADDING = 3.0 # 1.5
-    MIN_PLATE_RATIO = 3  
+    MIN_PLATE_RATIO = 1 
     MAX_PLATE_RATIO = 10
+    PADDING = 20
 
     plate_imgs = []
+    plate_ori_imgs =[]
     plate_infos = []
-
+    # print(matched_result)
     for i, matched_chars in enumerate(matched_result):
         sorted_chars = sorted(matched_chars, key=lambda x: x['cx'])
         # cx 순으로 정렬
@@ -269,24 +263,26 @@ def find_number(img_ori):
         rotation_matrix = cv2.getRotationMatrix2D(center=(plate_cx, plate_cy), angle=angle, scale=1.0)
 
         img_rotated = cv2.warpAffine(img_thresh, M=rotation_matrix, dsize=(width, height))
-        # print("회전한 이미지")
-        # plt.imshow(img_rotated)
-        # plt.show()
-        
+        img_rotated2 = cv2.warpAffine(img_ori, M=rotation_matrix, dsize=(width, height))
 
         img_cropped = cv2.getRectSubPix(
             img_rotated, 
             patchSize=(int(plate_width), int(plate_height)), 
             center=(int(plate_cx), int(plate_cy))
         )
-##
-        # plt.imshow(img_cropped,cmap='gray')
-        # plt.show()
-        
+
+        img_cropped2 = cv2.getRectSubPix(
+            img_rotated2, 
+            patchSize=(int(plate_width), int(plate_height)), 
+            center=(int(plate_cx), int(plate_cy))
+        )
+
         if img_cropped.shape[1] / img_cropped.shape[0] < MIN_PLATE_RATIO or img_cropped.shape[1] / img_cropped.shape[0] < MIN_PLATE_RATIO > MAX_PLATE_RATIO:
             continue
-        
+
+
         plate_imgs.append(img_cropped)
+        plate_ori_imgs.append(img_cropped2)
         plate_infos.append({
             'x': int(plate_cx - plate_width / 2),
             'y': int(plate_cy - plate_height / 2),
@@ -298,9 +294,10 @@ def find_number(img_ori):
     #최종확인
     longest_idx, longest_text = -1, 0
     plate_chars = []
-
+    img_lst = []
+    # print(plate_imgs)
     for i, plate_img in enumerate(plate_imgs):
-
+        # print(i)
         plate_img = cv2.resize(plate_img, dsize=(0, 0), fx=1.6, fy=1.6)
         _, plate_img = cv2.threshold(plate_img, thresh=0.0, maxval=255.0, type=cv2.THRESH_BINARY | cv2.THRESH_OTSU)
         contours, _ = cv2.findContours(plate_img, mode=cv2.RETR_LIST, method=cv2.CHAIN_APPROX_SIMPLE)
@@ -329,17 +326,17 @@ def find_number(img_ori):
         # plt.show()
 
         
-        img_result = plate_img[plate_min_y:plate_max_y, plate_min_x:plate_max_x]
+        img_result_ori = plate_img[plate_min_y:plate_max_y, plate_min_x:plate_max_x]
+        temp_img= cv2.resize(plate_ori_imgs[i], dsize=(0, 0), fx=1.6, fy=1.6) 
+        img_original = temp_img[plate_min_y-PADDING:plate_max_y+PADDING, plate_min_x-PADDING:plate_max_x+PADDING]
+
         # print("필터 처리 전")
         # plt.imshow(img_result,cmap='gray')
         # plt.show() 
         
-        img_result = cv2.GaussianBlur(img_result, ksize=(5, 5), sigmaX=0)
+        img_result = cv2.GaussianBlur(img_result_ori, ksize=(5, 5), sigmaX=0)
         _, img_result = cv2.threshold(img_result, thresh=0.0, maxval=255.0, type=cv2.THRESH_BINARY | cv2.THRESH_OTSU)
         img_result = cv2.copyMakeBorder(img_result, top=10, bottom=10, left=10, right=10, borderType=cv2.BORDER_CONSTANT, value=(0,0,0))
-        # print("필터 처리 후")
-        # plt.imshow(img_result,cmap='gray')
-        # plt.show() 
         
         # chars = pytesseract.image_to_string(img_result, lang='kor', config='--psm 7 --oem 0')
         # print('1 : ',chars)
@@ -356,33 +353,25 @@ def find_number(img_ori):
                     has_digit = True
                 result_chars += c
         
-        # print(result_chars)        
+        print(result_chars)        
         plate_chars.append(result_chars)
+        img_lst.append(img_original)
         if has_digit and len(result_chars) > longest_text:
             longest_idx = i
             longest_text = len(result_chars)
 
-#####
+####
         # plt.subplot(len(plate_imgs), 1, i+1)
         # plt.imshow(img_result, cmap = 'gray')
         # plt.show()
         
-    # print("plate number : ",plate_chars[longest_idx])
+    print("plate number : ",plate_chars[longest_idx])
 
     detected = False
-    res = plate_chars[longest_idx]     
+    res = plate_chars[longest_idx]    
+    res_img = img_lst[longest_idx] 
     detected = Detection(res)
-    return res, img_ori,detected
+    return res, res_img,detected
 
+# a,b,c = find_number()
 
-
-# img = cv2.imread('./images/car_plate_test5.jpg')
-img = cv2.imread('/home/lee-jaewon/catkin_ws/src/Autonomous-Multi-Robot-Parking-System/test_pkg/images/car_plate.jpg')
-Number , img ,dect= find_number(img)
-print(Number)
-print(dect)
-
-
-# cv2.imshow("car_number_plate",img)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()

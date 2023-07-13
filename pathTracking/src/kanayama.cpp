@@ -22,7 +22,7 @@ private:
   int hz = 33;
   double timeStep = 0.3; // 0.3sec in a node
   double k_x, k_y, k_theta;
-  int max_trajGap = 20; //2
+  int max_trajGap = 30; //2
 
   // Time
   double nowTime;
@@ -361,13 +361,13 @@ public:
       angular_vel = -0.6;
     }
 
-    if (linear_vel >= 0.09)
+    if (linear_vel >= 0.1)
     {
-      linear_vel = 0.09;
+      linear_vel = 0.1;
     }
-    else if (linear_vel <= -0.09)
+    else if (linear_vel <= -0.1)
     {
-      linear_vel = -0.09;
+      linear_vel = -0.1;
     }
 
 //    double rounded_linear_vel = round(linear_vel * 100.0) / 100.0;

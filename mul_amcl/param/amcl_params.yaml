@@ -1,10 +1,10 @@
 min_particles: 500
 max_particles: 3000
 kld_err: 0.010
-update_min_d: 0.2
-update_min_a: 0.2
+update_min_d: 0.1
+update_min_a: 0.1
 resample_interval: 1
-transform_tolerance: 1.2
+transform_tolerance: 1.5
 recovery_alpha_slow: 0.00
 recovery_alpha_fast: 0.00
 gui_publish_rate: 50.0
