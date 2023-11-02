@@ -16,7 +16,10 @@ Please read the [abstract.md file](./abstract.md) of our study.
 |[Hyoseok Joo](https://github.com/JooHyoSeok)|Global Path Planning, Path Tracking, Collision Avoidance|  
 
 ## About Setting
-[About_Setting.md](./About_Setting/)
+[About_Setting.md](./About_Setting/)<br>
+This is a ROS Noetic environment. We mainly used C++, and we didn't want to use move_base. Except for AMCL packages and motor-related packages(Dynamixel), it was implemented almost manually.  
+There can be various problems to apply recklessly (because it is applied to a robot made by itself). It would be good to carefully examine the code and utilize this repository.  
+It can also be tested purely on simulation. It will be organized and uploaded soon.
 
 ## Result
 <p align="center"><img src="./gif/parkin720.gif" width="500px"></p>  
